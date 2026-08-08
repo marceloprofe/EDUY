@@ -1,6 +1,6 @@
-# RAM DEVs – Plataforma educativa
+# EDUY– Plataforma educativa
 
-Plataforma educativa para cursos asincrónicos de robótica y adquisición de kits y componentes.
+Plataforma educativa para cursos asincrónicos.
 
 ## Equipo
 
