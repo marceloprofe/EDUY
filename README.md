@@ -26,6 +26,6 @@ Plataforma educativa para cursos asincrónicos.
 
 ## Enlaces
 
-- Issues: https://github.com/marceloprofe/ram-devs-plataforma-robotica/issues
-- Milestones: https://github.com/marceloprofe/ram-devs-plataforma-robotica/milestones
-- Ramas: https://github.com/marceloprofe/ram-devs-plataforma-robotica/branches
+- Issues: https://github.com/marceloprofe/EDUY/issues
+- Milestones: https://github.com/marceloprofe/EDUY/milestones
+- Ramas: https://github.com/marceloprofe/EDUY/branches
