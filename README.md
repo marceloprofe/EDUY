@@ -1,4 +1,4 @@
-# RAM DEVs – Plataforma de Robótica
+# RAM DEVs – Plataforma educativa
 
 Plataforma educativa para cursos asincrónicos de robótica y adquisición de kits y componentes.
 
