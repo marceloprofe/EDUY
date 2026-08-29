@@ -18,6 +18,7 @@
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
       <div class="container">
+        <!-- Logo -->
         <a
           class="navbar-brand d-flex align-items-center gap-2"
           href="../index.html"
@@ -30,11 +31,38 @@
           <span>EDUY</span>
         </a>
 
-        <div class="navbar-nav ms-auto">
-          <a class="nav-link" href="../index.html">Inicio</a>
-          <a class="nav-link active" href="./cursos.html">Cursos</a>
-          <a class="nav-link" href="#">Ingresar</a>
-          <a class="nav-link" href="#">Registrarse</a>
+        <!-- Botón hamburguesa -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuPrincipal"
+          aria-controls="menuPrincipal"
+          aria-expanded="false"
+          aria-label="Mostrar navegación"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Enlaces de navegación -->
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Inicio</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link active" href="./cursos.html">Cursos</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#">Ingresar</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="#">Registrarse</a>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -47,15 +75,18 @@
           <li class="breadcrumb-item">
             <a href="../index.html">Inicio</a>
           </li>
+
           <li class="breadcrumb-item">
             <a href="./cursos.html">Cursos</a>
           </li>
+
           <li class="breadcrumb-item active" aria-current="page">
             HTML y CSS
           </li>
         </ol>
       </nav>
 
+      <!-- Presentación del curso -->
       <div class="row g-5 align-items-start">
         <!-- Imagen del curso -->
         <div class="col-lg-6">
@@ -115,17 +146,19 @@
       <!-- Descripción y contenidos -->
       <section class="mt-5">
         <div class="row g-4">
+          <!-- Descripción -->
           <div class="col-lg-8">
             <h2 class="fw-bold">Descripción del curso</h2>
 
             <p>
               Este curso introduce los fundamentos necesarios para construir
               sitios web utilizando HTML y CSS. A través de actividades
-              prácticas, el estudiante aprenderá a organizar contenidos,
-              aplicar estilos y crear diseños adaptables.
+              prácticas, el estudiante aprenderá a organizar contenidos, aplicar
+              estilos y crear diseños adaptables.
             </p>
           </div>
 
+          <!-- Aprendizajes -->
           <div class="col-lg-4">
             <div class="card">
               <div class="card-body">
