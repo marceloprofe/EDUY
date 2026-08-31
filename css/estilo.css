@@ -89,6 +89,62 @@ body {
   text-decoration: underline;
 }
 
+.banner-curso {
+  min-height: 430px;
+  background-color: #020b1f;
+}
+
+.banner-curso > img {
+  width: 100%;
+  height: 430px;
+  object-fit: cover;
+  opacity: 0.42;
+}
+
+.banner-curso-contenido {
+  position: absolute;
+  inset: auto 0 0;
+  padding: clamp(1.5rem, 5vw, 4rem);
+  background: linear-gradient(transparent, rgb(2 11 31 / 95%));
+  color: #fff;
+}
+
+.detalle-breadcrumb .breadcrumb-item,
+.detalle-breadcrumb .breadcrumb-item::before,
+.detalle-breadcrumb a {
+  color: #f8f9fa;
+}
+
+.modulo-curso {
+  border: 0;
+  border-left: 5px solid #50c8ff;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 20%);
+}
+
+.numero-modulo {
+  display: inline-grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background-color: #ffd700;
+  color: #0645ad;
+  font-weight: 800;
+}
+
+.detalle-resumen {
+  top: 1rem;
+  border-top: 5px solid #b8860b;
+}
+
+@media (max-width: 767.98px) {
+  .banner-curso,
+  .banner-curso > img {
+    min-height: 500px;
+    height: 500px;
+  }
+}
+
 .logo-principal {
   width: min(280px, 80vw);
   height: auto;
@@ -97,7 +153,8 @@ body {
 }
 
 .tarjeta-curso {
-  max-width: 36rem;
+  width: min(92%, 64rem);
+  max-width: 64rem;
   overflow: hidden;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
@@ -123,9 +180,21 @@ body {
 }
 
 .tarjeta-curso .card-img-top {
-  height: 280px;
-  object-fit: contain;
+  width: 100%;
+  height: 430px;
+  object-fit: cover;
+  object-position: center;
   background-color: #f8f9fa;
+}
+
+@media (max-width: 767.98px) {
+  .tarjeta-curso {
+    width: 100%;
+  }
+
+  .tarjeta-curso .card-img-top {
+    height: 260px;
+  }
 }
 
 .carrusel-cursos .carousel-control-prev,
