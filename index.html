@@ -8,29 +8,29 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="./img/logo.jpeg" />
-<link rel="stylesheet" href="./css/estilo.css" />
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="./css/estilo.css" />
   </head>
 
   <body>
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
       <div class="container">
-        <!-- Logo -->
+        <!-- Título del sitio -->
         <a
           class="navbar-brand d-flex align-items-center gap-2"
           href="./index.html"
         >
           <img
-            src="./img/logo.jpeg"
+            src="./img/logo.png"
+            class="logo-navbar"
             alt="Logo de EDUY"
-            style="height: 40px; width: auto"
           />
-          <span>EDUY</span>
+          <h1 class="h4 mb-0">Bienvenido a EDUY</h1>
         </a>
 
         <!-- Botón del menú para celulares -->
@@ -58,7 +58,7 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" href="#">Ingresar</a>
+              <a class="nav-link" href="./pages/login.html">Ingresar</a>
             </li>
 
             <li class="nav-item">
@@ -69,23 +69,36 @@
       </div>
     </nav>
 
-    <main class="container py-5">
+    <main class="container pb-5 contenido-principal">
       <!-- Presentación principal -->
       <section class="text-center">
-        <h1 class="display-4 fw-bold">Bienvenido a EDUY</h1>
+        <img
+          src="./img/logo.png"
+          class="logo-principal"
+          alt="Logo de EDUY"
+        />
 
         <p class="lead mt-3">
           Aprende a tu ritmo con cursos pensados para vos.
         </p>
 
-        <a href="./pages/cursos.html" class="btn btn-primary btn-lg mt-3">
+        <a href="./pages/cursos.html" class="btn btn-primary btn-lg mt-3 btn-oro">
           Ver cursos
         </a>
       </section>
 
-      <!-- Carrusel de cursos -->
-      <section class="my-5" aria-label="Cursos destacados">
-        <div id="carruselInicio" class="carousel slide" data-bs-ride="carousel">
+      <!-- Carrusel de tarjetas de cursos -->
+      <section class="my-5" aria-labelledby="tituloCarruselCursos">
+        <h2 id="tituloCarruselCursos" class="text-center mb-4">
+          Explora nuestros cursos
+        </h2>
+
+        <div
+          id="carruselInicio"
+          class="carousel slide carrusel-cursos"
+          data-bs-ride="carousel"
+          data-bs-interval="8000"
+        >
           <!-- Indicadores -->
           <div class="carousel-indicators">
             <button
@@ -94,86 +107,191 @@
               data-bs-slide-to="0"
               class="active"
               aria-current="true"
-              aria-label="HTML y CSS"
+              aria-label="ESP32"
             ></button>
 
             <button
               type="button"
               data-bs-target="#carruselInicio"
               data-bs-slide-to="1"
-              aria-label="JavaScript"
+              aria-label="Raspberry Pi"
             ></button>
 
             <button
               type="button"
               data-bs-target="#carruselInicio"
               data-bs-slide-to="2"
-              aria-label="Git y GitHub"
+              aria-label="Arduino"
+            ></button>
+
+            <button
+              type="button"
+              data-bs-target="#carruselInicio"
+              data-bs-slide-to="3"
+              aria-label="micro:bit"
+            ></button>
+
+            <button
+              type="button"
+              data-bs-target="#carruselInicio"
+              data-bs-slide-to="4"
+              aria-label="HTML y CSS"
+            ></button>
+
+            <button
+              type="button"
+              data-bs-target="#carruselInicio"
+              data-bs-slide-to="5"
+              aria-label="JavaScript"
+            ></button>
+
+            <button
+              type="button"
+              data-bs-target="#carruselInicio"
+              data-bs-slide-to="6"
+              aria-label="Python"
             ></button>
           </div>
 
-          <!-- Contenido del carrusel -->
-          <div class="carousel-inner rounded shadow">
-            <!-- HTML y CSS -->
+          <!-- Tarjetas del carrusel -->
+          <div class="carousel-inner pb-5">
             <div class="carousel-item active">
-              <img
-                src="./img/carrusel_html_css.jpg"
-                class="d-block w-100"
-                style="
-                  height: 360px;
-                  object-fit: contain;
-                  background-color: #f8f9fa;
-                "
-                alt="Curso de HTML y CSS"
-              />
-
-              <div
-                class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-2"
-              >
-                <h2>HTML y CSS</h2>
-                <p>Aprendé a crear páginas web desde cero.</p>
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-esp32-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación y robótica con ESP32"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Programación con ESP32</h3>
+                  <p class="card-text">
+                    Creá proyectos de robótica e IoT con sensores, Wi-Fi y
+                    Bluetooth.
+                  </p>
+                  <a href="./pages/cursos.html#esp32" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
               </div>
             </div>
 
-            <!-- JavaScript -->
             <div class="carousel-item">
-              <img
-                src="./img/carrusel_js.png"
-                class="d-block w-100"
-                style="
-                  height: 360px;
-                  object-fit: contain;
-                  background-color: #f8f9fa;
-                "
-                alt="Curso de JavaScript"
-              />
-
-              <div
-                class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-2"
-              >
-                <h2>JavaScript</h2>
-                <p>Incorporá interactividad a tus proyectos web.</p>
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-raspberry-pi-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación y robótica con Raspberry Pi"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Robótica con Raspberry Pi</h3>
+                  <p class="card-text">
+                    Programá con Python y construí sistemas de automatización y
+                    robots inteligentes.
+                  </p>
+                  <a href="./pages/cursos.html#raspberry-pi" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
               </div>
             </div>
 
-            <!-- Git y GitHub -->
             <div class="carousel-item">
-              <img
-                src="./img/carrusel_github.png"
-                class="d-block w-100"
-                style="
-                  height: 360px;
-                  object-fit: contain;
-                  background-color: #f8f9fa;
-                "
-                alt="Curso de Git y GitHub"
-              />
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-arduino-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación y robótica con Arduino"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Electrónica con Arduino</h3>
+                  <p class="card-text">
+                    Aprendé electrónica, sensores y motores construyendo
+                    proyectos reales.
+                  </p>
+                  <a href="./pages/cursos.html#arduino" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
+              </div>
+            </div>
 
-              <div
-                class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-2"
-              >
-                <h2>Git y GitHub</h2>
-                <p>Aprendé control de versiones y trabajo colaborativo.</p>
+            <div class="carousel-item">
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-microbit-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación y robótica con microbit"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Creación con micro:bit</h3>
+                  <p class="card-text">
+                    Diseñá juegos, experimentos y robots mientras aprendés a
+                    programar.
+                  </p>
+                  <a href="./pages/cursos.html#microbit" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-html-css-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de desarrollo web con HTML y CSS"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Desarrollo con HTML y CSS</h3>
+                  <p class="card-text">
+                    Creá sitios web modernos, accesibles y adaptables a
+                    cualquier pantalla.
+                  </p>
+                  <a href="./pages/cursos.html#html-css" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-javascript-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación con JavaScript"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Programación con JavaScript</h3>
+                  <p class="card-text">
+                    Incorporá lógica, dinamismo e interactividad a tus
+                    aplicaciones web.
+                  </p>
+                  <a href="./pages/cursos.html#javascript" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="card tarjeta-curso mx-auto shadow">
+                <img
+                  src="./img/cursos/curso-python-eduy.png"
+                  class="card-img-top"
+                  alt="Curso de programación con Python"
+                />
+                <div class="card-body text-center">
+                  <h3 class="card-title h4">Programación con Python</h3>
+                  <p class="card-text">
+                    Aprendé programación, automatización y manejo de datos con
+                    proyectos prácticos.
+                  </p>
+                  <a href="./pages/cursos.html#python" class="btn btn-oro">
+                    Ver curso en detalle
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -215,7 +333,7 @@
 
                 <p class="card-text">Aprende a crear páginas web desde cero.</p>
 
-                <a href="./pages/detalle.html" class="btn btn-outline-primary">
+                <a href="./pages/detalle.html" class="btn btn-outline-primary btn-oro">
                   Ver curso
                 </a>
               </div>
@@ -232,7 +350,7 @@
                   Incorpora interactividad a tus proyectos web.
                 </p>
 
-                <a href="#" class="btn btn-outline-primary"> Ver curso </a>
+                <a href="#" class="btn btn-outline-primary btn-oro"> Ver curso </a>
               </div>
             </div>
           </div>
@@ -247,7 +365,7 @@
                   Aprende control de versiones y trabajo colaborativo.
                 </p>
 
-                <a href="#" class="btn btn-outline-primary"> Ver curso </a>
+                <a href="#" class="btn btn-outline-primary btn-oro"> Ver curso </a>
               </div>
             </div>
           </div>
