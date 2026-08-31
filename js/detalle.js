@@ -1,3 +1,12 @@
+/**
+ * Plantilla compartida para las páginas de detalle de los cursos de EDUY.
+ *
+ * Cada archivo HTML de `pages/detalles` indica el curso que debe mostrar con
+ * el atributo `data-curso` del elemento <body>. Este script busca sus datos y
+ * construye la navegación, el banner, los módulos y el resumen del curso.
+ */
+
+// Catálogo central: contiene el contenido específico de cada curso y nivel.
 const cursos = {
   "esp32-basico": {
     titulo: "ESP32: primeros proyectos", nivel: "Básico", imagen: "curso-esp32-eduy.jpg", duracion: "18 horas",
@@ -151,12 +160,17 @@ const cursos = {
   },
 };
 
+// Obtiene la clave declarada en el HTML, por ejemplo: data-curso="esp32-basico".
 const curso = cursos[document.body.dataset.curso];
 
+// Muestra un aviso comprensible si el HTML solicita un curso que no existe.
 if (!curso) {
   document.querySelector("#app").innerHTML = '<main class="container py-5"><div class="alert alert-warning">Curso no encontrado.</div></main>';
 } else {
+  // Actualiza el título de la pestaña con el nombre del curso seleccionado.
   document.title = `${curso.titulo} | EDUY`;
+
+  // Convierte cada módulo del catálogo en una tarjeta numerada de Bootstrap.
   const modulos = curso.modulos.map(([titulo, descripcion], indice) => `
     <article class="modulo-curso card h-100">
       <div class="card-body">
@@ -166,6 +180,7 @@ if (!curso) {
       </div>
     </article>`).join("");
 
+  // Inserta la página completa dentro del contenedor #app del archivo HTML.
   document.querySelector("#app").innerHTML = `
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
@@ -198,7 +213,6 @@ if (!curso) {
       </section>
       <section class="row g-4 mt-4">
         <div class="col-lg-8">
-          <h2 class="fw-bold mb-4">Módulos del curso</h2>
           <div class="row g-4">${modulos}</div>
         </div>
         <aside class="col-lg-4">

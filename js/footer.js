@@ -1,7 +1,18 @@
+/**
+ * Componente compartido del pie de página de EDUY.
+ *
+ * Reemplaza cada elemento con `data-footer-eduy` por el pie completo del sitio.
+ * El atributo `data-raiz` indica cómo llegar a la raíz del proyecto desde la
+ * página actual, permitiendo reutilizar enlaces e imágenes en distintas carpetas.
+ */
+
+// Busca todos los espacios reservados para el pie de página.
 document.querySelectorAll("[data-footer-eduy]").forEach((contenedor) => {
+  // Calcula las rutas relativas; usa la carpeta actual cuando no se especifica.
   const raiz = contenedor.dataset.raiz || ".";
   const paginas = `${raiz}/pages`;
 
+  // Sustituye el espacio reservado por el contenido completo y sus iconos SVG.
   contenedor.outerHTML = `
     <footer class="footer-eduy mt-5">
       <div class="container py-5">
