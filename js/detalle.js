@@ -1,6 +1,6 @@
 const cursos = {
   "esp32-basico": {
-    titulo: "ESP32: primeros proyectos", nivel: "Básico", imagen: "curso-esp32-eduy.png", duracion: "18 horas",
+    titulo: "ESP32: primeros proyectos", nivel: "Básico", imagen: "curso-esp32-eduy.jpg", duracion: "18 horas",
     descripcion: "Una introducción práctica al ESP32 para comprender la placa, programar entradas y salidas y construir prototipos electrónicos conectados.",
     modulos: [
       ["Conociendo el ESP32", "Entorno de desarrollo, arquitectura de la placa, alimentación segura, pines digitales y primer programa."],
@@ -10,7 +10,7 @@ const cursos = {
     ],
   },
   "esp32-avanzado": {
-    titulo: "ESP32: IoT y conectividad", nivel: "Avanzado", imagen: "curso-esp32-eduy.png", duracion: "24 horas",
+    titulo: "ESP32: IoT y conectividad", nivel: "Avanzado", imagen: "curso-esp32-eduy.jpg", duracion: "24 horas",
     descripcion: "Desarrollo de dispositivos IoT capaces de comunicarse, publicar mediciones y responder a órdenes remotas mediante redes inalámbricas.",
     modulos: [
       ["Wi-Fi y Bluetooth", "Configuración de redes, conexión segura, Bluetooth Low Energy y diagnóstico de comunicaciones."],
@@ -20,7 +20,7 @@ const cursos = {
     ],
   },
   "esp32-pro": {
-    titulo: "ESP32: sistemas inteligentes", nivel: "Pro", imagen: "curso-esp32-eduy.png", duracion: "30 horas",
+    titulo: "ESP32: sistemas inteligentes", nivel: "Pro", imagen: "curso-esp32-eduy.jpg", duracion: "30 horas",
     descripcion: "Diseño profesional de soluciones embebidas robustas, seguras, eficientes y preparadas para operar de forma continua.",
     modulos: [
       ["Arquitectura avanzada", "FreeRTOS, tareas, interrupciones, concurrencia, memoria y organización mantenible del firmware."],
@@ -30,7 +30,7 @@ const cursos = {
     ],
   },
   "raspberry-pi-basico": {
-    titulo: "Raspberry Pi: fundamentos", nivel: "Básico", imagen: "curso-raspberry-pi-eduy.png", duracion: "20 horas",
+    titulo: "Raspberry Pi: fundamentos", nivel: "Básico", imagen: "curso-raspberry-pi-eduy.jpg", duracion: "20 horas",
     descripcion: "Aprendizaje inicial de Raspberry Pi, Linux y Python para controlar componentes electrónicos y crear proyectos físicos.",
     modulos: [
       ["Preparación del equipo", "Instalación del sistema, configuración, escritorio, terminal y conexión a la red."],
@@ -40,7 +40,7 @@ const cursos = {
     ],
   },
   "raspberry-pi-avanzado": {
-    titulo: "Raspberry Pi: automatización", nivel: "Avanzado", imagen: "curso-raspberry-pi-eduy.png", duracion: "26 horas",
+    titulo: "Raspberry Pi: automatización", nivel: "Avanzado", imagen: "curso-raspberry-pi-eduy.jpg", duracion: "26 horas",
     descripcion: "Automatización de espacios y procesos mediante Python, cámaras, servicios web, sensores y tareas programadas.",
     modulos: [
       ["Python aplicado", "Entornos virtuales, módulos, manejo de errores, archivos de configuración y registros."],
@@ -50,7 +50,7 @@ const cursos = {
     ],
   },
   "raspberry-pi-pro": {
-    titulo: "Raspberry Pi: robótica avanzada", nivel: "Pro", imagen: "curso-raspberry-pi-eduy.png", duracion: "34 horas",
+    titulo: "Raspberry Pi: robótica avanzada", nivel: "Pro", imagen: "curso-raspberry-pi-eduy.jpg", duracion: "34 horas",
     descripcion: "Integración avanzada de visión artificial, navegación, comunicaciones y control para robots autónomos.",
     modulos: [
       ["Control de movimiento", "Motores, encoders, control PID, fuentes de alimentación y movimiento preciso."],
@@ -60,7 +60,7 @@ const cursos = {
     ],
   },
   "arduino-basico": {
-    titulo: "Arduino: electrónica inicial", nivel: "Básico", imagen: "curso-arduino-eduy.png", duracion: "18 horas",
+    titulo: "Arduino: electrónica inicial", nivel: "Básico", imagen: "curso-arduino-eduy.jpg", duracion: "18 horas",
     descripcion: "Fundamentos de electrónica y programación con Arduino mediante experimentos guiados y circuitos seguros.",
     modulos: [
       ["Electricidad y protoboard", "Voltaje, corriente, resistencia, ley de Ohm y armado correcto de circuitos."],
@@ -70,7 +70,7 @@ const cursos = {
     ],
   },
   "arduino-avanzado": {
-    titulo: "Arduino: robots y sensores", nivel: "Avanzado", imagen: "curso-arduino-eduy.png", duracion: "24 horas",
+    titulo: "Arduino: robots y sensores", nivel: "Avanzado", imagen: "curso-arduino-eduy.jpg", duracion: "24 horas",
     descripcion: "Construcción de robots móviles capaces de medir su entorno, controlar motores y ejecutar comportamientos autónomos.",
     modulos: [
       ["Sensores avanzados", "Ultrasonido, infrarrojos, unidades inerciales, filtrado y calibración de mediciones."],
@@ -80,7 +80,7 @@ const cursos = {
     ],
   },
   "arduino-pro": {
-    titulo: "Arduino: sistemas embebidos", nivel: "Pro", imagen: "curso-arduino-eduy.png", duracion: "30 horas",
+    titulo: "Arduino: sistemas embebidos", nivel: "Pro", imagen: "curso-arduino-eduy.jpg", duracion: "30 horas",
     descripcion: "Diseño de firmware y hardware embebido eficiente, modular y confiable para aplicaciones exigentes.",
     modulos: [
       ["Firmware mantenible", "Máquinas de estado, programación no bloqueante, bibliotecas, eventos y arquitectura modular."],
@@ -90,7 +90,7 @@ const cursos = {
     ],
   },
   "microbit-basico": {
-    titulo: "micro:bit: programación creativa", nivel: "Básico", imagen: "curso-microbit-eduy.png", duracion: "14 horas",
+    titulo: "micro:bit: programación creativa", nivel: "Básico", imagen: "curso-microbit-eduy.jpg", duracion: "14 horas",
     descripcion: "Introducción visual y divertida a la programación mediante animaciones, juegos y experimentos interactivos.",
     modulos: [
       ["Primeros bloques", "Entorno MakeCode, secuencias, eventos, botones y matriz de luces."],
@@ -100,7 +100,7 @@ const cursos = {
     ],
   },
   "microbit-avanzado": {
-    titulo: "micro:bit: robótica y radio", nivel: "Avanzado", imagen: "curso-microbit-eduy.png", duracion: "20 horas",
+    titulo: "micro:bit: robótica y radio", nivel: "Avanzado", imagen: "curso-microbit-eduy.jpg", duracion: "20 horas",
     descripcion: "Programación de robots, motores y redes de placas micro:bit que colaboran mediante comunicación por radio.",
     modulos: [
       ["Pines y extensiones", "Conexión segura de sensores, servos, motores y placas de expansión."],
@@ -110,7 +110,7 @@ const cursos = {
     ],
   },
   "microbit-pro": {
-    titulo: "micro:bit: laboratorio maker", nivel: "Pro", imagen: "curso-microbit-eduy.png", duracion: "26 horas",
+    titulo: "micro:bit: laboratorio maker", nivel: "Pro", imagen: "curso-microbit-eduy.jpg", duracion: "26 horas",
     descripcion: "Creación de experiencias maker completas que combinan código, electrónica, diseño físico e interacción.",
     modulos: [
       ["Python en micro:bit", "MicroPython, módulos, funciones, estructuras de datos y control avanzado de hardware."],
@@ -120,7 +120,7 @@ const cursos = {
     ],
   },
   "html-css": {
-    titulo: "HTML y CSS: desarrollo web", nivel: "Básico", imagen: "curso-html-css-eduy.png", duracion: "22 horas",
+    titulo: "HTML y CSS: desarrollo web", nivel: "Básico", imagen: "curso-html-css-eduy.jpg", duracion: "22 horas",
     descripcion: "Creación de sitios web modernos, semánticos, accesibles y adaptables a computadoras y dispositivos móviles.",
     modulos: [
       ["HTML semántico", "Estructura del documento, contenido, enlaces, imágenes, formularios y etiquetas semánticas."],
@@ -130,7 +130,7 @@ const cursos = {
     ],
   },
   javascript: {
-    titulo: "JavaScript: web interactiva", nivel: "Avanzado", imagen: "curso-javascript-eduy.png", duracion: "28 horas",
+    titulo: "JavaScript: web interactiva", nivel: "Avanzado", imagen: "curso-javascript-eduy.jpg", duracion: "28 horas",
     descripcion: "Programación de experiencias web dinámicas mediante lógica, DOM, eventos, datos remotos y componentes interactivos.",
     modulos: [
       ["Lenguaje JavaScript", "Variables, tipos, funciones, objetos, arreglos, módulos y manejo de errores."],
@@ -140,7 +140,7 @@ const cursos = {
     ],
   },
   python: {
-    titulo: "Python: automatización y datos", nivel: "Pro", imagen: "curso-python-eduy.png", duracion: "32 horas",
+    titulo: "Python: automatización y datos", nivel: "Pro", imagen: "curso-python-eduy.jpg", duracion: "32 horas",
     descripcion: "Desarrollo de programas claros y mantenibles para automatizar tareas, procesar información y generar resultados útiles.",
     modulos: [
       ["Python sólido", "Tipos, funciones, colecciones, comprensión, módulos, excepciones y organización de proyectos."],
