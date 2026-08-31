@@ -153,7 +153,7 @@ body {
 }
 
 .tarjeta-curso {
-  max-width: 64rem;
+  max-width: 36rem;
   overflow: hidden;
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
@@ -176,7 +176,6 @@ body {
 .contenido-principal > .carrusel-cursos,
 .contenido-principal > section[aria-labelledby="tituloCarruselCursos"] {
   order: -1;
-  margin-top: 0 !important;
   width: 92vw;
   max-width: 92vw;
   align-self: center;
@@ -194,16 +193,6 @@ body {
   object-fit: cover;
   object-position: center;
   background-color: #f8f9fa;
-}
-
-@media (max-width: 767.98px) {
-  .tarjeta-curso {
-    width: 100%;
-  }
-
-  .tarjeta-curso .card-img-top {
-    height: 260px;
-  }
 }
 
 .carrusel-cursos .carousel-control-prev,
