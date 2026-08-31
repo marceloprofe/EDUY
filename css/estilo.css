@@ -33,6 +33,154 @@ body {
   color: #212529;
 }
 
+.icono-valor {
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.25rem;
+}
+
+.tarjeta-valor {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tarjeta-valor .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-valor .btn-oro {
+  align-self: flex-start;
+  margin-top: auto;
+  color: #0645ad !important;
+}
+
+.tarjeta-valor .btn-oro:hover,
+.tarjeta-valor .btn-oro:focus {
+  color: #ffd700 !important;
+}
+
+.tarjeta-valor .boton-innovacion,
+.tarjeta-valor .boton-innovacion:hover,
+.tarjeta-valor .boton-innovacion:focus {
+  color: #0645ad !important;
+}
+
+.tarjeta-valor .boton-innovacion:hover,
+.tarjeta-valor .boton-innovacion:focus {
+  background-color: #ffd700;
+}
+
+.tarjeta-valor:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgb(80 200 255 / 70%);
+}
+
+.icono-modal {
+  width: 42px;
+  height: 42px;
+}
+
+.modal-content {
+  color: #212529;
+  border: 0;
+  border-top: 5px solid #b8860b;
+}
+
+.footer-eduy {
+  color: #f8f9fa;
+  background: linear-gradient(to right, #020b1f, #0b2f6b);
+  border-top: 4px solid #b8860b;
+}
+
+.footer-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.footer-titulo {
+  margin-bottom: 1rem;
+  color: #ffd700;
+}
+
+.footer-lista li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-lista a {
+  color: #f8f9fa;
+  text-decoration: none;
+}
+
+.footer-lista a:hover,
+.footer-lista a:focus {
+  color: #ffd700;
+  text-decoration: underline;
+}
+
+.footer-contacto li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.footer-icono {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  fill: #ffd700;
+}
+
+.footer-redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.footer-redes a {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid #ffd700;
+  border-radius: 50%;
+  color: #ffd700;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.footer-redes svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.footer-redes a:hover,
+.footer-redes a:focus {
+  color: #031f4b;
+  background-color: #ffd700;
+  transform: translateY(-3px);
+}
+
+.footer-inferior {
+  background-color: rgb(0 0 0 / 28%);
+  border-top: 1px solid rgb(255 255 255 / 15%);
+}
+
+.seccion-importancia {
+  overflow: hidden;
+  border: 1px solid rgb(255 215 0 / 35%);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgb(3 31 75 / 98%), rgb(11 94 215 / 88%));
+  box-shadow: 0 16px 40px rgb(0 0 0 / 28%);
+}
+
+.contenido-importancia {
+  padding: clamp(2rem, 5vw, 4.5rem);
+  border-left: 6px solid #ffd700;
+  color: #f8f9fa;
+}
+
 .curso-card {
   overflow: hidden;
   transition: transform 180ms ease, box-shadow 180ms ease;

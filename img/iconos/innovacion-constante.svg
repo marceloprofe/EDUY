@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Innovación constante</title>
+  <desc id="desc">Bombilla amarilla con circuitos azules que representa innovación tecnológica.</desc>
+  <defs>
+    <linearGradient id="bombilla" x1="31" y1="18" x2="65" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff3a3"/>
+      <stop offset="1" stop-color="#ffd700"/>
+    </linearGradient>
+  </defs>
+  <circle cx="48" cy="48" r="43" fill="#0b5ed7" opacity=".16"/>
+  <path d="M48 10a30 30 0 0 0-18 54c4 3 6 7 7 12h22c1-5 3-9 7-12A30 30 0 0 0 48 10Z" fill="url(#bombilla)" stroke="#031f4b" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M37 77h22M39 84h18M44 90h8" fill="none" stroke="#031f4b" stroke-width="5" stroke-linecap="round"/>
+  <path d="M48 25v27M35 34h8v8h10v-8h8M28 48h10M58 48h10" fill="none" stroke="#0b5ed7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="28" cy="48" r="3" fill="#031f4b"/>
+  <circle cx="68" cy="48" r="3" fill="#031f4b"/>
+</svg>
