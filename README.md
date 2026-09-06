@@ -1,19 +1,18 @@
-# Documentación inicial del proyecto EDUY
+# EDUY – Plataforma Educativa
 
 ## 1. Descripción del proyecto
 
-EDUY es una plataforma educativa orientada a facilitar el acceso a cursos y materiales de aprendizaje. Contará con diferentes roles de usuario y permitirá navegar por un catálogo de cursos, consultar información y realizar compras o inscripciones.
+EDUY es una plataforma educativa orientada a facilitar el acceso a cursos y materiales de aprendizaje. Permite explorar un catálogo de cursos, consultar sus detalles y localizar propuestas según el nombre, el tema o el nivel.
 
 ## 2. Pantallas principales
 
-El prototipo inicial incluye las siguientes pantallas:
+Actualmente, el proyecto incluye:
 
-- Inicio.
-- Autenticación: inicio de sesión y registro.
+- Página de inicio.
 - Catálogo de cursos.
-- Detalle de un curso.
-- Compra o inscripción.
-- Panel según el rol del usuario.
+- Detalle de los cursos.
+- Inicio de sesión.
+- Navegación adaptable para computadoras y dispositivos móviles.
 
 ## 3. Navegación
 
@@ -21,39 +20,35 @@ La barra de navegación permite acceder a las principales secciones de la plataf
 
 Flujo principal:
 
-Inicio → Catálogo → Detalle del curso → Compra o inscripción
+Inicio → Cursos → Detalle del curso
 
-Para utilizar funciones personalizadas:
+La página de Inicio también incorpora una lupa que abre una ventana de búsqueda rápida.
 
-Inicio → Iniciar sesión → Panel correspondiente al rol
+## 4. Búsqueda y filtros de cursos
 
-## 4. Arquitectura inicial
+El catálogo incorpora las siguientes funcionalidades:
 
-La plataforma tendrá una arquitectura dividida en las siguientes partes:
+- Búsqueda por nombre, tema o contenido del curso.
+- Filtro por nivel:
+  - Básico.
+  - Intermedio.
+  - Avanzado.
+- Contador de cursos encontrados.
+- Botón para limpiar los filtros.
+- Búsqueda rápida desde la lupa ubicada en la navegación de Inicio.
+- Envío automático de la búsqueda desde Inicio hacia el catálogo de cursos.
 
-### Frontend
+Estas funciones fueron desarrolladas con JavaScript y funcionan sin recargar la página durante el filtrado del catálogo.
 
-Es la parte visible para el usuario.
+## 5. Tecnologías utilizadas
 
-Tecnologías utilizadas:
-
-- HTML.
-- CSS.
+- HTML5.
+- CSS3.
 - Bootstrap.
 - JavaScript.
+- Git y GitHub.
 
-### Servicios y almacenamiento
-
-En una etapa posterior se utilizará Firebase para:
-
-- Autenticación de usuarios.
-- Almacenamiento de información.
-- Gestión de cursos.
-- Registro de compras o inscripciones.
-
-La integración con Firebase está prevista para el Sprint 2.
-
-## 5. Organización de carpetas
+## 6. Organización de carpetas
 
 ```text
 EDUY/
@@ -61,11 +56,12 @@ EDUY/
 ├── pages/
 │   ├── cursos.html
 │   ├── login.html
-│   ├── registro.html
-│   └── compra.html
+│   └── detalles/
 ├── css/
-│   └── styles.css
+│   └── estilo.css
 ├── js/
-│   └── script.js
-└── img/
-    └── imágenes del proyecto
+│   ├── detalle.js
+│   ├── filtros.js
+│   └── footer.js
+├── img/
+└── README.md
