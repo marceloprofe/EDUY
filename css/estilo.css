@@ -41,7 +41,9 @@ body {
 }
 
 .tarjeta-valor {
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .tarjeta-valor .card-body {
@@ -146,7 +148,10 @@ body {
   border: 2px solid #ffd700;
   border-radius: 50%;
   color: #ffd700;
-  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
 
 .footer-redes svg {
@@ -183,7 +188,9 @@ body {
 
 .curso-card {
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .curso-card:hover {
@@ -200,11 +207,11 @@ body {
   background-color: #198754;
 }
 
-.nivel-avanzado {
+.nivel-intermedio {
   background-color: #0d6efd;
 }
 
-.nivel-pro {
+.nivel-avanzado {
   background-color: #6f42c1;
 }
 
@@ -304,7 +311,9 @@ body {
 .tarjeta-curso {
   max-width: 36rem;
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .carrusel-cursos .tarjeta-curso {
@@ -394,4 +403,97 @@ body {
 .btn-oro:active {
   box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
   transform: translateY(0);
+}
+
+/* Buscador y filtros de cursos */
+
+.filtros-cursos {
+  color: #f8f9fa;
+  background: linear-gradient(135deg, rgb(3 31 75 / 98%), rgb(11 94 215 / 88%));
+  border: 1px solid rgb(255 215 0 / 45%);
+  border-left: 6px solid #ffd700;
+  border-radius: 1rem;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 28%);
+}
+
+.filtros-cursos h2 {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.filtros-cursos .form-label {
+  color: #f8f9fa;
+  font-weight: 600;
+}
+
+.filtros-cursos .form-control,
+.filtros-cursos .form-select {
+  color: #212529;
+  background-color: #fff;
+  border: 2px solid transparent;
+}
+
+.filtros-cursos .form-control:focus,
+.filtros-cursos .form-select:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 0 0.25rem rgb(255 215 0 / 25%);
+}
+
+.filtros-cursos .btn-oro {
+  min-height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+}
+
+#resultadoFiltros {
+  color: #f8f9fa;
+}
+
+.buscador-inicio {
+  max-width: 52rem;
+  margin-inline: auto;
+  padding: 1rem 1.25rem;
+  color: #f8f9fa;
+  background: linear-gradient(135deg, #031f4b, #0b5ed7);
+  border: 1px solid rgb(255 215 0 / 45%);
+  border-left: 6px solid #ffd700;
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 25%);
+}
+
+.buscador-inicio .form-label {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.buscador-inicio .form-control {
+  border: 2px solid #b8860b;
+}
+
+.buscador-inicio .form-control:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 0 0.25rem rgb(255 215 0 / 25%);
+}
+/* Lupa del menú de navegación */
+
+.boton-busqueda-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.65rem;
+  color: #fff !important;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.icono-busqueda {
+  display: block;
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: currentColor;
+}
+
+.boton-busqueda-nav:hover,
+.boton-busqueda-nav:focus {
+  color: #ffd700 !important;
 }

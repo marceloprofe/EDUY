@@ -23,11 +23,7 @@
           class="navbar-brand d-flex align-items-center gap-2"
           href="../index.html"
         >
-          <img
-            src="../img/logo.png"
-            class="logo-navbar"
-            alt="Logo de EDUY"
-          />
+          <img src="../img/logo.png" class="logo-navbar" alt="Logo de EDUY" />
           <h1 class="h4 mb-0">Bienvenido a EDUY</h1>
         </a>
 
@@ -72,38 +68,111 @@
         </p>
       </div>
 
-      <div class="row g-4">
+      <!-- Buscador y filtros de cursos -->
+      <section class="filtros-cursos p-4 mb-4" aria-labelledby="tituloFiltros">
+        <h2 id="tituloFiltros" class="h5 mb-3">Buscar cursos</h2>
+
+        <div class="row g-3 align-items-end">
+          <div class="col-md-7">
+            <label for="buscarCurso" class="form-label"> Nombre o tema </label>
+            <input
+              type="search"
+              id="buscarCurso"
+              class="form-control"
+              placeholder="Ejemplo: Arduino, Python o robótica"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <label for="filtroNivel" class="form-label"> Nivel </label>
+            <select id="filtroNivel" class="form-select">
+              <option value="">Todos los niveles</option>
+              <option value="basico">Básico</option>
+              <option value="intermedio">Intermedio</option>
+              <option value="avanzado">Avanzado</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 d-grid">
+            <button
+              type="button"
+              id="limpiarFiltros"
+              class="btn btn-oro">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <p id="resultadoFiltros" class="small mt-3 mb-0" aria-live="polite">
+          Mostrando todos los cursos.
+        </p>
+      </section>
+
+      <div id="listaCursos" class="row g-4">
         <!-- ESP32 -->
         <div class="col-md-6 col-xl-4">
           <article id="esp32" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-esp32-eduy.jpg" class="card-img-top" alt="Curso de ESP32 de EDUY" />
+            <img
+              src="../img/cursos/curso-esp32-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de ESP32 de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-basico align-self-start mb-2">Básico</span>
+              <span class="badge nivel-basico align-self-start mb-2"
+                >Básico</span
+              >
               <h2 class="card-title h5">ESP32: primeros proyectos</h2>
-              <p class="card-text">Conocé la placa, sus pines y la programación de sensores y luces.</p>
-              <a href="./detalles/esp32-basico.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Conocé la placa, sus pines y la programación de sensores y
+                luces.
+              </p>
+              <a href="./detalles/esp32-basico.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
         <div class="col-md-6 col-xl-4">
           <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-esp32-eduy.jpg" class="card-img-top" alt="Curso avanzado de ESP32 de EDUY" />
+            <img
+              src="../img/cursos/curso-esp32-eduy.jpg"
+              class="card-img-top"
+              alt="Curso intermedio de ESP32 de EDUY"
+            />
+            <div class="card-body d-flex flex-column">
+              <span class="badge nivel-intermedio align-self-start mb-2"
+                >Intermedio</span
+              >
+              <h2 class="card-title h5">ESP32: IoT y conectividad</h2>
+              <p class="card-text">
+                Conectá dispositivos por Wi-Fi y Bluetooth y enviá datos en
+                tiempo real.
+              </p>
+              <a
+                href="./detalles/esp32-avanzado.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
+            </div>
+          </article>
+        </div>
+        <div class="col-md-6 col-xl-4">
+          <article class="card h-100 curso-card">
+            <img
+              src="../img/cursos/curso-esp32-eduy.jpg"
+              class="card-img-top"
+              alt="Curso avanzado de ESP32 de EDUY"
+            />
             <div class="card-body d-flex flex-column">
               <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
-              <h2 class="card-title h5">ESP32: IoT y conectividad</h2>
-              <p class="card-text">Conectá dispositivos por Wi-Fi y Bluetooth y enviá datos en tiempo real.</p>
-              <a href="./detalles/esp32-avanzado.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
-            </div>
-          </article>
-        </div>
-        <div class="col-md-6 col-xl-4">
-          <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-esp32-eduy.jpg" class="card-img-top" alt="Curso profesional de ESP32 de EDUY" />
-            <div class="card-body d-flex flex-column">
-              <span class="badge nivel-pro align-self-start mb-2">Pro</span>
               <h2 class="card-title h5">ESP32: sistemas inteligentes</h2>
-              <p class="card-text">Desarrollá soluciones IoT completas, seguras y listas para producción.</p>
-              <a href="./detalles/esp32-pro.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Desarrollá soluciones IoT completas, seguras y listas para
+                producción.
+              </p>
+              <a href="./detalles/esp32-pro.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
@@ -111,34 +180,69 @@
         <!-- Raspberry Pi -->
         <div class="col-md-6 col-xl-4">
           <article id="raspberry-pi" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-raspberry-pi-eduy.jpg" class="card-img-top" alt="Curso de Raspberry Pi de EDUY" />
+            <img
+              src="../img/cursos/curso-raspberry-pi-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de Raspberry Pi de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-basico align-self-start mb-2">Básico</span>
+              <span class="badge nivel-basico align-self-start mb-2"
+                >Básico</span
+              >
               <h2 class="card-title h5">Raspberry Pi: fundamentos</h2>
-              <p class="card-text">Instalá el sistema, aprendé Linux y controlá tus primeros componentes.</p>
-              <a href="./detalles/raspberry-pi-basico.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Instalá el sistema, aprendé Linux y controlá tus primeros
+                componentes.
+              </p>
+              <a
+                href="./detalles/raspberry-pi-basico.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
         <div class="col-md-6 col-xl-4">
           <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-raspberry-pi-eduy.jpg" class="card-img-top" alt="Curso avanzado de Raspberry Pi de EDUY" />
+            <img
+              src="../img/cursos/curso-raspberry-pi-eduy.jpg"
+              class="card-img-top"
+              alt="Curso intermedio de Raspberry Pi de EDUY"
+            />
+            <div class="card-body d-flex flex-column">
+              <span class="badge nivel-intermedio align-self-start mb-2"
+                >Intermedio</span
+              >
+              <h2 class="card-title h5">Raspberry Pi: automatización</h2>
+              <p class="card-text">
+                Programá con Python, cámaras, sensores y servicios conectados.
+              </p>
+              <a
+                href="./detalles/raspberry-pi-avanzado.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
+            </div>
+          </article>
+        </div>
+        <div class="col-md-6 col-xl-4">
+          <article class="card h-100 curso-card">
+            <img
+              src="../img/cursos/curso-raspberry-pi-eduy.jpg"
+              class="card-img-top"
+              alt="Curso avanzado de Raspberry Pi de EDUY"
+            />
             <div class="card-body d-flex flex-column">
               <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
-              <h2 class="card-title h5">Raspberry Pi: automatización</h2>
-              <p class="card-text">Programá con Python, cámaras, sensores y servicios conectados.</p>
-              <a href="./detalles/raspberry-pi-avanzado.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
-            </div>
-          </article>
-        </div>
-        <div class="col-md-6 col-xl-4">
-          <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-raspberry-pi-eduy.jpg" class="card-img-top" alt="Curso profesional de Raspberry Pi de EDUY" />
-            <div class="card-body d-flex flex-column">
-              <span class="badge nivel-pro align-self-start mb-2">Pro</span>
               <h2 class="card-title h5">Raspberry Pi: robótica avanzada</h2>
-              <p class="card-text">Integrá visión artificial, APIs y control autónomo de robots.</p>
-              <a href="./detalles/raspberry-pi-pro.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Integrá visión artificial, APIs y control autónomo de robots.
+              </p>
+              <a
+                href="./detalles/raspberry-pi-pro.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
@@ -146,34 +250,68 @@
         <!-- Arduino -->
         <div class="col-md-6 col-xl-4">
           <article id="arduino" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-arduino-eduy.jpg" class="card-img-top" alt="Curso de Arduino de EDUY" />
+            <img
+              src="../img/cursos/curso-arduino-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de Arduino de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-basico align-self-start mb-2">Básico</span>
+              <span class="badge nivel-basico align-self-start mb-2"
+                >Básico</span
+              >
               <h2 class="card-title h5">Arduino: electrónica inicial</h2>
-              <p class="card-text">Aprendé circuitos, entradas, salidas y programación desde cero.</p>
-              <a href="./detalles/arduino-basico.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Aprendé circuitos, entradas, salidas y programación desde cero.
+              </p>
+              <a
+                href="./detalles/arduino-basico.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
         <div class="col-md-6 col-xl-4">
           <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-arduino-eduy.jpg" class="card-img-top" alt="Curso avanzado de Arduino de EDUY" />
+            <img
+              src="../img/cursos/curso-arduino-eduy.jpg"
+              class="card-img-top"
+              alt="Curso intermedio de Arduino de EDUY"
+            />
+            <div class="card-body d-flex flex-column">
+              <span class="badge nivel-intermedio align-self-start mb-2"
+                >Intermedio</span
+              >
+              <h2 class="card-title h5">Arduino: robots y sensores</h2>
+              <p class="card-text">
+                Construí robots móviles con motores, sensores y comunicación
+                inalámbrica.
+              </p>
+              <a
+                href="./detalles/arduino-avanzado.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
+            </div>
+          </article>
+        </div>
+        <div class="col-md-6 col-xl-4">
+          <article class="card h-100 curso-card">
+            <img
+              src="../img/cursos/curso-arduino-eduy.jpg"
+              class="card-img-top"
+              alt="Curso avanzado de Arduino de EDUY"
+            />
             <div class="card-body d-flex flex-column">
               <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
-              <h2 class="card-title h5">Arduino: robots y sensores</h2>
-              <p class="card-text">Construí robots móviles con motores, sensores y comunicación inalámbrica.</p>
-              <a href="./detalles/arduino-avanzado.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
-            </div>
-          </article>
-        </div>
-        <div class="col-md-6 col-xl-4">
-          <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-arduino-eduy.jpg" class="card-img-top" alt="Curso profesional de Arduino de EDUY" />
-            <div class="card-body d-flex flex-column">
-              <span class="badge nivel-pro align-self-start mb-2">Pro</span>
               <h2 class="card-title h5">Arduino: sistemas embebidos</h2>
-              <p class="card-text">Optimizá hardware, comunicaciones y proyectos electrónicos robustos.</p>
-              <a href="./detalles/arduino-pro.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Optimizá hardware, comunicaciones y proyectos electrónicos
+                robustos.
+              </p>
+              <a href="./detalles/arduino-pro.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
@@ -181,34 +319,69 @@
         <!-- micro:bit -->
         <div class="col-md-6 col-xl-4">
           <article id="microbit" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-microbit-eduy.jpg" class="card-img-top" alt="Curso de microbit de EDUY" />
+            <img
+              src="../img/cursos/curso-microbit-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de microbit de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-basico align-self-start mb-2">Básico</span>
+              <span class="badge nivel-basico align-self-start mb-2"
+                >Básico</span
+              >
               <h2 class="card-title h5">micro:bit: programación creativa</h2>
-              <p class="card-text">Creá animaciones, juegos y experimentos con programación por bloques.</p>
-              <a href="./detalles/microbit-basico.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Creá animaciones, juegos y experimentos con programación por
+                bloques.
+              </p>
+              <a
+                href="./detalles/microbit-basico.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
         <div class="col-md-6 col-xl-4">
           <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-microbit-eduy.jpg" class="card-img-top" alt="Curso avanzado de microbit de EDUY" />
+            <img
+              src="../img/cursos/curso-microbit-eduy.jpg"
+              class="card-img-top"
+              alt="Curso intermedio de microbit de EDUY"
+            />
+            <div class="card-body d-flex flex-column">
+              <span class="badge nivel-intermedio align-self-start mb-2"
+                >Intermedio</span
+              >
+              <h2 class="card-title h5">micro:bit: robótica y radio</h2>
+              <p class="card-text">
+                Controlá motores, sensores y proyectos que se comunican entre
+                sí.
+              </p>
+              <a
+                href="./detalles/microbit-avanzado.html"
+                class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
+            </div>
+          </article>
+        </div>
+        <div class="col-md-6 col-xl-4">
+          <article class="card h-100 curso-card">
+            <img
+              src="../img/cursos/curso-microbit-eduy.jpg"
+              class="card-img-top"
+              alt="Curso avanzado de microbit de EDUY"
+            />
             <div class="card-body d-flex flex-column">
               <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
-              <h2 class="card-title h5">micro:bit: robótica y radio</h2>
-              <p class="card-text">Controlá motores, sensores y proyectos que se comunican entre sí.</p>
-              <a href="./detalles/microbit-avanzado.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
-            </div>
-          </article>
-        </div>
-        <div class="col-md-6 col-xl-4">
-          <article class="card h-100 curso-card">
-            <img src="../img/cursos/curso-microbit-eduy.jpg" class="card-img-top" alt="Curso profesional de microbit de EDUY" />
-            <div class="card-body d-flex flex-column">
-              <span class="badge nivel-pro align-self-start mb-2">Pro</span>
               <h2 class="card-title h5">micro:bit: laboratorio maker</h2>
-              <p class="card-text">Diseñá experiencias interactivas y prototipos educativos completos.</p>
-              <a href="./detalles/microbit-pro.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Diseñá experiencias interactivas y prototipos educativos
+                completos.
+              </p>
+              <a href="./detalles/microbit-pro.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
@@ -216,36 +389,67 @@
         <!-- Desarrollo de software -->
         <div class="col-md-6 col-xl-4">
           <article id="html-css" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-html-css-eduy.jpg" class="card-img-top" alt="Curso de HTML y CSS de EDUY" />
+            <img
+              src="../img/cursos/curso-html-css-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de HTML y CSS de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-basico align-self-start mb-2">Básico</span>
+              <span class="badge nivel-basico align-self-start mb-2"
+                >Básico</span
+              >
               <h2 class="card-title h5">HTML y CSS: desarrollo web</h2>
-              <p class="card-text">Creá sitios web modernos, accesibles y adaptables a cualquier pantalla.</p>
-              <a href="./detalles/html-css.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Creá sitios web modernos, accesibles y adaptables a cualquier
+                pantalla.
+              </p>
+              <a href="./detalles/html-css.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
 
         <div class="col-md-6 col-xl-4">
           <article id="javascript" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-javascript-eduy.jpg" class="card-img-top" alt="Curso de JavaScript de EDUY" />
+            <img
+              src="../img/cursos/curso-javascript-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de JavaScript de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
+              <span class="badge nivel-intermedio align-self-start mb-2"
+                >Intermedio</span
+              >
               <h2 class="card-title h5">JavaScript: web interactiva</h2>
-              <p class="card-text">Incorporá lógica, dinamismo e interactividad a tus aplicaciones web.</p>
-              <a href="./detalles/javascript.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Incorporá lógica, dinamismo e interactividad a tus aplicaciones
+                web.
+              </p>
+              <a href="./detalles/javascript.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
 
         <div class="col-md-6 col-xl-4">
           <article id="python" class="card h-100 curso-card">
-            <img src="../img/cursos/curso-python-eduy.jpg" class="card-img-top" alt="Curso de Python de EDUY" />
+            <img
+              src="../img/cursos/curso-python-eduy.jpg"
+              class="card-img-top"
+              alt="Curso de Python de EDUY"
+            />
             <div class="card-body d-flex flex-column">
-              <span class="badge nivel-pro align-self-start mb-2">Pro</span>
+              <span class="badge nivel-avanzado align-self-start mb-2">Avanzado</span>
               <h2 class="card-title h5">Python: automatización y datos</h2>
-              <p class="card-text">Desarrollá programas, automatizaciones y proyectos prácticos con datos.</p>
-              <a href="./detalles/python.html" class="btn btn-oro mt-auto">Ver curso en detalle</a>
+              <p class="card-text">
+                Desarrollá programas, automatizaciones y proyectos prácticos con
+                datos.
+              </p>
+              <a href="./detalles/python.html" class="btn btn-oro mt-auto"
+                >Ver curso en detalle</a
+              >
             </div>
           </article>
         </div>
@@ -255,6 +459,7 @@
     <div data-footer-eduy data-raiz=".."></div>
 
     <!-- Bootstrap JavaScript -->
+     <script src="../js/filtros.js"></script>
     <script src="../js/footer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   </body>
