@@ -12,13 +12,18 @@ const correoUsuario = document.querySelector("#correoUsuario");
 const botonCerrarSesion = document.querySelector("#btnCerrarSesion");
 
 onAuthStateChanged(auth, (usuario) => {
-    if (!usuario) {
+  if (!usuario) {
+    window.location.href = "./login.html";
+    return;
+  }
 
-}
-nombreUsuario.textContent = usuario.displayName || "Usuario de EDUY";
-correoUsuario.textContent = usuario.email;
-cargandoPerfil.classList.add("d-none");
-contenidoperfil.classList.remove("d-none");
+  nombreUsuario.textContent =
+    usuario.displayName || "Usuario de EDUY";
+
+  correoUsuario.textContent = usuario.email;
+
+  cargandoPerfil.classList.add("d-none");
+  contenidoperfil.classList.remove("d-none");
 });
 
 botonCerrarSesion.addEventListener("click", async () => {
