@@ -29,3 +29,54 @@ function obtenerMensajeError(codigo) {
         };
         return mensajes[codigo] || "La cuenta no se pudo crear correctamente";
 }
+
+formulario.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const nombre = campoNombre.value.trim();
+  const correo = campoCorreo.value.trim();
+  const contrasena = campoContrasena.value;
+  const confirmacion = campoConfirmacion.value;
+
+  if (contrasena !== confirmacion) {
+    mostrarMensaje(
+      "Las contraseñas no coinciden.",
+      "danger"
+    );
+    return;
+  }
+
+  botonRegistrar.disabled = true;
+  botonRegistrar.textContent = "Creando cuenta...";
+
+  try {
+    const credencial = await createUserWithEmailAndPassword(
+      auth,
+      correo,
+      contrasena
+    );
+
+    await updateProfile(credencial.user, {
+      displayName: nombre
+    });
+
+    mostrarMensaje(
+      "Cuenta creada correctamente.",
+      "success"
+    );
+
+    formulario.reset();
+
+    setTimeout(() => {
+      window.location.href = "../index.html";
+    }, 1500);
+  } catch (error) {
+    mostrarMensaje(
+      obtenerMensajeError(error.code),
+      "danger"
+    );
+  } finally {
+    botonRegistrar.disabled = false;
+    botonRegistrar.textContent = "Registrarse";
+  }
+});
