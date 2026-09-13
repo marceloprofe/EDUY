@@ -65,3 +65,6 @@ EDUY/
 │   └── footer.js
 ├── img/
 └── README.md
+│   └── script.js
+└── img/
+    └── imágenes del proyecto
