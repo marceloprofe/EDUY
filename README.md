@@ -1,70 +1,79 @@
 # EDUY – Plataforma Educativa
 
-## 1. Descripción del proyecto
+## Descripción
 
-EDUY es una plataforma educativa orientada a facilitar el acceso a cursos y materiales de aprendizaje. Permite explorar un catálogo de cursos, consultar sus detalles y localizar propuestas según el nombre, el tema o el nivel.
+EDUY es una plataforma educativa orientada al aprendizaje de programación, robótica y tecnología. Permite explorar cursos, buscar propuestas por tema o nivel, consultar los detalles y crear una cuenta de usuario.
 
-## 2. Pantallas principales
+## Integrantes
 
-Actualmente, el proyecto incluye:
+- Marcelo Pando
+- Alexander Llaguna
+- Rubén Acuña
 
-- Página de inicio.
+## Estado actual
+
+El proyecto cuenta con un primer prototipo funcional desarrollado durante los Sprint 1 y 2.
+
+### Funcionalidades implementadas
+
+- Página de inicio adaptable.
 - Catálogo de cursos.
-- Detalle de los cursos.
-- Inicio de sesión.
-- Navegación adaptable para computadoras y dispositivos móviles.
+- Búsqueda de cursos por nombre o tema.
+- Filtro por nivel.
+- Páginas de detalle de los cursos.
+- Formulario de inicio de sesión.
+- Inicio de sesión mediante Firebase Authentication.
+- Formulario de registro.
+- Creación de usuarios mediante Firebase Authentication.
+- Validación de contraseñas.
+- Almacenamiento del nombre del usuario.
+- Navegación y footer compartidos.
 
-## 3. Navegación
+### Funcionalidades pendientes
 
-La barra de navegación permite acceder a las principales secciones de la plataforma.
+- Registro e ingreso mediante Google.
+- Cierre de sesión.
+- Perfil o panel del usuario.
+- Diferenciación de roles.
+- Almacenamiento de cursos y perfiles en Cloud Firestore.
+- Publicación mediante GitHub Pages.
 
-Flujo principal:
-
-Inicio → Cursos → Detalle del curso
-
-La página de Inicio también incorpora una lupa que abre una ventana de búsqueda rápida.
-
-## 4. Búsqueda y filtros de cursos
-
-El catálogo incorpora las siguientes funcionalidades:
-
-- Búsqueda por nombre, tema o contenido del curso.
-- Filtro por nivel:
-  - Básico.
-  - Intermedio.
-  - Avanzado.
-- Contador de cursos encontrados.
-- Botón para limpiar los filtros.
-- Búsqueda rápida desde la lupa ubicada en la navegación de Inicio.
-- Envío automático de la búsqueda desde Inicio hacia el catálogo de cursos.
-
-Estas funciones fueron desarrolladas con JavaScript y funcionan sin recargar la página durante el filtrado del catálogo.
-
-## 5. Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - HTML5.
 - CSS3.
 - Bootstrap.
 - JavaScript.
+- Firebase Authentication.
 - Git y GitHub.
 
-## 6. Organización de carpetas
-
-```text
+## Organización del proyecto
+```
 EDUY/
 ├── index.html
 ├── pages/
 │   ├── cursos.html
 │   ├── login.html
+│   ├── registro.html
 │   └── detalles/
 ├── css/
 │   └── estilo.css
 ├── js/
 │   ├── detalle.js
 │   ├── filtros.js
-│   └── footer.js
+│   ├── firebase-config.js
+│   ├── footer.js
+│   ├── login.js
+│   └── registro.js
 ├── img/
 └── README.md
-│   └── script.js
-└── img/
-    └── imágenes del proyecto
+```
+## Flujo de navegación
+
+Inicio → Catálogo → Detalle del curso → Inscripción
+
+Inicio → Registro o ingreso → Plataforma
+
+## Repositorio
+
+https://github.com/marceloprofe/EDUY
