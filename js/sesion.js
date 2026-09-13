@@ -26,22 +26,16 @@ if (enlaceIngresar && enlaceRegistro) {
         }
 
         enlaceIngresar.href = rutaPerfil;
-        enlaceIngresar.textContent = usuario.displayName
-            ? `Mi perfil: ${usuario.displayName}`
-            : "Mi perfil";
 
-        enlaceRegistro.href = "#";
-        enlaceRegistro.textContent = "Cerrar sesión";
+enlaceIngresar.textContent = usuario.displayName
+    ? `Mi perfil: ${usuario.displayName}`
+    : "Mi perfil";
 
-        enlaceIngresar.textContent = usuario.displayName
-            ? `Mi perfil: ${usuario.displayName}`
-            : "Mi perfil";
+enlaceIngresar.classList.add("sesion-activa");
 
-        enlaceIngresar.classList.add("sesion-activa");
-
-        enlaceRegistro.href = "#";
-        enlaceRegistro.textContent = "Cerrar sesión";
-        enlaceRegistro.classList.add("boton-cerrar-sesion");
+enlaceRegistro.href = "#";
+enlaceRegistro.textContent = "Cerrar sesión";
+enlaceRegistro.classList.add("boton-cerrar-sesion");
 
         enlaceRegistro.addEventListener("click", async (evento) => {
             evento.preventDefault();
