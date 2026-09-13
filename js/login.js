@@ -67,7 +67,7 @@ formulario.addEventListener("submit", async (evento) => {
       "success"
     );
 
-    window.location.href = "../index.html";
+    window.location.href = "./perfil.html";
   } catch (error) {
     mostrarMensaje(
       obtenerMensajeError(error.code),

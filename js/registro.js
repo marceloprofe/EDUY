@@ -74,7 +74,7 @@ formulario.addEventListener("submit", async (evento) => {
     formulario.reset();
 
     setTimeout(() => {
-      window.location.href = "../index.html";
+      window.location.href = "./perfil.html";
     }, 1500);
   } catch (error) {
     mostrarMensaje(
