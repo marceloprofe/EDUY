@@ -192,8 +192,12 @@ if (!curso) {
         <div class="collapse navbar-collapse" id="menuPrincipal"><ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="../../index.html">Inicio</a></li>
           <li class="nav-item"><a class="nav-link active" href="../cursos.html">Cursos</a></li>
-          <li class="nav-item"><a class="nav-link" href="../login.html">Ingresar</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Registrarse</a></li>
+          <li class="nav-item">
+  <a class="nav-link" href="../login.html" data-auth-login>Ingresar</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../registro.html" data-auth-registro>Registro</a>
+</li>
         </ul></div>
       </div>
     </nav>
@@ -206,7 +210,7 @@ if (!curso) {
       <section class="banner-curso position-relative overflow-hidden rounded-4 shadow-lg">
         <img src="../../img/cursos/${curso.imagen}" alt="${curso.titulo}" />
         <div class="banner-curso-contenido">
-          <span class="badge nivel-${curso.nivel.toLowerCase().replace('á','a')} mb-3">${curso.nivel}</span>
+          <span class="badge nivel-${curso.nivel.toLowerCase().replace('á', 'a')} mb-3">${curso.nivel}</span>
           <h1 class="display-5 fw-bold">${curso.titulo}</h1>
           <p class="lead mb-0">${curso.descripcion}</p>
         </div>
@@ -232,4 +236,5 @@ if (!curso) {
       </section>
     </main>
     <div data-footer-eduy data-raiz="../.."></div>`;
+     import("./sesion.js");
 }
