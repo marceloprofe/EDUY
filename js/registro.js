@@ -20,14 +20,20 @@ function mostrarMensaje(texto, tipo) {
     mensajeRegistro.textContent = texto;
     mensajeRegistro.className = `alert alert-${tipo}`;
 }
+
 function obtenerMensajeError(codigo) {
-    const mensajes = {
-        "auth/email-already-in-use": "El correo electrónico ya está en uso.",
-        "auth/invalid-email": "El correo electrónico no es válido.",
-        "auth/weak-password": "La contraseña es demasiado débil.",  
-        "auth/missing-password": "La contraseña es obligatoria.",
-        };
-        return mensajes[codigo] || "La cuenta no se pudo crear correctamente";
+  const mensajes = {
+    "auth/email-already-in-use":
+      "Ya existe una cuenta con ese correo.",
+    "auth/invalid-email":
+      "El correo electrónico no es válido.",
+    "auth/weak-password":
+      "La contraseña es demasiado débil.",
+    "auth/operation-not-allowed":
+      "El registro no está habilitado en Firebase."
+  };
+
+  return mensajes[codigo] || "No fue posible crear la cuenta.";
 }
 
 formulario.addEventListener("submit", async (evento) => {
