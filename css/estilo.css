@@ -497,3 +497,34 @@ body {
 .boton-busqueda-nav:focus {
   color: #ffd700 !important;
 }
+.sesion-activa {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+.sesion-activa::before {
+    content: "●";
+    color: #4ade80;
+    font-size: 0.7rem;
+    margin-right: 0.4rem;
+}
+
+.boton-cerrar-sesion {
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 0.5rem;
+    margin-left: 0.4rem;
+    padding: 0.35rem 0.75rem !important;
+}
+
+.boton-cerrar-sesion:hover {
+    color: #102d50 !important;
+    background-color: #ffffff;
+}
+
+@media (max-width: 991px) {
+    .boton-cerrar-sesion {
+        display: inline-block;
+        margin-top: 0.5rem;
+        margin-left: 0;
+    }
+}
