@@ -59,6 +59,19 @@
               placeholder="Ingresar correo electrónico" required />
           </div>
           <div class="mb-3">
+            <label for="rol" class="form-label">Tipo de usuario</label>
+
+            <select id="rol" name="rol" class="form-select form-select-lg" required>
+              <option value="" selected disabled>Seleccioná tu rol</option>
+              <option value="estudiante">Estudiante</option>
+              <option value="docente">Docente</option>
+            </select>
+
+            <div class="form-text">
+              Elegí el rol que utilizarás dentro de EDUY.
+            </div>
+          </div>
+          <div class="mb-3">
             <label for="contrasena" class="form-label">Contraseña</label>
             <input type="password" class="form-control form-control-lg" id="contrasena" name="contrasena"
               autocomplete="current-password" minlength="8" placeholder="Ingresar contraseña" required />
