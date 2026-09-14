@@ -55,7 +55,8 @@ EDUY/
 │   ├── cursos.html
 │   ├── login.html
 │   ├── registro.html
-│   └── detalles/
+│   ├── detalle.html
+│   └── perfil.html
 ├── css/
 │   └── estilo.css
 ├── js/
