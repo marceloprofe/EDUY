@@ -1,12 +1,5 @@
-/**
- * Plantilla compartida para las páginas de detalle de los cursos de EDUY.
- *
- * Cada archivo HTML de `pages/detalles` indica el curso que debe mostrar con
- * el atributo `data-curso` del elemento <body>. Este script busca sus datos y
- * construye la navegación, el banner, los módulos y el resumen del curso.
- */
-
-// Catálogo central: contiene el contenido específico de cada curso y nivel.
+// Obtiene la clave del curso indicada en la URL.
+// Ejemplo: detalle.html?id=esp32-basico
 const cursos = {
   "esp32-basico": {
     titulo: "ESP32: primeros proyectos", nivel: "Básico", imagen: "curso-esp32-eduy.jpg", duracion: "18 horas",
@@ -160,8 +153,11 @@ const cursos = {
   },
 };
 
-// Obtiene la clave declarada en el HTML, por ejemplo: data-curso="esp32-basico".
-const curso = cursos[document.body.dataset.curso];
+// Obtiene la clave del curso indicada en la URL.
+// Ejemplo: detalle.html?id=esp32-basico
+const parametros = new URLSearchParams(window.location.search);
+const idCurso = parametros.get("id");
+const curso = cursos[idCurso];
 
 // Muestra un aviso comprensible si el HTML solicita un curso que no existe.
 if (!curso) {
@@ -184,29 +180,33 @@ if (!curso) {
   document.querySelector("#app").innerHTML = `
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="../../index.html">
-          <img src="../../img/logo.png" class="logo-navbar" alt="Logo de EDUY" />
+        <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+          <img src="../img/logo.png" class="logo-navbar" alt="Logo de EDUY" />
           <span class="h4 mb-0">Bienvenido a EDUY</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar navegación"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="menuPrincipal"><ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="../../index.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="../cursos.html">Cursos</a></li>
-          <li class="nav-item"><a class="nav-link" href="../login.html">Ingresar</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Registrarse</a></li>
+          <li class="nav-item"><a class="nav-link" href="../index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link active" href="./cursos.html">Cursos</a></li>
+          <li class="nav-item">
+  <a class="nav-link" href="./login.html" data-auth-login>Ingresar</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="./registro.html" data-auth-registro>Registro</a>
+</li>
         </ul></div>
       </div>
     </nav>
     <main class="container py-5">
       <nav aria-label="Navegación secundaria"><ol class="breadcrumb detalle-breadcrumb">
-        <li class="breadcrumb-item"><a href="../../index.html">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="../cursos.html">Cursos</a></li>
+        <li class="breadcrumb-item"><a href="../index.html">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="./cursos.html">Cursos</a></li>
         <li class="breadcrumb-item active" aria-current="page">${curso.titulo}</li>
       </ol></nav>
       <section class="banner-curso position-relative overflow-hidden rounded-4 shadow-lg">
-        <img src="../../img/cursos/${curso.imagen}" alt="${curso.titulo}" />
+        <img src="../img/cursos/${curso.imagen}" alt="${curso.titulo}" />
         <div class="banner-curso-contenido">
-          <span class="badge nivel-${curso.nivel.toLowerCase().replace('á','a')} mb-3">${curso.nivel}</span>
+          <span class="badge nivel-${curso.nivel.toLowerCase().replace('á', 'a')} mb-3">${curso.nivel}</span>
           <h1 class="display-5 fw-bold">${curso.titulo}</h1>
           <p class="lead mb-0">${curso.descripcion}</p>
         </div>
@@ -224,12 +224,13 @@ if (!curso) {
               <p><strong>Duración:</strong> ${curso.duracion}</p>
               <p><strong>Modalidad:</strong> En línea y asincrónica</p>
               <p><strong>Instructor:</strong> Equipo EDUY</p>
-              <a href="../login.html" class="btn btn-oro w-100 mb-2">Inscribirme</a>
-              <a href="../cursos.html" class="btn btn-outline-secondary w-100">Volver al catálogo</a>
+              <a href="./login.html" class="btn btn-oro w-100 mb-2">Inscribirme</a>
+              <a href="./cursos.html" class="btn btn-outline-secondary w-100">Volver al catálogo</a>
             </div>
           </div>
         </aside>
       </section>
     </main>
-    <div data-footer-eduy data-raiz="../.."></div>`;
+    <div data-footer-eduy data-raiz=".."></div>`;
+     import("./sesion.js");
 }
