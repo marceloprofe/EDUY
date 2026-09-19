@@ -6,7 +6,7 @@ EDUY es una plataforma educativa orientada al aprendizaje de programación, rob�
 
 ## Integrantes
 
-- Marcelo Pando
+- Marcelo Nuñez
 - Alexander Llaguna
 - Rubén Acuña
 
@@ -23,6 +23,7 @@ El proyecto cuenta con un primer prototipo funcional desarrollado durante los Sp
 - Selección de rol de estudiante o docente durante el registro.
 - Almacenamiento de nombre, correo y rol en Cloud Firestore.
 - Inicio y cierre de sesión.
+- Recuperación de contraseña mediante correo electrónico.
 - Persistencia de la sesión al navegar entre páginas.
 - Perfil de usuario con nombre, correo y rol.
 - Menú que muestra el perfil y la opción de cerrar sesión cuando hay una sesión activa.
