@@ -4,7 +4,8 @@ import {
   signInWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
-  browserSessionPersistence
+  browserSessionPersistence,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 const formulario = document.querySelector("#formLogin");
@@ -12,6 +13,9 @@ const campoCorreo = document.querySelector("#correo");
 const campoContrasena = document.querySelector("#contrasena");
 const campoRecordarme = document.querySelector("#recordarme");
 const mensajeLogin = document.querySelector("#mensajeLogin");
+const botonRecuperar = document.querySelector(
+  "#btnRecuperarContrasena"
+);
 
 const botonIngresar = formulario.querySelector(
   'button[type="submit"]'
@@ -22,7 +26,10 @@ function mostrarMensaje(texto, tipo) {
   mensajeLogin.className = `alert alert-${tipo}`;
 }
 
-function obtenerMensajeError(codigo) {
+function obtenerMensajeError(
+  codigo,
+  mensajePredeterminado = "No fue posible iniciar sesión."
+) {
   const mensajes = {
     "auth/invalid-email":
       "El correo electrónico no es válido.",
@@ -36,7 +43,7 @@ function obtenerMensajeError(codigo) {
 
   return (
     mensajes[codigo] ||
-    "No fue posible iniciar sesión."
+    mensajePredeterminado
   );
 }
 
@@ -70,11 +77,44 @@ formulario.addEventListener("submit", async (evento) => {
     window.location.href = "./perfil.html";
   } catch (error) {
     mostrarMensaje(
-      obtenerMensajeError(error.code),
+      obtenerMensajeError(
+        error.code),
       "danger"
     );
   } finally {
     botonIngresar.disabled = false;
     botonIngresar.textContent = "Ingresar";
+  }
+});
+botonRecuperar.addEventListener("click", async () => {
+  const correo = campoCorreo.value.trim();
+
+  if (correo === "") {
+    mostrarMensaje(
+      "Escribe tu correo electrónico para recuperar la contraseña.",
+      "warning"
+    );
+    campoCorreo.focus();
+    return;
+  }
+
+  botonRecuperar.disabled = true;
+  botonRecuperar.textContent = "Enviando...";
+
+  try {
+    await sendPasswordResetEmail(auth, correo);
+
+    mostrarMensaje(
+      "Revisa tu correo. Te enviamos un enlace para cambiar la contraseña.",
+      "success"
+    );
+  } catch (error) {
+    mostrarMensaje(
+      obtenerMensajeError(error.code, "No fue posible enviar el correo de recuperación."),
+      "danger"
+    );
+  } finally {
+    botonRecuperar.disabled = false;
+    botonRecuperar.textContent = "¿Olvidaste tu contraseña?";
   }
 });
