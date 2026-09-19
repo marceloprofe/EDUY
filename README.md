@@ -27,14 +27,13 @@ El proyecto cuenta con un primer prototipo funcional desarrollado durante los Sp
 - Perfil de usuario con nombre, correo y rol.
 - Menú que muestra el perfil y la opción de cerrar sesión cuando hay una sesión activa.
 - Navegación, estilos y pie de página compartidos.
+- Publicación final mediante GitHub Pages.
 
 ### Funcionalidades pendientes
 
 - Conectar el botón de acceso mediante Google con Firebase Authentication.
 - Aplicar funciones diferentes según el rol del usuario.
 - Almacenar y consultar el catálogo de cursos desde Cloud Firestore.
-- Publicar la versión final mediante GitHub Pages.
-- Realizar las pruebas finales de navegación, adaptación a móviles y funcionamiento.
 
 ## Tecnologías utilizadas
 
@@ -85,4 +84,4 @@ El equipo organiza el desarrollo mediante Issues, ramas de funcionalidades, comm
 ## Enlaces
 
 - Repositorio: https://github.com/marceloprofe/EDUY
-- Sitio público de GitHub Pages: pendiente de publicación.
+- Sitio público: https://marceloprofe.github.io/EDUY/
