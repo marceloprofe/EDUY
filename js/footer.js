@@ -30,7 +30,7 @@ document.querySelectorAll("[data-footer-eduy]").forEach((contenedor) => {
               <li><a href="${raiz}/index.html">Inicio</a></li>
               <li><a href="${paginas}/cursos.html">Cursos</a></li>
               <li><a href="${paginas}/login.html">Ingresar</a></li>
-              <li><a href="#">Registrarse</a></li>
+              <li><a href="${paginas}/registro.html">Registrarse</a></li>
             </ul>
           </div>
           <div class="col-md-6 col-lg-3">
