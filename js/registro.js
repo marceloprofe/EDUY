@@ -21,7 +21,10 @@ const campoContrasena = document.querySelector("#contrasena");
 const campoConfirmacion = document.querySelector("#confirmarContrasena");
 const mensajeRegistro = document.querySelector("#mensajeRegistro");
 const botonGoogle = document.querySelector("#btnGoogle");
-const botonRegistrar = formulario.querySelector('button[type="submit"]');
+
+const botonRegistrar = formulario.querySelector(
+    'button[type="submit"]'
+);
 
 function mostrarMensaje(texto, tipo) {
     mensajeRegistro.textContent = texto;
@@ -36,6 +39,8 @@ function obtenerMensajeError(codigo) {
             "El correo electrónico no es válido.",
         "auth/weak-password":
             "La contraseña debe contener al menos 8 caracteres.",
+        "auth/operation-not-allowed":
+            "El registro no está habilitado en Firebase.",
         "auth/popup-closed-by-user":
             "Se cerró la ventana de Google antes de completar el registro.",
         "auth/popup-blocked":
@@ -50,16 +55,26 @@ function obtenerMensajeError(codigo) {
 }
 
 async function guardarPerfilEstudiante(usuario, nombre) {
-    const referenciaUsuario = doc(db, "usuarios", usuario.uid);
-    const documentoUsuario = await getDoc(referenciaUsuario);
+    const referenciaUsuario = doc(
+        db,
+        "usuarios",
+        usuario.uid
+    );
 
-    // No sobrescribe el rol de una cuenta que ya existe.
+    const documentoUsuario = await getDoc(
+        referenciaUsuario
+    );
+
+    // Evita sobrescribir el rol de una cuenta existente.
     if (documentoUsuario.exists()) {
         return;
     }
 
     await setDoc(referenciaUsuario, {
-        nombre: nombre || usuario.displayName || "Estudiante",
+        nombre:
+            nombre ||
+            usuario.displayName ||
+            "Estudiante",
         correo: usuario.email,
         rol: "estudiante",
         fechaCreacion: serverTimestamp()
@@ -75,25 +90,33 @@ formulario.addEventListener("submit", async (evento) => {
     const confirmacion = campoConfirmacion.value;
 
     if (contrasena !== confirmacion) {
-        mostrarMensaje("Las contraseñas no coinciden.", "danger");
+        mostrarMensaje(
+            "Las contraseñas no coinciden.",
+            "danger"
+        );
         return;
     }
 
     botonRegistrar.disabled = true;
-    botonRegistrar.textContent = "Creando cuenta...";
+    botonRegistrar.textContent =
+        "Creando cuenta...";
 
     try {
-        const credencial = await createUserWithEmailAndPassword(
-            auth,
-            correo,
-            contrasena
-        );
+        const credencial =
+            await createUserWithEmailAndPassword(
+                auth,
+                correo,
+                contrasena
+            );
 
         await updateProfile(credencial.user, {
             displayName: nombre
         });
 
-        await guardarPerfilEstudiante(credencial.user, nombre);
+        await guardarPerfilEstudiante(
+            credencial.user,
+            nombre
+        );
 
         mostrarMensaje(
             "Cuenta de estudiante creada correctamente.",
@@ -106,7 +129,10 @@ formulario.addEventListener("submit", async (evento) => {
             window.location.href = "../index.html";
         }, 1500);
     } catch (error) {
-        console.error("Error al registrar:", error);
+        console.error(
+            "Error al registrar:",
+            error
+        );
 
         mostrarMensaje(
             obtenerMensajeError(error.code),
@@ -114,17 +140,24 @@ formulario.addEventListener("submit", async (evento) => {
         );
     } finally {
         botonRegistrar.disabled = false;
-        botonRegistrar.textContent = "Registrarse";
+        botonRegistrar.textContent =
+            "Registrarse";
     }
 });
 
 botonGoogle.addEventListener("click", async () => {
     botonGoogle.disabled = true;
-    botonGoogle.textContent = "Conectando con Google...";
+    botonGoogle.textContent =
+        "Conectando con Google...";
 
     try {
-        const proveedorGoogle = new GoogleAuthProvider();
-        const resultado = await signInWithPopup(auth, proveedorGoogle);
+        const proveedorGoogle =
+            new GoogleAuthProvider();
+
+        const resultado = await signInWithPopup(
+            auth,
+            proveedorGoogle
+        );
 
         await guardarPerfilEstudiante(
             resultado.user,
@@ -140,7 +173,10 @@ botonGoogle.addEventListener("click", async () => {
             window.location.href = "../index.html";
         }, 1500);
     } catch (error) {
-        console.error("Error con Google:", error);
+        console.error(
+            "Error con Google:",
+            error
+        );
 
         mostrarMensaje(
             obtenerMensajeError(error.code),
@@ -149,13 +185,13 @@ botonGoogle.addEventListener("click", async () => {
     } finally {
         botonGoogle.disabled = false;
         botonGoogle.innerHTML = `
-      <img
-        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-        width="20"
-        height="20"
-        alt=""
-        class="me-2">
-      Continuar con Google
-    `;
+            <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                width="20"
+                height="20"
+                alt=""
+                class="me-2">
+            Continuar con Google
+        `;
     }
 });

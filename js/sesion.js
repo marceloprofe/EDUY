@@ -13,22 +13,36 @@ import {
 const menu = document.querySelector(".navbar-nav");
 
 function obtenerRutas() {
-    const estaEnPages = window.location.pathname.includes("/pages/");
+    const estaEnPages =
+        window.location.pathname.includes("/pages/");
 
     return {
-        inicio: estaEnPages ? "../index.html" : "./index.html",
+        inicio: estaEnPages
+            ? "../index.html"
+            : "./index.html",
+
+        perfil: estaEnPages
+            ? "./perfil.html"
+            : "./pages/perfil.html",
+
         misCursos: estaEnPages
             ? "./mis-cursos.html"
             : "./pages/mis-cursos.html"
     };
 }
 
-function crearOpcion(texto, enlace) {
-    const elementoLista = document.createElement("li");
+function crearOpcion(texto, enlace, clases = "") {
+    const elementoLista =
+        document.createElement("li");
+
     elementoLista.className = "nav-item";
 
-    const elementoEnlace = document.createElement("a");
-    elementoEnlace.className = "nav-link";
+    const elementoEnlace =
+        document.createElement("a");
+
+    elementoEnlace.className =
+        `nav-link ${clases}`.trim();
+
     elementoEnlace.href = enlace;
     elementoEnlace.textContent = texto;
 
@@ -73,43 +87,62 @@ onAuthStateChanged(auth, async (usuario) => {
             return;
         }
 
-        const datosUsuario = documentoUsuario.data();
-        const nombre = datosUsuario.nombre || usuario.email;
-        const rol = datosUsuario.rol || "estudiante";
+        const datosUsuario =
+            documentoUsuario.data();
+
+        const nombre =
+            datosUsuario.nombre ||
+            usuario.displayName ||
+            usuario.email;
+
+        const rol =
+            datosUsuario.rol ||
+            "estudiante";
+
         const rutas = obtenerRutas();
 
         quitarOpcionesDeAcceso();
 
         if (rol === "docente") {
             menu.appendChild(
-                crearOpcion("Mis cursos", rutas.misCursos)
+                crearOpcion(
+                    "Mis cursos",
+                    rutas.misCursos
+                )
             );
         }
 
-        const opcionUsuario = document.createElement("li");
-        opcionUsuario.className = "nav-item";
+        menu.appendChild(
+            crearOpcion(
+                `${nombre} (${rol})`,
+                rutas.perfil,
+                "text-warning sesion-activa"
+            )
+        );
 
-        const textoUsuario = document.createElement("span");
-        textoUsuario.className = "nav-link text-warning";
-        textoUsuario.textContent =
-            `${nombre} (${rol})`;
+        const opcionSalir =
+            document.createElement("li");
 
-        opcionUsuario.appendChild(textoUsuario);
-        menu.appendChild(opcionUsuario);
-
-        const opcionSalir = document.createElement("li");
         opcionSalir.className = "nav-item";
 
-        const botonSalir = document.createElement("button");
+        const botonSalir =
+            document.createElement("button");
+
         botonSalir.type = "button";
         botonSalir.className =
             "btn btn-link nav-link border-0";
+
         botonSalir.textContent = "Salir";
 
-        botonSalir.addEventListener("click", async () => {
-            await signOut(auth);
-            window.location.href = rutas.inicio;
-        });
+        botonSalir.addEventListener(
+            "click",
+            async () => {
+                await signOut(auth);
+
+                window.location.href =
+                    rutas.inicio;
+            }
+        );
 
         opcionSalir.appendChild(botonSalir);
         menu.appendChild(opcionSalir);
