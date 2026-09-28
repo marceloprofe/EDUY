@@ -1,11 +1,16 @@
-const campoBusqueda = document.querySelector("#buscarCurso");
-const selectorNivel = document.querySelector("#filtroNivel");
-const botonLimpiar = document.querySelector("#limpiarFiltros");
-const resultadoFiltros = document.querySelector("#resultadoFiltros");
+const campoBusqueda =
+    document.querySelector("#buscarCurso");
 
-const cursos = document.querySelectorAll("#listaCursos > div");
+const selectorNivel =
+    document.querySelector("#filtroNivel");
 
-function normalizarTexto(texto) {
+const botonLimpiar =
+    document.querySelector("#limpiarFiltros");
+
+const resultadoFiltros =
+    document.querySelector("#resultadoFiltros");
+
+function normalizarTexto(texto = "") {
     return texto
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -14,19 +19,45 @@ function normalizarTexto(texto) {
 }
 
 function filtrarCursos() {
-    const busqueda = normalizarTexto(campoBusqueda.value);
-    const nivelSeleccionado = normalizarTexto(selectorNivel.value);
+    const busqueda = normalizarTexto(
+        campoBusqueda.value
+    );
+
+    const nivelSeleccionado = normalizarTexto(
+        selectorNivel.value
+    );
+
+    /*
+     * Se consultan las tarjetas cada vez para incluir
+     * también los cursos cargados desde Firestore.
+     */
+    const cursos = document.querySelectorAll(
+        "#listaCursos > div"
+    );
 
     let cantidadVisible = 0;
 
     cursos.forEach((columnaCurso) => {
-        const tarjeta = columnaCurso.querySelector(".curso-card");
-        const badgeNivel = tarjeta.querySelector(".badge");
+        const tarjeta =
+            columnaCurso.querySelector(".curso-card");
 
-        const contenidoCurso = normalizarTexto(tarjeta.textContent);
-        const nivelCurso = normalizarTexto(badgeNivel.textContent);
+        if (!tarjeta) {
+            return;
+        }
 
-        const coincideBusqueda = contenidoCurso.includes(busqueda);
+        const badgeNivel =
+            tarjeta.querySelector(".badge");
+
+        const contenidoCurso = normalizarTexto(
+            tarjeta.textContent
+        );
+
+        const nivelCurso = normalizarTexto(
+            badgeNivel?.textContent
+        );
+
+        const coincideBusqueda =
+            contenidoCurso.includes(busqueda);
 
         const coincideNivel =
             nivelSeleccionado === "" ||
@@ -61,6 +92,14 @@ selectorNivel.addEventListener(
     filtrarCursos
 );
 
+botonLimpiar.addEventListener("click", () => {
+    campoBusqueda.value = "";
+    selectorNivel.value = "";
+
+    filtrarCursos();
+    campoBusqueda.focus();
+});
+
 const parametrosURL = new URLSearchParams(
     window.location.search
 );
@@ -72,12 +111,13 @@ if (busquedaInicial) {
     campoBusqueda.value = busquedaInicial;
 }
 
-botonLimpiar.addEventListener("click", () => {
-    campoBusqueda.value = "";
-    selectorNivel.value = "";
-
-    filtrarCursos();
-    campoBusqueda.focus();
-});
+/*
+ * Vuelve a aplicar los filtros cuando Firestore
+ * termina de agregar los cursos habilitados.
+ */
+document.addEventListener(
+    "cursosActualizados",
+    filtrarCursos
+);
 
 filtrarCursos();
