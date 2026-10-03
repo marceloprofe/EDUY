@@ -27,7 +27,11 @@ function obtenerRutas() {
 
         misCursos: estaEnPages
             ? "./mis-cursos.html"
-            : "./pages/mis-cursos.html"
+            : "./pages/mis-cursos.html",
+
+        panelAdmin: estaEnPages
+            ? "./panel-admin.html"
+            : "./pages/panel-admin.html"
     };
 }
 
@@ -108,6 +112,15 @@ onAuthStateChanged(auth, async (usuario) => {
                 crearOpcion(
                     "Mis cursos",
                     rutas.misCursos
+                )
+            );
+        }
+
+        if (rol === "admin") {
+            menu.appendChild(
+                crearOpcion(
+                    "Panel administrativo",
+                    rutas.panelAdmin
                 )
             );
         }
