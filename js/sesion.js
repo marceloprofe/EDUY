@@ -25,6 +25,10 @@ function obtenerRutas() {
             ? "./perfil.html"
             : "./pages/perfil.html",
 
+        misAdquisiciones: estaEnPages
+            ? "./mis-adquisiciones.html"
+            : "./pages/mis-adquisiciones.html",
+
         misCursos: estaEnPages
             ? "./mis-cursos.html"
             : "./pages/mis-cursos.html",
@@ -106,6 +110,14 @@ onAuthStateChanged(auth, async (usuario) => {
         const rutas = obtenerRutas();
 
         quitarOpcionesDeAcceso();
+        if (rol === "estudiante") {
+    menu.appendChild(
+        crearOpcion(
+            "Mis adquisiciones",
+            rutas.misAdquisiciones
+        )
+    );
+}
 
         if (rol === "docente") {
             menu.appendChild(
