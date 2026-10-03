@@ -1,47 +1,155 @@
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 import {
     onAuthStateChanged,
     signOut
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
-const enlaceIngresar = document.querySelector(
-    "[data-auth-login]"
-);
+import {
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-const enlaceRegistro = document.querySelector(
-    "[data-auth-registro]"
-);
+const menu = document.querySelector(".navbar-nav");
 
-if (enlaceIngresar && enlaceRegistro) {
-    const rutaLogin = enlaceIngresar.getAttribute("href");
-    const rutaPerfil = rutaLogin.replace(
-        "login.html",
-        "perfil.html"
+function obtenerRutas() {
+    const estaEnPages =
+        window.location.pathname.includes("/pages/");
+
+    return {
+        inicio: estaEnPages
+            ? "../index.html"
+            : "./index.html",
+
+        perfil: estaEnPages
+            ? "./perfil.html"
+            : "./pages/perfil.html",
+
+        misCursos: estaEnPages
+            ? "./mis-cursos.html"
+            : "./pages/mis-cursos.html"
+    };
+}
+
+function crearOpcion(texto, enlace, clases = "") {
+    const elementoLista =
+        document.createElement("li");
+
+    elementoLista.className = "nav-item";
+
+    const elementoEnlace =
+        document.createElement("a");
+
+    elementoEnlace.className =
+        `nav-link ${clases}`.trim();
+
+    elementoEnlace.href = enlace;
+    elementoEnlace.textContent = texto;
+
+    elementoLista.appendChild(elementoEnlace);
+
+    return elementoLista;
+}
+
+function quitarOpcionesDeAcceso() {
+    const enlaceLogin = document.querySelector(
+        'a[href$="login.html"]'
     );
 
-    onAuthStateChanged(auth, (usuario) => {
-        if (!usuario) {
+    const enlaceRegistro = document.querySelector(
+        'a[href$="registro.html"]'
+    );
+
+    enlaceLogin?.closest("li")?.remove();
+    enlaceRegistro?.closest("li")?.remove();
+}
+
+onAuthStateChanged(auth, async (usuario) => {
+    if (!usuario || !menu) {
+        return;
+    }
+
+    try {
+        const referenciaUsuario = doc(
+            db,
+            "usuarios",
+            usuario.uid
+        );
+
+        const documentoUsuario = await getDoc(
+            referenciaUsuario
+        );
+
+        if (!documentoUsuario.exists()) {
+            console.warn(
+                "El usuario no tiene un perfil en Firestore."
+            );
             return;
         }
 
-        enlaceIngresar.href = rutaPerfil;
+        const datosUsuario =
+            documentoUsuario.data();
 
-enlaceIngresar.textContent = usuario.displayName
-    ? `Mi perfil: ${usuario.displayName}`
-    : "Mi perfil";
+        const nombre =
+            datosUsuario.nombre ||
+            usuario.displayName ||
+            usuario.email;
 
-enlaceIngresar.classList.add("sesion-activa");
+        const rol =
+            datosUsuario.rol ||
+            "estudiante";
 
-enlaceRegistro.href = "#";
-enlaceRegistro.textContent = "Cerrar sesión";
-enlaceRegistro.classList.add("boton-cerrar-sesion");
+        const rutas = obtenerRutas();
 
-        enlaceRegistro.addEventListener("click", async (evento) => {
-            evento.preventDefault();
+        quitarOpcionesDeAcceso();
 
-            await signOut(auth);
-            window.location.href = rutaLogin;
-        });
-    });
-}
+        if (rol === "docente") {
+            menu.appendChild(
+                crearOpcion(
+                    "Mis cursos",
+                    rutas.misCursos
+                )
+            );
+        }
+
+        menu.appendChild(
+            crearOpcion(
+                `${nombre} (${rol})`,
+                rutas.perfil,
+                "text-warning sesion-activa"
+            )
+        );
+
+        const opcionSalir =
+            document.createElement("li");
+
+        opcionSalir.className = "nav-item";
+
+        const botonSalir =
+            document.createElement("button");
+
+        botonSalir.type = "button";
+        botonSalir.className =
+            "btn btn-link nav-link border-0";
+
+        botonSalir.textContent = "Salir";
+
+        botonSalir.addEventListener(
+            "click",
+            async () => {
+                await signOut(auth);
+
+                window.location.href =
+                    rutas.inicio;
+            }
+        );
+
+        opcionSalir.appendChild(botonSalir);
+        menu.appendChild(opcionSalir);
+    } catch (error) {
+        console.error(
+            "No fue posible consultar el perfil:",
+            error
+        );
+    }
+});
