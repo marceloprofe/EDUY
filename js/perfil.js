@@ -33,6 +33,8 @@ onAuthStateChanged(auth, async (usuario) => {
 
     correoUsuario.textContent = usuario.email;
     rolUsuario.textContent = datos.rol || "Sin rol asignado";
+    document.querySelector("#enlaceMisAdquisiciones")
+  .classList.toggle("d-none", datos.rol !== "estudiante");
   } catch (error) {
     console.error("No se pudo cargar el perfil:", error);
     rolUsuario.textContent = "No disponible";
