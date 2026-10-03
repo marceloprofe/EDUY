@@ -1,20 +1,9 @@
-import { db } from "./firebase-config.js";
-
-import {
-    collection,
-    getDocs,
-    query,
-    where
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { obtenerCursosHabilitados } from './cursos-datos.js';
+import { escaparHTML, resolverImagen, prepararImagenes } from './curso-utils.js';
 
 const listaCursos =
     document.querySelector("#listaCursos");
 
-function escaparHTML(texto = "") {
-    const elemento = document.createElement("div");
-    elemento.textContent = texto;
-    return elemento.innerHTML;
-}
 
 function obtenerNombreNivel(nivel) {
     const nombres = {
@@ -70,7 +59,8 @@ function crearTarjetaCurso(curso) {
         const enlaceDetalle =
         `./detalle.html?cursoId=${encodeURIComponent(curso.id)}`;
     columna.innerHTML = `
-        <article class="card h-100 curso-card border-warning">
+        <article class="card h-100 curso-card">
+            <img data-imagen-curso class="card-img-top" loading="lazy" src="${escaparHTML(resolverImagen(curso.imagen))}" alt="${escaparHTML(curso.titulo)}" />
             <div class="card-body d-flex flex-column">
                 <span
                     class="badge nivel-${escaparHTML(nivel)}
@@ -119,34 +109,29 @@ function crearTarjetaCurso(curso) {
 }
 
 async function cargarCursosHabilitados() {
+    listaCursos.dataset.estado = 'cargando';
+    listaCursos.textContent = 'Cargando cursos…';
+    document.dispatchEvent(new CustomEvent('cursosActualizados'));
+    listaCursos.setAttribute('aria-busy', 'true');
     try {
-        const consulta = query(
-            collection(db, "cursos"),
-            where("habilitado", "==", true)
-        );
-
-        const resultado = await getDocs(consulta);
-
-        resultado.forEach((documento) => {
-            const curso = {
-                id: documento.id,
-                ...documento.data()
-            };
-
-            listaCursos.appendChild(
-                crearTarjetaCurso(curso)
-            );
-        });
-
-        document.dispatchEvent(
-            new CustomEvent("cursosActualizados")
-        );
+        const cursos = await obtenerCursosHabilitados();
+        listaCursos.replaceChildren(...cursos.map(crearTarjetaCurso));
+        if (!cursos.length) listaCursos.textContent = 'Todavía no hay cursos habilitados.';
+        listaCursos.dataset.estado = 'listo';
+        prepararImagenes(listaCursos);
+        document.dispatchEvent(new CustomEvent('cursosActualizados'));
     } catch (error) {
-        console.error(
-            "No fue posible cargar los cursos habilitados:",
-            error
-        );
+        listaCursos.dataset.estado = 'error';
+        document.dispatchEvent(new CustomEvent('cursosActualizados'));
+        console.error('No fue posible cargar los cursos:', error);
+        listaCursos.textContent = 'No fue posible cargar los cursos. Revisá tu conexión e intentá nuevamente.';
+        const reintentar = document.createElement('button');
+        reintentar.className = 'btn btn-oro';
+        reintentar.textContent = 'Reintentar';
+        reintentar.addEventListener('click', cargarCursosHabilitados);
+        listaCursos.append(reintentar);
+    } finally {
+        listaCursos.setAttribute('aria-busy', 'false');
     }
 }
-
 cargarCursosHabilitados();
