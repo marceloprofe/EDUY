@@ -7,6 +7,7 @@ import {
 import {
     doc,
     getDoc,
+    getDocFromServer,
     runTransaction,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
@@ -137,7 +138,7 @@ async function cargarCurso() {
     );
 
     const documentoCurso =
-        await getDoc(
+        await getDocFromServer(
             referenciaCurso
         );
 

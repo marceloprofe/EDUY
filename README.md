@@ -353,3 +353,21 @@ feature/* → develop → main
 - La rama `develop` contiene la versión integrada en desarrollo.
 - La rama `main` se reserva para la versión estable y final.
 - Las actividades se organizan mediante issues, milestone y tablero Kanban.
+
+## Catálogo centralizado en Firestore
+
+El inicio, el catálogo, el detalle y la adquisición consultan la colección `cursos` de `eduy-d6421`. Las lecturas de cursos usan `getDocsFromServer` / `getDocFromServer`: un error de conexión se muestra al usuario y no activa un catálogo local. Los enlaces antiguos `detalle.html?id=...` siguen funcionando mediante el ID del documento.
+
+Cada curso puede guardar `imagen` (string): URL HTTPS o ruta relativa a la raíz del sitio, por ejemplo `img/cursos/curso-python-eduy.jpg`. El formulario Mis cursos incluye este campo. La imagen se presenta en inicio, catálogo, detalle y Mis cursos; si falta o falla, se usa el logo de EDUY. Firestore almacena la referencia de la imagen; los archivos locales continúan en `img/`.
+
+Otros campos del catálogo: `titulo`, `descripcion`, `nivel` (basico/intermedio/avanzado), `duracion`, `precio`, `habilitado`, `estado`, `docenteNombre`, `orden`, `destacado` y `modulos` (array de mapas con titulo/descripcion). Se conserva `docenteId` en los cursos creados por docentes. Los 15 cursos institucionales importados figuran como Equipo EDUY y se administran desde la consola, sin asignarlos a un docente individual.
+
+### Importación de los cursos originales
+
+`datos/cursos-iniciales.json` conserva los 15 cursos originales y sus módulos exclusivamente como archivo de migración: ninguna página lo carga como fuente alternativa. En Cloud Shell con una sesión autorizada, subir ese archivo y `scripts/importar-cursos.py`, y ejecutar:
+
+```sh
+python3 importar-cursos.py cursos-iniciales.json
+```
+
+El script crea únicamente IDs ausentes y agrega la imagen faltante a documentos existentes sin cambiar sus otros campos. Utiliza una escritura atómica con precondiciones; si un documento cambió durante la importación, falla para evitar sobrescribirlo. Al finalizar comprueba los 15 cursos con imagen y módulos. No cambia las reglas de seguridad.
