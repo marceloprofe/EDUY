@@ -1,5 +1,30 @@
+import { db } from "./firebase-config.js";
+
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 // Obtiene la clave del curso indicada en la URL.
 // Ejemplo: detalle.html?id=esp32-basico
+async function obtenerCursoFirestore(cursoId) {
+  const referencia = doc(db, "cursos", cursoId);
+  const documento = await getDoc(referencia);
+
+  if (!documento.exists()) {
+    return null;
+  }
+
+  const datos = documento.data();
+
+  if (datos.habilitado !== true) {
+    return null;
+  }
+
+  return {
+    ...datos,
+    id: documento.id
+  };
+}
 const cursos = {
   "esp32-basico": {
     titulo: "ESP32: primeros proyectos", nivel: "Básico", imagen: "curso-esp32-eduy.jpg", duracion: "18 horas",
@@ -156,12 +181,67 @@ const cursos = {
 // Obtiene la clave del curso indicada en la URL.
 // Ejemplo: detalle.html?id=esp32-basico
 const parametros = new URLSearchParams(window.location.search);
+const cursoIdFirestore = parametros.get("cursoId");
 const idCurso = parametros.get("id");
-const curso = cursos[idCurso];
+
+let curso = null;
+let errorConsulta = false;
+
+function escaparHTML(valor = "") {
+  const elemento = document.createElement("div");
+  elemento.textContent = String(valor);
+  return elemento.innerHTML;
+}
+
+if (cursoIdFirestore) {
+  document.querySelector("#app").textContent = "Cargando curso…";
+
+  try {
+    const datos = await obtenerCursoFirestore(cursoIdFirestore);
+
+    if (datos) {
+      const nombresNivel = {
+        basico: "Básico",
+        intermedio: "Intermedio",
+        avanzado: "Avanzado"
+      };
+
+      curso = {
+        id: datos.id,
+        titulo: escaparHTML(datos.titulo || "Curso sin título"),
+        descripcion: escaparHTML(
+          datos.descripcion || "Descripción no disponible."
+        ),
+        nivel: nombresNivel[datos.nivel] || "Básico",
+        imagen: "curso-html-css-eduy.jpg",
+        duracion: "No especificada",
+        modulos: []
+      };
+    }
+  } catch (error) {
+    console.error("No fue posible consultar el curso:", error);
+    errorConsulta = true;
+  }
+} else {
+  curso = cursos[idCurso];
+}
 
 // Muestra un aviso comprensible si el HTML solicita un curso que no existe.
 if (!curso) {
-  document.querySelector("#app").innerHTML = '<main class="container py-5"><div class="alert alert-warning">Curso no encontrado.</div></main>';
+  const mensaje = errorConsulta
+    ? "No fue posible cargar el curso. Intentá nuevamente más tarde."
+    : "El curso no existe o no está disponible.";
+
+  document.querySelector("#app").innerHTML = `
+    <main class="container py-5">
+      <div class="alert alert-warning" role="alert">
+        ${mensaje}
+      </div>
+      <a href="./cursos.html" class="btn btn-oro">
+        Volver al catálogo
+      </a>
+    </main>
+  `;
 } else {
   // Actualiza el título de la pestaña con el nombre del curso seleccionado.
   document.title = `${curso.titulo} | EDUY`;
@@ -224,7 +304,16 @@ if (!curso) {
               <p><strong>Duración:</strong> ${curso.duracion}</p>
               <p><strong>Modalidad:</strong> En línea y asincrónica</p>
               <p><strong>Instructor:</strong> Equipo EDUY</p>
-              <a href="./login.html" class="btn btn-oro w-100 mb-2">Inscribirme</a>
+             ${cursoIdFirestore
+  ? `<a href="./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}"
+        class="btn btn-oro w-100 mb-2">
+       Adquirir curso
+     </a>`
+  : `<p class="small text-body-secondary">
+       La adquisición de este curso estará disponible
+       cuando se incorpore al catálogo de Firestore.
+     </p>`
+}
               <a href="./cursos.html" class="btn btn-outline-secondary w-100">Volver al catálogo</a>
             </div>
           </div>
@@ -232,5 +321,5 @@ if (!curso) {
       </section>
     </main>
     <div data-footer-eduy data-raiz=".."></div>`;
-     import("./sesion.js");
-}
+  import("./sesion.js");
+}await import("./footer.js");

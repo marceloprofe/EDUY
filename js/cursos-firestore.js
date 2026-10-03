@@ -65,10 +65,10 @@ function crearTarjetaCurso(curso) {
     columna.dataset.cursoId = curso.id;
 
     const enlaceAdquisicion =
-        `./adquisicion.html?cursoId=${
-            encodeURIComponent(curso.id)
+        `./adquisicion.html?cursoId=${encodeURIComponent(curso.id)
         }`;
-
+        const enlaceDetalle =
+        `./detalle.html?cursoId=${encodeURIComponent(curso.id)}`;
     columna.innerHTML = `
         <article class="card h-100 curso-card border-warning">
             <div class="card-body d-flex flex-column">
@@ -90,8 +90,8 @@ function crearTarjetaCurso(curso) {
                 <p class="small text-body-secondary mb-2">
                     Docente:
                     ${escaparHTML(
-                        curso.docenteNombre || "EDUY"
-                    )}
+        curso.docenteNombre || "EDUY"
+    )}
                 </p>
 
                 <p class="fw-bold mb-3">
@@ -99,15 +99,21 @@ function crearTarjetaCurso(curso) {
                     ${formatearPrecio(precio)}
                 </p>
 
-                <a
-                    href="${enlaceAdquisicion}"
-                    class="btn btn-oro mt-auto"
-                >
-                    Adquirir curso
-                </a>
+                <div class="d-grid gap-2 mt-auto">
+    <a href="${enlaceDetalle}"
+       class="btn btn-outline-secondary">
+        Ver detalle
+    </a>
+
+    <a href="${enlaceAdquisicion}"
+       class="btn btn-oro">
+        Adquirir curso
+    </a>
+</div>
             </div>
         </article>
     `;
+    
 
     return columna;
 }
