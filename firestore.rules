@@ -7,6 +7,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function esEstudiante() {
+      return estaAutenticado()
+        && get(
+          /databases/$(database)/documents/usuarios/$(request.auth.uid)
+        ).data.rol == "estudiante";
+    }
+
     function esDocente() {
       return estaAutenticado()
         && get(
@@ -23,27 +30,21 @@ service cloud.firestore {
 
     match /usuarios/{userId} {
 
-      // Cada usuario puede leer su perfil.
-      // El administrador puede consultar todos los usuarios.
       allow read: if estaAutenticado()
                   && (
                     request.auth.uid == userId
                     || esAdmin()
                   );
 
-      // El registro público siempre crea estudiantes.
       allow create: if estaAutenticado()
                     && request.auth.uid == userId
                     && request.resource.data.rol == "estudiante";
 
-      // El usuario puede actualizar su perfil,
-      // pero no puede cambiar su propio rol.
       allow update: if estaAutenticado()
                     && request.auth.uid == userId
-                    && request.resource.data.rol == resource.data.rol;
+                    && request.resource.data.rol
+                       == resource.data.rol;
 
-      // El administrador puede cambiar únicamente el rol
-      // de otros usuarios entre estudiante y docente.
       allow update: if esAdmin()
                     && request.auth.uid != userId
                     && resource.data.rol != "admin"
@@ -62,23 +63,89 @@ service cloud.firestore {
     }
 
     match /cursos/{cursoId} {
+
       allow read: if resource.data.habilitado == true
                   || (
                     esDocente()
-                    && resource.data.docenteId == request.auth.uid
+                    && resource.data.docenteId
+                       == request.auth.uid
                   );
 
       allow create: if esDocente()
-                    && request.resource.data.docenteId == request.auth.uid
-                    && request.resource.data.habilitado == false
-                    && request.resource.data.estado == "borrador";
+                    && request.resource.data.docenteId
+                       == request.auth.uid
+                    && request.resource.data.habilitado
+                       == false
+                    && request.resource.data.estado
+                       == "borrador";
 
       allow update: if esDocente()
-                    && resource.data.docenteId == request.auth.uid
-                    && request.resource.data.docenteId == request.auth.uid;
+                    && resource.data.docenteId
+                       == request.auth.uid
+                    && request.resource.data.docenteId
+                       == request.auth.uid;
 
       allow delete: if esDocente()
-                    && resource.data.docenteId == request.auth.uid;
+                    && resource.data.docenteId
+                       == request.auth.uid;
+    }
+
+    match /adquisiciones/{adquisicionId} {
+
+      // Permite comprobar si el estudiante ya adquirió
+      // el curso mediante su identificador.
+      allow get: if estaAutenticado()
+                 && (
+                   esAdmin()
+                   || adquisicionId.matches(
+                     request.auth.uid + "_.*"
+                   )
+                 );
+
+      // El estudiante solamente puede listar
+      // sus propias adquisiciones.
+      // El administrador puede consultar todas.
+      allow list: if estaAutenticado()
+                  && (
+                    esAdmin()
+                    || resource.data.usuarioId
+                       == request.auth.uid
+                  );
+
+      allow create: if esEstudiante()
+                    && request.resource.data.usuarioId
+                       == request.auth.uid
+                    && adquisicionId
+                       == request.auth.uid
+                          + "_"
+                          + request.resource.data.cursoId
+                    && request.resource.data.estado
+                       == "confirmada"
+                    && request.resource.data.pagoSimulado
+                       == true
+                    && request.resource.data.importe
+                       in [1200, 1800, 2400]
+                    && request.resource.data.fechaAdquisicion
+                       == request.time
+                    && get(
+                      /databases/$(database)/documents/cursos/$(request.resource.data.cursoId)
+                    ).data.habilitado == true
+                    && request.resource.data
+                       .keys()
+                       .hasOnly([
+                         "usuarioId",
+                         "usuarioCorreo",
+                         "cursoId",
+                         "cursoTitulo",
+                         "importe",
+                         "estado",
+                         "pagoSimulado",
+                         "fechaAdquisicion"
+                       ]);
+
+      // Una adquisición confirmada no puede
+      // modificarse ni eliminarse desde la aplicación.
+      allow update, delete: if false;
     }
   }
 }
