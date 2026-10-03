@@ -14,17 +14,51 @@ service cloud.firestore {
         ).data.rol == "docente";
     }
 
-    match /usuarios/{userId} {
-      allow read: if estaAutenticado()
-                  && request.auth.uid == userId;
+    function esAdmin() {
+      return estaAutenticado()
+        && get(
+          /databases/$(database)/documents/usuarios/$(request.auth.uid)
+        ).data.rol == "admin";
+    }
 
+    match /usuarios/{userId} {
+
+      // Cada usuario puede leer su perfil.
+      // El administrador puede consultar todos los usuarios.
+      allow read: if estaAutenticado()
+                  && (
+                    request.auth.uid == userId
+                    || esAdmin()
+                  );
+
+      // El registro público siempre crea estudiantes.
       allow create: if estaAutenticado()
                     && request.auth.uid == userId
                     && request.resource.data.rol == "estudiante";
 
+      // El usuario puede actualizar su perfil,
+      // pero no puede cambiar su propio rol.
       allow update: if estaAutenticado()
                     && request.auth.uid == userId
                     && request.resource.data.rol == resource.data.rol;
+
+      // El administrador puede cambiar únicamente el rol
+      // de otros usuarios entre estudiante y docente.
+      allow update: if esAdmin()
+                    && request.auth.uid != userId
+                    && resource.data.rol != "admin"
+                    && request.resource.data.rol
+                       in ["estudiante", "docente"]
+                    && request.resource.data
+                       .diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "rol",
+                         "fechaActualizacion",
+                         "actualizadoPor"
+                       ])
+                    && request.resource.data.actualizadoPor
+                       == request.auth.uid;
     }
 
     match /cursos/{cursoId} {
