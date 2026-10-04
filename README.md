@@ -94,12 +94,13 @@ El administrador:
 
 - Puede acceder al panel de administración.
 - Puede consultar la lista de usuarios registrados.
-- Puede cambiar el rol de un usuario entre `estudiante` y `docente`.
+- Puede crear usuarios con los roles `estudiante`, `docente` o `admin`.
+- Puede modificar el nombre y el rol de usuarios que no sean administradores.
+- Puede eliminar cuentas no administrativas que no tengan cursos asociados.
 - No puede modificar su propio rol desde la plataforma.
-- No puede convertir otra cuenta en administradora desde el panel.
 - No necesita modificar manualmente cada usuario desde la consola de Firestore.
 
-La primera cuenta administradora debe configurarse manualmente en Firestore. Después, el administrador puede habilitar docentes desde la propia plataforma.
+La primera cuenta administradora debe configurarse manualmente en Firestore. Después, el administrador puede gestionar las cuentas desde la propia plataforma.
 
 ## 6. Gestión de cursos
 
@@ -206,7 +207,7 @@ Los valores admitidos para `rol` son:
 - `docente`
 - `admin`
 
-El rol `admin` no puede asignarse mediante el registro público ni desde el panel de administración.
+El rol `admin` no puede asignarse mediante el registro público. Solo un administrador autenticado puede asignarlo desde el panel.
 
 ### Colección `cursos`
 
@@ -243,9 +244,10 @@ Las reglas de Firestore controlan que:
 
 - Los usuarios públicos se registren únicamente como estudiantes.
 - Un usuario no pueda modificar su propio rol.
-- Solo el administrador pueda cambiar roles entre estudiante y docente.
+- Solo el administrador pueda crear cuentas y asignar los roles estudiante, docente o admin.
+- El administrador pueda modificar nombre y rol de otros usuarios, excepto los perfiles administradores existentes.
 - El administrador no pueda cambiar su propio rol.
-- No se pueda asignar el rol administrador desde la aplicación.
+- El registro público cree perfiles únicamente con el rol estudiante.
 - Solo los docentes puedan crear y administrar cursos.
 - Cada docente pueda administrar solamente sus propios cursos.
 - Los cursos nuevos se creen como borradores.
@@ -258,6 +260,15 @@ Las reglas de Firestore controlan que:
 
 Además, la aplicación verifica el rol antes de permitir el acceso a las páginas restringidas. Cuando un usuario intenta entrar en una sección sin autorización, es redirigido a la página de acceso denegado.
 
+### Administración de usuarios
+
+La pestaña Usuarios consulta `usuarios/{uid}`. El alta crea la cuenta con una instancia secundaria de Firebase Authentication y guarda el perfil en Firestore con el mismo UID, sin cerrar la sesión del administrador. Si Firestore rechaza el perfil, el panel intenta retirar la cuenta temporal. Las bajas usan una función callable de Cloud Functions y Firebase Admin SDK.
+
+- Las modificaciones actualizan `nombre` y `rol` y verifican el resultado leyendo el documento desde el servidor.
+- Las bajas eliminan el perfil y la cuenta de Authentication. No se permite eliminar administradores, la cuenta en uso ni docentes con cursos asociados.
+- Las cuentas nuevas pueden recibir cualquiera de los tres roles. Los perfiles que ya son administradores permanecen protegidos frente a edición y eliminación.
+- Las bajas requieren desplegar la función callable desde Firebase CLI; las reglas actuales deben estar publicadas para que funcionen las altas y modificaciones.
+
 ## 11. Tecnologías utilizadas
 
 - HTML5.
@@ -266,6 +277,7 @@ Además, la aplicación verifica el rol antes de permitir el acceso a las págin
 - JavaScript.
 - Firebase Authentication.
 - Cloud Firestore.
+- Cloud Functions.
 - Git.
 - GitHub.
 - GitHub Projects.
@@ -301,6 +313,11 @@ EDUY/
 │   ├── perfil.js
 │   ├── registro.js
 │   └── sesion.js
+├── functions/
+│   ├── index.js
+│   └── package.json
+├── firebase.json
+├── .firebaserc
 ├── img/
 ├── firestore.rules
 └── README.md
@@ -321,7 +338,8 @@ Actualmente se encuentran implementadas las siguientes funcionalidades:
 - Publicación y despublicación de cursos.
 - Visualización pública exclusiva de cursos habilitados.
 - Panel administrativo de usuarios.
-- Cambio de rol entre estudiante y docente.
+- Alta, modificación y baja de usuarios desde el panel administrativo.
+- Asignación de los roles estudiante, docente y administrador.
 - Restricción de acceso según el rol.
 - Página de acceso denegado.
 - Flujo de adquisición de cursos.

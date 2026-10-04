@@ -7,6 +7,9 @@ import { getAuth } from
 import { getFirestore } from
     "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+import { getFunctions } from
+    "https://www.gstatic.com/firebasejs/12.18.0/firebase-functions.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyAvSqMKe1qdoLaSdBJ5SY5kYfNckF98NtE",
     authDomain: "eduy-d6421.firebaseapp.com",
@@ -19,5 +22,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const functions = getFunctions(app, "southamerica-east1");
 
-export { auth, db };
+// Una segunda instancia evita que crear una cuenta nueva cierre la sesión
+// del administrador autenticado en la instancia principal.
+const appAltaUsuario = initializeApp(firebaseConfig, "alta-usuario-admin");
+const authAltaUsuario = getAuth(appAltaUsuario);
+
+export { auth, authAltaUsuario, db, functions };
