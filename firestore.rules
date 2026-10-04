@@ -103,7 +103,17 @@ service cloud.firestore {
 
     match /cursos/{cursoId} {
 
-      allow read: if resource.data.habilitado == true
+      allow get: if esAdmin()
+                 || resource.data.habilitado == true
+                 || (
+                   esDocente()
+                   && resource.data.docenteId
+                      == request.auth.uid
+                 );
+
+      // Firestore evalúa list para getDocs/consultas de colección.
+      allow list: if esAdmin()
+                  || resource.data.habilitado == true
                   || (
                     esDocente()
                     && resource.data.docenteId
@@ -118,15 +128,100 @@ service cloud.firestore {
                     && request.resource.data.estado
                        == "borrador";
 
+      // Los administradores pueden crear cursos institucionales desde el panel.
+      allow create: if esAdmin()
+                    && request.resource.data.keys().hasAll([
+                      "titulo", "descripcion", "nivel", "imagen",
+                      "duracion", "precio", "docenteNombre", "habilitado",
+                      "estado", "fechaCreacion", "fechaActualizacion",
+                      "modulos", "destacado", "orden"
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      "titulo", "descripcion", "nivel", "imagen",
+                      "duracion", "precio", "docenteNombre", "habilitado",
+                      "estado", "fechaCreacion", "fechaActualizacion",
+                      "modulos", "destacado", "orden"
+                    ])
+                    && request.resource.data.titulo is string
+                    && request.resource.data.titulo.size() > 0
+                    && request.resource.data.titulo.size() <= 120
+                    && request.resource.data.descripcion is string
+                    && request.resource.data.descripcion.size() > 0
+                    && request.resource.data.descripcion.size() <= 2000
+                    && request.resource.data.nivel
+                       in ["basico", "intermedio", "avanzado"]
+                    && request.resource.data.imagen is string
+                    && request.resource.data.duracion is string
+                    && request.resource.data.precio is number
+                    && request.resource.data.precio > 0
+                    && request.resource.data.docenteNombre == "Equipo EDUY"
+                    && request.resource.data.habilitado is bool
+                    && request.resource.data.estado
+                       == (request.resource.data.habilitado
+                           ? "habilitado"
+                           : "borrador")
+                    && request.resource.data.fechaCreacion is timestamp
+                    && request.resource.data.fechaActualizacion is timestamp
+                    && request.resource.data.modulos is list
+                    && request.resource.data.modulos.size() <= 20
+                    && request.resource.data.destacado is bool
+                    && request.resource.data.orden is int;
+
       allow update: if esDocente()
                     && resource.data.docenteId
                        == request.auth.uid
                     && request.resource.data.docenteId
                        == request.auth.uid;
 
-      allow delete: if esDocente()
-                    && resource.data.docenteId
-                       == request.auth.uid;
+      // El panel puede editar el catálogo y reasignar un curso a un docente.
+      allow update: if esAdmin()
+                    && request.resource.data.diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "titulo", "descripcion", "nivel", "imagen",
+                         "duracion", "precio", "habilitado", "estado",
+                         "fechaActualizacion", "modulos", "docenteId",
+                         "docenteNombre"
+                       ])
+                    && request.resource.data.titulo is string
+                    && request.resource.data.titulo.size() > 0
+                    && request.resource.data.titulo.size() <= 120
+                    && request.resource.data.descripcion is string
+                    && request.resource.data.descripcion.size() > 0
+                    && request.resource.data.descripcion.size() <= 2000
+                    && request.resource.data.nivel
+                       in ["basico", "intermedio", "avanzado"]
+                    && request.resource.data.imagen is string
+                    && request.resource.data.duracion is string
+                    && request.resource.data.precio is number
+                    && request.resource.data.precio > 0
+                    && request.resource.data.habilitado is bool
+                    && request.resource.data.estado
+                       == (request.resource.data.habilitado
+                           ? "habilitado"
+                           : "borrador")
+                    && request.resource.data.fechaActualizacion is timestamp
+                    && request.resource.data.modulos is list
+                    && request.resource.data.modulos.size() <= 20
+                    && request.resource.data.docenteNombre is string
+                    && request.resource.data.docenteNombre.size() <= 120
+                    && (
+                      !request.resource.data.keys().hasAny(["docenteId"])
+                      || (
+                        request.resource.data.docenteId is string
+                        && exists(
+                          /databases/$(database)/documents/usuarios/$(request.resource.data.docenteId)
+                        )
+                        && get(
+                          /databases/$(database)/documents/usuarios/$(request.resource.data.docenteId)
+                        ).data.rol == "docente"
+                      )
+                    );
+
+      allow delete: if esAdmin()
+                    || (esDocente()
+                        && resource.data.docenteId
+                           == request.auth.uid);
     }
 
     match /adquisiciones/{adquisicionId} {
@@ -182,9 +277,61 @@ service cloud.firestore {
                          "fechaAdquisicion"
                        ]);
 
-      // Una adquisición confirmada no puede
-      // modificarse ni eliminarse desde la aplicación.
-      allow update, delete: if false;
+      // El panel puede registrar una adquisición manual para un estudiante
+      // y un curso existentes. El ID mantiene la clave estudiante_curso.
+      allow create: if esAdmin()
+                    && request.resource.data.keys().hasAll([
+                      "usuarioId", "usuarioCorreo", "cursoId",
+                      "cursoTitulo", "importe", "estado",
+                      "pagoSimulado", "fechaAdquisicion"
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      "usuarioId", "usuarioCorreo", "cursoId",
+                      "cursoTitulo", "importe", "estado",
+                      "pagoSimulado", "fechaAdquisicion"
+                    ])
+                    && request.resource.data.usuarioId is string
+                    && exists(
+                      /databases/$(database)/documents/usuarios/$(request.resource.data.usuarioId)
+                    )
+                    && get(
+                      /databases/$(database)/documents/usuarios/$(request.resource.data.usuarioId)
+                    ).data.rol == "estudiante"
+                    && request.resource.data.cursoId is string
+                    && exists(
+                      /databases/$(database)/documents/cursos/$(request.resource.data.cursoId)
+                    )
+                    && adquisicionId
+                       == request.resource.data.usuarioId
+                          + "_"
+                          + request.resource.data.cursoId
+                    && request.resource.data.usuarioCorreo is string
+                    && request.resource.data.usuarioCorreo.size() <= 254
+                    && request.resource.data.cursoTitulo is string
+                    && request.resource.data.cursoTitulo.size() > 0
+                    && request.resource.data.cursoTitulo.size() <= 120
+                    && request.resource.data.importe is number
+                    && request.resource.data.importe > 0
+                    && request.resource.data.importe <= 1000000
+                    && request.resource.data.estado == "confirmada"
+                    && request.resource.data.pagoSimulado == true
+                    && request.resource.data.fechaAdquisicion == request.time;
+
+      // El administrador puede corregir importe o fecha, sin cambiar
+      // estudiante, curso ni el estado de una adquisición confirmada.
+      allow update: if esAdmin()
+                    && request.resource.data.diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly(["importe", "fechaAdquisicion"])
+                    && request.resource.data.importe is number
+                    && request.resource.data.importe > 0
+                    && request.resource.data.importe <= 1000000
+                    && request.resource.data.fechaAdquisicion is timestamp
+                    && request.resource.data.estado == "confirmada"
+                    && request.resource.data.pagoSimulado == true;
+
+      // La baja del administrador retira el registro y permite una nueva compra.
+      allow delete: if esAdmin();
     }
   }
 }
