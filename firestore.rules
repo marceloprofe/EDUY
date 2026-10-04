@@ -28,6 +28,16 @@ service cloud.firestore {
         ).data.rol == "admin";
     }
 
+    function tieneAdquisicionConfirmada(cursoId) {
+      return esEstudiante()
+        && exists(
+          /databases/$(database)/documents/adquisiciones/$(request.auth.uid + "_" + cursoId)
+        )
+        && get(
+          /databases/$(database)/documents/adquisiciones/$(request.auth.uid + "_" + cursoId)
+        ).data.estado == "confirmada";
+    }
+
     match /usuarios/{userId} {
 
       allow read: if estaAutenticado()
@@ -105,6 +115,7 @@ service cloud.firestore {
 
       allow get: if esAdmin()
                  || resource.data.habilitado == true
+                 || tieneAdquisicionConfirmada(cursoId)
                  || (
                    esDocente()
                    && resource.data.docenteId

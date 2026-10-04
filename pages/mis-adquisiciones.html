@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mis adquisiciones | EDUY</title>
+  <title>Mis cursos adquiridos | EDUY</title>
 
   <link rel="icon" type="image/png" href="../img/logo.png">
   <link
@@ -53,10 +53,7 @@
   </nav>
 
   <main class="container flex-grow-1 py-5">
-    <h1 class="h2 fw-bold">Mis adquisiciones</h1>
-    <p class="text-body-secondary mb-4">
-      Consultá los cursos adquiridos mediante pagos simulados.
-    </p>
+    <h1 class="h2 fw-bold mb-4">Mis cursos adquiridos</h1>
 
     <!-- La integración controlará los mensajes de carga y error. -->
     <div id="estadoAdquisiciones"
@@ -77,34 +74,12 @@
       </a>
     </div>
 
-    <section class="card shadow-sm"
-             aria-labelledby="tituloHistorial">
-      <div class="card-body p-4">
-        <h2 id="tituloHistorial" class="h4 mb-3">
-          Historial de adquisiciones
-        </h2>
-
-        <div class="table-responsive"
-             tabindex="0"
-             role="region"
-             aria-label="Tabla de adquisiciones">
-          <table class="table table-striped align-middle mb-0">
-            <caption>
-              Curso, fecha, importe y estado de cada adquisición.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Curso</th>
-                <th scope="col">Fecha</th>
-                <th scope="col">Importe</th>
-                <th scope="col">Estado</th>
-              </tr>
-            </thead>
-            <tbody id="listaAdquisiciones">
-              <!-- La integración agregará las filas del historial aquí. -->
-            </tbody>
-          </table>
-        </div>
+    <section aria-labelledby="tituloHistorial">
+      <h2 id="tituloHistorial" class="h4 mb-4">
+        Historial de adquisiciones
+      </h2>
+      <div id="listaAdquisiciones" class="row g-4" aria-live="polite">
+        <!-- Las tarjetas del historial se cargan desde Firestore. -->
       </div>
     </section>
 

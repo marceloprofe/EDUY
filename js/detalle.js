@@ -5,6 +5,7 @@ import { escaparHTML, resolverImagen, prepararImagenes, nombresNivel } from './c
 // Ejemplo: detalle.html?id=esp32-basico
 const parametros = new URLSearchParams(window.location.search);
 const cursoIdFirestore = parametros.get("cursoId") || parametros.get("id");
+const vieneDeMisCursos = parametros.get("origen") === "mis-cursos";
 
 let curso = null;
 let errorConsulta = false;
@@ -66,6 +67,9 @@ if (!curso) {
         <p class="mb-0">${descripcion}</p>
       </div>
     </article>`).join("");
+  const botonPrincipal = vieneDeMisCursos
+    ? '<a href="./mis-adquisiciones.html" class="btn btn-oro w-100 mb-2">Volver a Mis cursos adquiridos</a>'
+    : `<a href="./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Adquirir curso</a>`;
 
   // Inserta la página completa dentro del contenedor #app del archivo HTML.
   document.querySelector("#app").innerHTML = `
@@ -115,7 +119,7 @@ if (!curso) {
               <p><strong>Duración:</strong> ${curso.duracion}</p>
               <p><strong>Modalidad:</strong> En línea y asincrónica</p>
               <p><strong>Instructor:</strong> ${curso.docenteNombre}</p>
-              <a href="./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Adquirir curso</a>
+              ${botonPrincipal}
               <a href="./cursos.html" class="btn btn-outline-secondary w-100">Volver al catálogo</a>
             </div>
           </div>

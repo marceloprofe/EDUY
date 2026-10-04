@@ -55,38 +55,47 @@ function formatearImporte(importe) {
   }).format(importe);
 }
 
-function agregarCelda(fila, texto) {
-  const celda = document.createElement("td");
-  celda.textContent = texto;
-  fila.appendChild(celda);
-}
-
 function mostrarAdquisiciones(adquisiciones) {
   const fragmento = document.createDocumentFragment();
 
   adquisiciones.forEach((adquisicion) => {
-    const fila = document.createElement("tr");
+    const columna = document.createElement("div");
+    columna.className = "col-12 col-md-6 col-xl-4";
 
-    agregarCelda(
-      fila,
-      adquisicion.cursoTitulo || "Título no disponible"
-    );
-    agregarCelda(
-      fila,
-      formatearFecha(adquisicion.fechaAdquisicion)
-    );
-    agregarCelda(
-      fila,
-      formatearImporte(adquisicion.importe)
-    );
-    agregarCelda(
-      fila,
-      adquisicion.estado === "confirmada"
-        ? "Confirmada"
-        : adquisicion.estado || "Estado no disponible"
-    );
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "card tarjeta-curso-adquirido h-100 shadow-sm";
 
-    fragmento.appendChild(fila);
+    const cuerpo = document.createElement("div");
+    cuerpo.className = "card-body d-flex flex-column p-4";
+
+    const estado = document.createElement("span");
+    estado.className = `badge ${adquisicion.estado === "confirmada" ? "text-bg-success" : "text-bg-secondary"} align-self-start mb-3`;
+    estado.textContent = adquisicion.estado === "confirmada"
+      ? "Confirmada"
+      : adquisicion.estado || "Estado no disponible";
+
+    const titulo = document.createElement("h3");
+    titulo.className = "h5 fw-bold";
+    titulo.textContent = adquisicion.cursoTitulo || "Título no disponible";
+
+    const fecha = document.createElement("p");
+    fecha.className = "mb-2 text-body-secondary";
+    fecha.textContent = `Adquirido: ${formatearFecha(adquisicion.fechaAdquisicion)}`;
+
+    const importe = document.createElement("p");
+    importe.className = "mb-4";
+    importe.innerHTML = "<strong>Importe:</strong> ";
+    importe.append(document.createTextNode(formatearImporte(adquisicion.importe)));
+
+    const boton = document.createElement("a");
+    boton.className = "btn btn-oro mt-auto w-100";
+    boton.href = `./detalle.html?cursoId=${encodeURIComponent(adquisicion.cursoId)}&origen=mis-cursos`;
+    boton.textContent = "Acceder al contenido";
+
+    cuerpo.append(estado, titulo, fecha, importe, boton);
+    tarjeta.appendChild(cuerpo);
+    columna.appendChild(tarjeta);
+    fragmento.appendChild(columna);
   });
 
   lista.replaceChildren(fragmento);
