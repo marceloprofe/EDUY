@@ -521,6 +521,39 @@ body {
     margin-right: 0.4rem;
 }
 
+.barra-sesion {
+    padding: 0.4rem 0;
+    background-color: #031f4b;
+    border-bottom: 2px solid #ffd700;
+    color: #f8f9fa;
+    font-size: 0.9rem;
+}
+
+.sesion-perfil {
+    color: #ffd700;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sesion-perfil:hover,
+.sesion-perfil:focus {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.tarjeta-curso-adquirido {
+  color: #212529;
+  border: 0;
+  border-top: 5px solid #ffd700;
+  border-radius: 0.85rem;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tarjeta-curso-adquirido:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 22%);
+}
+
 .boton-cerrar-sesion {
     border: 1px solid rgba(255, 255, 255, 0.75);
     border-radius: 0.5rem;
