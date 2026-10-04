@@ -19,6 +19,11 @@ function normalizarTexto(texto = "") {
 }
 
 function filtrarCursos() {
+    const estado = document.querySelector('#listaCursos').dataset.estado;
+    if (estado !== 'listo') {
+        resultadoFiltros.textContent = estado === 'error' ? 'No se pudieron cargar los cursos.' : 'Cargando cursos…';
+        return;
+    }
     const busqueda = normalizarTexto(
         campoBusqueda.value
     );

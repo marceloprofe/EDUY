@@ -1,3 +1,4 @@
+import { resolverImagen, prepararImagenes } from './curso-utils.js';
 import { auth, db } from "./firebase-config.js";
 
 import {
@@ -9,7 +10,7 @@ import {
     collection,
     doc,
     getDoc,
-    getDocs,
+    getDocsFromServer,
     query,
     serverTimestamp,
     updateDoc,
@@ -31,7 +32,7 @@ function mostrarMensaje(texto, tipo) {
 function escaparHTML(texto) {
     const elemento = document.createElement("div");
     elemento.textContent = texto;
-    return elemento.innerHTML;
+    return elemento.innerHTML.replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
 async function comprobarDocente(usuario) {
@@ -75,7 +76,7 @@ async function cargarCursos() {
             )
         );
 
-        const resultado = await getDocs(
+        const resultado = await getDocsFromServer(
             consultaCursos
         );
 
@@ -147,6 +148,7 @@ function mostrarCursos(cursos) {
             return `
         <div class="col-12 col-md-6 col-lg-4">
           <article class="card h-100 shadow-sm">
+            <img data-imagen-curso class="card-img-top" src="${escaparHTML(resolverImagen(curso.imagen))}" alt="${escaparHTML(curso.titulo)}" />
             <div class="card-body d-flex flex-column">
               <div
                 class="d-flex justify-content-between
@@ -186,6 +188,7 @@ function mostrarCursos(cursos) {
         })
         .join("");
 
+    prepararImagenes(listaCursos);
     document
         .querySelectorAll(".btn-cambiar-estado")
         .forEach((boton) => {
@@ -259,6 +262,15 @@ formulario.addEventListener(
         const nivel =
             formulario.nivel.value;
 
+        if (!usuarioActual || !perfilActual) {
+            mostrarMensaje('Esperá a que se verifique tu sesión docente.', 'warning');
+            return;
+        }
+        const imagen = formulario.imagen.value.trim();
+        if (imagen && !/^https:\/\//i.test(imagen) && !/^img\/[a-zA-Z0-9_./-]+$/.test(imagen)) {
+            mostrarMensaje('Ingresá una URL HTTPS o una ruta que empiece por img/.', 'warning');
+            return;
+        }
         botonGuardar.disabled = true;
         botonGuardar.textContent = "Guardando...";
 
@@ -269,6 +281,7 @@ formulario.addEventListener(
                     titulo,
                     descripcion,
                     nivel,
+                    imagen: formulario.imagen.value.trim(),
                     docenteId: usuarioActual.uid,
                     docenteNombre:
                         perfilActual.nombre ||

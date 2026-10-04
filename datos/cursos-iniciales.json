@@ -1,0 +1,482 @@
+[
+  {
+    "id": "esp32-basico",
+    "titulo": "ESP32: primeros proyectos",
+    "nivel": "basico",
+    "imagen": "img/cursos/curso-esp32-eduy.jpg",
+    "duracion": "18 horas",
+    "descripcion": "Una introducción práctica al ESP32 para comprender la placa, programar entradas y salidas y construir prototipos electrónicos conectados.",
+    "modulos": [
+      {
+        "titulo": "Conociendo el ESP32",
+        "descripcion": "Entorno de desarrollo, arquitectura de la placa, alimentación segura, pines digitales y primer programa."
+      },
+      {
+        "titulo": "Entradas y salidas",
+        "descripcion": "Lectura de pulsadores y sensores, control de LED, temporización y uso del monitor serial."
+      },
+      {
+        "titulo": "Sensores y actuadores",
+        "descripcion": "Medición de temperatura, distancia y movimiento; control de servomotores y señales PWM."
+      },
+      {
+        "titulo": "Proyecto integrador",
+        "descripcion": "Construcción, prueba y documentación de un dispositivo inteligente de monitoreo."
+      }
+    ],
+    "precio": 1200,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 0
+  },
+  {
+    "id": "esp32-avanzado",
+    "titulo": "ESP32: IoT y conectividad",
+    "nivel": "intermedio",
+    "imagen": "img/cursos/curso-esp32-eduy.jpg",
+    "duracion": "24 horas",
+    "descripcion": "Desarrollo de dispositivos IoT capaces de comunicarse, publicar mediciones y responder a órdenes remotas mediante redes inalámbricas.",
+    "modulos": [
+      {
+        "titulo": "Wi-Fi y Bluetooth",
+        "descripcion": "Configuración de redes, conexión segura, Bluetooth Low Energy y diagnóstico de comunicaciones."
+      },
+      {
+        "titulo": "Protocolos IoT",
+        "descripcion": "HTTP, APIs REST, MQTT, publicación de datos y suscripción a eventos."
+      },
+      {
+        "titulo": "Paneles y almacenamiento",
+        "descripcion": "Registro de mediciones, tableros web, alertas y visualización en tiempo real."
+      },
+      {
+        "titulo": "Proyecto conectado",
+        "descripcion": "Sistema IoT completo con sensores, control remoto, recuperación ante errores y documentación."
+      }
+    ],
+    "precio": 1800,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 1
+  },
+  {
+    "id": "esp32-pro",
+    "titulo": "ESP32: sistemas inteligentes",
+    "nivel": "avanzado",
+    "imagen": "img/cursos/curso-esp32-eduy.jpg",
+    "duracion": "30 horas",
+    "descripcion": "Diseño profesional de soluciones embebidas robustas, seguras, eficientes y preparadas para operar de forma continua.",
+    "modulos": [
+      {
+        "titulo": "Arquitectura avanzada",
+        "descripcion": "FreeRTOS, tareas, interrupciones, concurrencia, memoria y organización mantenible del firmware."
+      },
+      {
+        "titulo": "Seguridad y actualización",
+        "descripcion": "Cifrado, credenciales, arranque seguro y actualización remota OTA."
+      },
+      {
+        "titulo": "Eficiencia y confiabilidad",
+        "descripcion": "Modos de bajo consumo, watchdog, registro de fallos y pruebas de larga duración."
+      },
+      {
+        "titulo": "Producto final",
+        "descripcion": "Prototipo listo para producción con telemetría, seguridad, pruebas y memoria técnica."
+      }
+    ],
+    "precio": 2400,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 2
+  },
+  {
+    "id": "raspberry-pi-basico",
+    "titulo": "Raspberry Pi: fundamentos",
+    "nivel": "basico",
+    "imagen": "img/cursos/curso-raspberry-pi-eduy.jpg",
+    "duracion": "20 horas",
+    "descripcion": "Aprendizaje inicial de Raspberry Pi, Linux y Python para controlar componentes electrónicos y crear proyectos físicos.",
+    "modulos": [
+      {
+        "titulo": "Preparación del equipo",
+        "descripcion": "Instalación del sistema, configuración, escritorio, terminal y conexión a la red."
+      },
+      {
+        "titulo": "Linux esencial",
+        "descripcion": "Archivos, permisos, paquetes, procesos y comandos necesarios para administrar proyectos."
+      },
+      {
+        "titulo": "Python y GPIO",
+        "descripcion": "Programación básica, lectura de botones y sensores, control de LED y buenas prácticas eléctricas."
+      },
+      {
+        "titulo": "Proyecto integrador",
+        "descripcion": "Estación interactiva controlada con Python, registro de datos y presentación del resultado."
+      }
+    ],
+    "precio": 1200,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 3
+  },
+  {
+    "id": "raspberry-pi-avanzado",
+    "titulo": "Raspberry Pi: automatización",
+    "nivel": "intermedio",
+    "imagen": "img/cursos/curso-raspberry-pi-eduy.jpg",
+    "duracion": "26 horas",
+    "descripcion": "Automatización de espacios y procesos mediante Python, cámaras, servicios web, sensores y tareas programadas.",
+    "modulos": [
+      {
+        "titulo": "Python aplicado",
+        "descripcion": "Entornos virtuales, módulos, manejo de errores, archivos de configuración y registros."
+      },
+      {
+        "titulo": "Sensores y cámara",
+        "descripcion": "Captura de imágenes, interfaces GPIO, I2C y SPI, calibración y procesamiento básico."
+      },
+      {
+        "titulo": "Servicios automáticos",
+        "descripcion": "APIs, tareas programadas, servicios del sistema, bases de datos y paneles de control."
+      },
+      {
+        "titulo": "Proyecto de automatización",
+        "descripcion": "Sistema autónomo con reglas, alertas, historial y acceso desde la red local."
+      }
+    ],
+    "precio": 1800,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 4
+  },
+  {
+    "id": "raspberry-pi-pro",
+    "titulo": "Raspberry Pi: robótica avanzada",
+    "nivel": "avanzado",
+    "imagen": "img/cursos/curso-raspberry-pi-eduy.jpg",
+    "duracion": "34 horas",
+    "descripcion": "Integración avanzada de visión artificial, navegación, comunicaciones y control para robots autónomos.",
+    "modulos": [
+      {
+        "titulo": "Control de movimiento",
+        "descripcion": "Motores, encoders, control PID, fuentes de alimentación y movimiento preciso."
+      },
+      {
+        "titulo": "Visión artificial",
+        "descripcion": "Captura, procesamiento, detección de objetos y toma de decisiones a partir de imágenes."
+      },
+      {
+        "titulo": "Arquitectura robótica",
+        "descripcion": "Procesos concurrentes, mensajería, telemetría, APIs y supervisión remota."
+      },
+      {
+        "titulo": "Robot autónomo",
+        "descripcion": "Diseño y validación de un robot que percibe, decide, navega y registra su desempeño."
+      }
+    ],
+    "precio": 2400,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 5
+  },
+  {
+    "id": "arduino-basico",
+    "titulo": "Arduino: electrónica inicial",
+    "nivel": "basico",
+    "imagen": "img/cursos/curso-arduino-eduy.jpg",
+    "duracion": "18 horas",
+    "descripcion": "Fundamentos de electrónica y programación con Arduino mediante experimentos guiados y circuitos seguros.",
+    "modulos": [
+      {
+        "titulo": "Electricidad y protoboard",
+        "descripcion": "Voltaje, corriente, resistencia, ley de Ohm y armado correcto de circuitos."
+      },
+      {
+        "titulo": "Programación Arduino",
+        "descripcion": "Variables, condiciones, ciclos, funciones, monitor serial y estructura de un sketch."
+      },
+      {
+        "titulo": "Componentes esenciales",
+        "descripcion": "LED, pulsadores, potenciómetros, sensores y control de servomotores."
+      },
+      {
+        "titulo": "Proyecto final",
+        "descripcion": "Dispositivo interactivo completo con entradas, salidas, carcasa simple y documentación."
+      }
+    ],
+    "precio": 1200,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 6
+  },
+  {
+    "id": "arduino-avanzado",
+    "titulo": "Arduino: robots y sensores",
+    "nivel": "intermedio",
+    "imagen": "img/cursos/curso-arduino-eduy.jpg",
+    "duracion": "24 horas",
+    "descripcion": "Construcción de robots móviles capaces de medir su entorno, controlar motores y ejecutar comportamientos autónomos.",
+    "modulos": [
+      {
+        "titulo": "Sensores avanzados",
+        "descripcion": "Ultrasonido, infrarrojos, unidades inerciales, filtrado y calibración de mediciones."
+      },
+      {
+        "titulo": "Motores y potencia",
+        "descripcion": "Puentes H, motores DC, paso a paso, servos y separación segura de alimentación."
+      },
+      {
+        "titulo": "Comunicaciones",
+        "descripcion": "I2C, SPI, serial, módulos inalámbricos y control desde dispositivos externos."
+      },
+      {
+        "titulo": "Robot móvil",
+        "descripcion": "Montaje, programación y ajuste de un robot que evita obstáculos y completa una misión."
+      }
+    ],
+    "precio": 1800,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 7
+  },
+  {
+    "id": "arduino-pro",
+    "titulo": "Arduino: sistemas embebidos",
+    "nivel": "avanzado",
+    "imagen": "img/cursos/curso-arduino-eduy.jpg",
+    "duracion": "30 horas",
+    "descripcion": "Diseño de firmware y hardware embebido eficiente, modular y confiable para aplicaciones exigentes.",
+    "modulos": [
+      {
+        "titulo": "Firmware mantenible",
+        "descripcion": "Máquinas de estado, programación no bloqueante, bibliotecas, eventos y arquitectura modular."
+      },
+      {
+        "titulo": "Tiempo real",
+        "descripcion": "Temporizadores, interrupciones, adquisición precisa y control de tareas críticas."
+      },
+      {
+        "titulo": "Optimización",
+        "descripcion": "Memoria, consumo, comunicación robusta, diagnóstico y recuperación frente a errores."
+      },
+      {
+        "titulo": "Sistema profesional",
+        "descripcion": "Prototipo documentado con pruebas, esquema eléctrico y criterios de producción."
+      }
+    ],
+    "precio": 2400,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 8
+  },
+  {
+    "id": "microbit-basico",
+    "titulo": "micro:bit: programación creativa",
+    "nivel": "basico",
+    "imagen": "img/cursos/curso-microbit-eduy.jpg",
+    "duracion": "14 horas",
+    "descripcion": "Introducción visual y divertida a la programación mediante animaciones, juegos y experimentos interactivos.",
+    "modulos": [
+      {
+        "titulo": "Primeros bloques",
+        "descripcion": "Entorno MakeCode, secuencias, eventos, botones y matriz de luces."
+      },
+      {
+        "titulo": "Variables y decisiones",
+        "descripcion": "Datos, condiciones, ciclos, contadores y depuración de programas."
+      },
+      {
+        "titulo": "Sensores integrados",
+        "descripcion": "Movimiento, temperatura, luz, brújula y creación de respuestas interactivas."
+      },
+      {
+        "titulo": "Proyecto creativo",
+        "descripcion": "Diseño de un juego o dispositivo interactivo con reglas y presentación final."
+      }
+    ],
+    "precio": 1200,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 9
+  },
+  {
+    "id": "microbit-avanzado",
+    "titulo": "micro:bit: robótica y radio",
+    "nivel": "intermedio",
+    "imagen": "img/cursos/curso-microbit-eduy.jpg",
+    "duracion": "20 horas",
+    "descripcion": "Programación de robots, motores y redes de placas micro:bit que colaboran mediante comunicación por radio.",
+    "modulos": [
+      {
+        "titulo": "Pines y extensiones",
+        "descripcion": "Conexión segura de sensores, servos, motores y placas de expansión."
+      },
+      {
+        "titulo": "Comunicación por radio",
+        "descripcion": "Grupos, mensajes, protocolos simples y coordinación entre dispositivos."
+      },
+      {
+        "titulo": "Robótica móvil",
+        "descripcion": "Movimiento, detección de obstáculos, control remoto y comportamientos automáticos."
+      },
+      {
+        "titulo": "Desafío colaborativo",
+        "descripcion": "Construcción de varios dispositivos que se comunican para resolver una misión."
+      }
+    ],
+    "precio": 1800,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 10
+  },
+  {
+    "id": "microbit-pro",
+    "titulo": "micro:bit: laboratorio maker",
+    "nivel": "avanzado",
+    "imagen": "img/cursos/curso-microbit-eduy.jpg",
+    "duracion": "26 horas",
+    "descripcion": "Creación de experiencias maker completas que combinan código, electrónica, diseño físico e interacción.",
+    "modulos": [
+      {
+        "titulo": "Python en micro:bit",
+        "descripcion": "MicroPython, módulos, funciones, estructuras de datos y control avanzado de hardware."
+      },
+      {
+        "titulo": "Prototipado maker",
+        "descripcion": "Diseño iterativo, materiales, fabricación, pruebas con usuarios y mejora del prototipo."
+      },
+      {
+        "titulo": "Sistemas interactivos",
+        "descripcion": "Redes de sensores, actuadores, sonido, luces y experiencias físicas conectadas."
+      },
+      {
+        "titulo": "Proyecto de laboratorio",
+        "descripcion": "Producto educativo funcional con documentación, demostración y evaluación técnica."
+      }
+    ],
+    "precio": 2400,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": false,
+    "orden": 11
+  },
+  {
+    "id": "html-css",
+    "titulo": "HTML y CSS: desarrollo web",
+    "nivel": "basico",
+    "imagen": "img/cursos/curso-html-css-eduy.jpg",
+    "duracion": "22 horas",
+    "descripcion": "Creación de sitios web modernos, semánticos, accesibles y adaptables a computadoras y dispositivos móviles.",
+    "modulos": [
+      {
+        "titulo": "HTML semántico",
+        "descripcion": "Estructura del documento, contenido, enlaces, imágenes, formularios y etiquetas semánticas."
+      },
+      {
+        "titulo": "Fundamentos de CSS",
+        "descripcion": "Selectores, cascada, tipografía, colores, modelo de caja y unidades responsivas."
+      },
+      {
+        "titulo": "Diseño adaptable",
+        "descripcion": "Flexbox, Grid, media queries, componentes Bootstrap y estrategia mobile first."
+      },
+      {
+        "titulo": "Proyecto de sitio web",
+        "descripcion": "Planificación, construcción, accesibilidad, validación y publicación de un sitio completo."
+      }
+    ],
+    "precio": 1200,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 12
+  },
+  {
+    "id": "javascript",
+    "titulo": "JavaScript: web interactiva",
+    "nivel": "intermedio",
+    "imagen": "img/cursos/curso-javascript-eduy.jpg",
+    "duracion": "28 horas",
+    "descripcion": "Programación de experiencias web dinámicas mediante lógica, DOM, eventos, datos remotos y componentes interactivos.",
+    "modulos": [
+      {
+        "titulo": "Lenguaje JavaScript",
+        "descripcion": "Variables, tipos, funciones, objetos, arreglos, módulos y manejo de errores."
+      },
+      {
+        "titulo": "DOM y eventos",
+        "descripcion": "Selección y creación de elementos, formularios, eventos y actualización eficiente de interfaces."
+      },
+      {
+        "titulo": "Programación asíncrona",
+        "descripcion": "Promesas, async/await, Fetch API, JSON y comunicación con servicios web."
+      },
+      {
+        "titulo": "Aplicación interactiva",
+        "descripcion": "Arquitectura, estado, almacenamiento local, pruebas y desarrollo de una aplicación final."
+      }
+    ],
+    "precio": 1800,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 13
+  },
+  {
+    "id": "python",
+    "titulo": "Python: automatización y datos",
+    "nivel": "avanzado",
+    "imagen": "img/cursos/curso-python-eduy.jpg",
+    "duracion": "32 horas",
+    "descripcion": "Desarrollo de programas claros y mantenibles para automatizar tareas, procesar información y generar resultados útiles.",
+    "modulos": [
+      {
+        "titulo": "Python sólido",
+        "descripcion": "Tipos, funciones, colecciones, comprensión, módulos, excepciones y organización de proyectos."
+      },
+      {
+        "titulo": "Archivos y automatización",
+        "descripcion": "Lectura y escritura de datos, rutas, tareas repetitivas, registros y línea de comandos."
+      },
+      {
+        "titulo": "Análisis de datos",
+        "descripcion": "Limpieza, transformación, estadísticas descriptivas y visualización de información."
+      },
+      {
+        "titulo": "Proyecto profesional",
+        "descripcion": "Automatización completa con configuración, pruebas, documentación y entrega reproducible."
+      }
+    ],
+    "precio": 2400,
+    "docenteNombre": "Equipo EDUY",
+    "habilitado": true,
+    "estado": "habilitado",
+    "destacado": true,
+    "orden": 14
+  }
+]

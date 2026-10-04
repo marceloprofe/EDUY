@@ -1,35 +1,26 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adquirir curso | EDUY</title>
 
   <link rel="icon" type="image/png" href="../img/logo.png">
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/estilo.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-      <a class="navbar-brand d-flex align-items-center gap-2"
-         href="../index.html">
-        <img src="../img/logo.png"
-             class="logo-navbar"
-             alt="Logo de EDUY">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <img src="../img/logo.png" class="logo-navbar" alt="Logo de EDUY">
         <span class="h4 mb-0">EDUY</span>
       </a>
 
-      <button class="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#menuPrincipal"
-              aria-controls="menuPrincipal"
-              aria-expanded="false"
-              aria-label="Mostrar navegación">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+        aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar navegación">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -63,8 +54,7 @@
           de tarjetas, cuentas bancarias ni otros medios de pago.
         </div>
 
-        <section class="card shadow-sm"
-                 aria-labelledby="tituloResumen">
+        <section class="card shadow-sm" aria-labelledby="tituloResumen">
           <div class="card-body p-4 p-md-5">
             <h2 id="tituloResumen" class="h4 mb-4">
               Resumen del curso
@@ -75,8 +65,7 @@
               Curso pendiente de cargar
             </h3>
 
-            <p id="descripcionCursoAdquisicion"
-               class="text-body-secondary">
+            <p id="descripcionCursoAdquisicion" class="text-body-secondary">
               Aquí se mostrará la descripción del curso seleccionado.
             </p>
 
@@ -87,11 +76,7 @@
               </span>
             </p>
 
-            <div id="mensajeAdquisicion"
-                 class="alert d-none"
-                 role="status"
-                 aria-live="polite"
-                 aria-atomic="true"></div>
+            <div id="mensajeAdquisicion" class="alert d-none" role="status" aria-live="polite" aria-atomic="true"></div>
 
             <p id="avisoConfirmacion" class="small text-body-secondary">
               La confirmación estará disponible cuando se carguen
@@ -99,17 +84,12 @@
             </p>
 
             <div class="d-grid gap-3 d-sm-flex">
-              <button id="btnConfirmarAdquisicion"
-                      type="button"
-                      class="btn btn-oro"
-                      aria-describedby="avisoConfirmacion"
-                      disabled>
-                Confirmar adquisición 
+              <button id="btnConfirmarAdquisicion" type="button" class="btn btn-oro"
+                aria-describedby="avisoConfirmacion" disabled>
+                Confirmar adquisición
               </button>
 
-              <a id="btnCancelarAdquisicion"
-                 href="./cursos.html"
-                 class="btn btn-outline-secondary">
+              <a id="btnCancelarAdquisicion" href="./cursos.html" class="btn btn-outline-secondary">
                 Cancelar
               </a>
             </div>
@@ -122,8 +102,10 @@
   <div data-footer-eduy data-raiz=".."></div>
 
   <script src="../js/footer.js"></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
   </script>
+  <script type="module" src="../js/sesion.js"></script>
+  <script type="module" src="../js/adquisicion.js"></script>
 </body>
+
 </html>

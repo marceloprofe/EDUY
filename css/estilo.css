@@ -22,6 +22,18 @@ body {
   color: #ffd700 !important;
 }
 
+#lenguetasAdmin .nav-link.active,
+#lenguetasAdmin .nav-item.show .nav-link {
+  color: #031f4b;
+  background-color: #ffd700;
+  border-color: #ffd700;
+  font-weight: 600;
+}
+
+#lenguetasAdmin {
+  border-bottom-color: #ffd700;
+}
+
 .logo-navbar {
   width: 100px;
   height: 100px;
