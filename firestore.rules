@@ -38,6 +38,12 @@ service cloud.firestore {
         ).data.estado == "confirmada";
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | USUARIOS
+    |--------------------------------------------------------------------------
+    */
+
     match /usuarios/{userId} {
 
       allow read: if estaAutenticado()
@@ -111,6 +117,12 @@ service cloud.firestore {
                        == request.auth.uid;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CURSOS
+    |--------------------------------------------------------------------------
+    */
+
     match /cursos/{cursoId} {
 
       allow get: if esAdmin()
@@ -142,16 +154,36 @@ service cloud.firestore {
       // Los administradores pueden crear cursos institucionales desde el panel.
       allow create: if esAdmin()
                     && request.resource.data.keys().hasAll([
-                      "titulo", "descripcion", "nivel", "imagen",
-                      "duracion", "precio", "docenteNombre", "habilitado",
-                      "estado", "fechaCreacion", "fechaActualizacion",
-                      "modulos", "destacado", "orden"
+                      "titulo",
+                      "descripcion",
+                      "nivel",
+                      "imagen",
+                      "duracion",
+                      "precio",
+                      "docenteNombre",
+                      "habilitado",
+                      "estado",
+                      "fechaCreacion",
+                      "fechaActualizacion",
+                      "modulos",
+                      "destacado",
+                      "orden"
                     ])
                     && request.resource.data.keys().hasOnly([
-                      "titulo", "descripcion", "nivel", "imagen",
-                      "duracion", "precio", "docenteNombre", "habilitado",
-                      "estado", "fechaCreacion", "fechaActualizacion",
-                      "modulos", "destacado", "orden"
+                      "titulo",
+                      "descripcion",
+                      "nivel",
+                      "imagen",
+                      "duracion",
+                      "precio",
+                      "docenteNombre",
+                      "habilitado",
+                      "estado",
+                      "fechaCreacion",
+                      "fechaActualizacion",
+                      "modulos",
+                      "destacado",
+                      "orden"
                     ])
                     && request.resource.data.titulo is string
                     && request.resource.data.titulo.size() > 0
@@ -165,12 +197,15 @@ service cloud.firestore {
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
-                    && request.resource.data.docenteNombre == "Equipo EDUY"
+                    && request.resource.data.docenteNombre
+                       == "Equipo EDUY"
                     && request.resource.data.habilitado is bool
                     && request.resource.data.estado
-                       == (request.resource.data.habilitado
-                           ? "habilitado"
-                           : "borrador")
+                       == (
+                         request.resource.data.habilitado
+                         ? "habilitado"
+                         : "borrador"
+                       )
                     && request.resource.data.fechaCreacion is timestamp
                     && request.resource.data.fechaActualizacion is timestamp
                     && request.resource.data.modulos is list
@@ -186,12 +221,21 @@ service cloud.firestore {
 
       // El panel puede editar el catálogo y reasignar un curso a un docente.
       allow update: if esAdmin()
-                    && request.resource.data.diff(resource.data)
+                    && request.resource.data
+                       .diff(resource.data)
                        .affectedKeys()
                        .hasOnly([
-                         "titulo", "descripcion", "nivel", "imagen",
-                         "duracion", "precio", "habilitado", "estado",
-                         "fechaActualizacion", "modulos", "docenteId",
+                         "titulo",
+                         "descripcion",
+                         "nivel",
+                         "imagen",
+                         "duracion",
+                         "precio",
+                         "habilitado",
+                         "estado",
+                         "fechaActualizacion",
+                         "modulos",
+                         "docenteId",
                          "docenteNombre"
                        ])
                     && request.resource.data.titulo is string
@@ -208,16 +252,20 @@ service cloud.firestore {
                     && request.resource.data.precio > 0
                     && request.resource.data.habilitado is bool
                     && request.resource.data.estado
-                       == (request.resource.data.habilitado
-                           ? "habilitado"
-                           : "borrador")
+                       == (
+                         request.resource.data.habilitado
+                         ? "habilitado"
+                         : "borrador"
+                       )
                     && request.resource.data.fechaActualizacion is timestamp
                     && request.resource.data.modulos is list
                     && request.resource.data.modulos.size() <= 20
                     && request.resource.data.docenteNombre is string
                     && request.resource.data.docenteNombre.size() <= 120
                     && (
-                      !request.resource.data.keys().hasAny(["docenteId"])
+                      !request.resource.data.keys().hasAny([
+                        "docenteId"
+                      ])
                       || (
                         request.resource.data.docenteId is string
                         && exists(
@@ -230,10 +278,107 @@ service cloud.firestore {
                     );
 
       allow delete: if esAdmin()
-                    || (esDocente()
-                        && resource.data.docenteId
-                           == request.auth.uid);
+                    || (
+                      esDocente()
+                      && resource.data.docenteId
+                         == request.auth.uid
+                    );
+
+      /*
+      |--------------------------------------------------------------------------
+      | CONTENIDOS DE LOS CURSOS
+      |--------------------------------------------------------------------------
+      */
+
+      match /contenidos/{contenidoId} {
+
+        function esDocentePropietario() {
+          return esDocente()
+            && get(
+              /databases/$(database)/documents/cursos/$(cursoId)
+            ).data.docenteId == request.auth.uid;
+        }
+
+        function contenidoValido() {
+          return request.resource.data.keys().hasAll([
+              "titulo",
+              "descripcion",
+              "tipo",
+              "url",
+              "orden",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.keys().hasOnly([
+              "titulo",
+              "descripcion",
+              "tipo",
+              "url",
+              "orden",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.titulo is string
+            && request.resource.data.titulo.size() > 0
+            && request.resource.data.titulo.size() <= 120
+            && request.resource.data.descripcion is string
+            && request.resource.data.descripcion.size() > 0
+            && request.resource.data.descripcion.size() <= 1000
+            && request.resource.data.tipo in ["video", "pdf"]
+            && request.resource.data.url is string
+            && request.resource.data.url.size() > 8
+            && request.resource.data.url.size() <= 2048
+            && request.resource.data.url.matches("https://.*")
+            && request.resource.data.orden is int
+            && request.resource.data.orden >= 1
+            && request.resource.data.orden <= 100
+            && request.resource.data.fechaCreacion is timestamp
+            && request.resource.data.fechaActualizacion is timestamp;
+        }
+
+        // Puede leer el contenido:
+        // - el administrador;
+        // - el docente propietario del curso;
+        // - el estudiante que adquirió el curso.
+        allow read: if esAdmin()
+                    || esDocentePropietario()
+                    || tieneAdquisicionConfirmada(cursoId);
+
+        // El docente propietario puede agregar contenidos.
+        allow create: if esDocentePropietario()
+                      && contenidoValido()
+                      && request.resource.data.fechaCreacion
+                         == request.time
+                      && request.resource.data.fechaActualizacion
+                         == request.time;
+
+        // El docente propietario puede modificar sus contenidos.
+        allow update: if esDocentePropietario()
+                      && contenidoValido()
+                      && request.resource.data
+                         .diff(resource.data)
+                         .affectedKeys()
+                         .hasOnly([
+                           "titulo",
+                           "descripcion",
+                           "tipo",
+                           "url",
+                           "orden",
+                           "fechaActualizacion"
+                         ])
+                      && request.resource.data.fechaActualizacion
+                         == request.time;
+
+        // El docente propietario puede eliminar sus contenidos.
+        allow delete: if esDocentePropietario();
+      }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADQUISICIONES
+    |--------------------------------------------------------------------------
+    */
 
     match /adquisiciones/{adquisicionId} {
 
@@ -247,8 +392,7 @@ service cloud.firestore {
                    )
                  );
 
-      // El estudiante solamente puede listar
-      // sus propias adquisiciones.
+      // El estudiante solamente puede listar sus propias adquisiciones.
       // El administrador puede consultar todas.
       allow list: if estaAutenticado()
                   && (
@@ -292,14 +436,24 @@ service cloud.firestore {
       // y un curso existentes. El ID mantiene la clave estudiante_curso.
       allow create: if esAdmin()
                     && request.resource.data.keys().hasAll([
-                      "usuarioId", "usuarioCorreo", "cursoId",
-                      "cursoTitulo", "importe", "estado",
-                      "pagoSimulado", "fechaAdquisicion"
+                      "usuarioId",
+                      "usuarioCorreo",
+                      "cursoId",
+                      "cursoTitulo",
+                      "importe",
+                      "estado",
+                      "pagoSimulado",
+                      "fechaAdquisicion"
                     ])
                     && request.resource.data.keys().hasOnly([
-                      "usuarioId", "usuarioCorreo", "cursoId",
-                      "cursoTitulo", "importe", "estado",
-                      "pagoSimulado", "fechaAdquisicion"
+                      "usuarioId",
+                      "usuarioCorreo",
+                      "cursoId",
+                      "cursoTitulo",
+                      "importe",
+                      "estado",
+                      "pagoSimulado",
+                      "fechaAdquisicion"
                     ])
                     && request.resource.data.usuarioId is string
                     && exists(
@@ -324,24 +478,34 @@ service cloud.firestore {
                     && request.resource.data.importe is number
                     && request.resource.data.importe > 0
                     && request.resource.data.importe <= 1000000
-                    && request.resource.data.estado == "confirmada"
-                    && request.resource.data.pagoSimulado == true
-                    && request.resource.data.fechaAdquisicion == request.time;
+                    && request.resource.data.estado
+                       == "confirmada"
+                    && request.resource.data.pagoSimulado
+                       == true
+                    && request.resource.data.fechaAdquisicion
+                       == request.time;
 
       // El administrador puede corregir importe o fecha, sin cambiar
       // estudiante, curso ni el estado de una adquisición confirmada.
       allow update: if esAdmin()
-                    && request.resource.data.diff(resource.data)
+                    && request.resource.data
+                       .diff(resource.data)
                        .affectedKeys()
-                       .hasOnly(["importe", "fechaAdquisicion"])
+                       .hasOnly([
+                         "importe",
+                         "fechaAdquisicion"
+                       ])
                     && request.resource.data.importe is number
                     && request.resource.data.importe > 0
                     && request.resource.data.importe <= 1000000
                     && request.resource.data.fechaAdquisicion is timestamp
-                    && request.resource.data.estado == "confirmada"
-                    && request.resource.data.pagoSimulado == true;
+                    && request.resource.data.estado
+                       == "confirmada"
+                    && request.resource.data.pagoSimulado
+                       == true;
 
-      // La baja del administrador retira el registro y permite una nueva compra.
+      // La baja del administrador retira el registro
+      // y permite una nueva compra.
       allow delete: if esAdmin();
     }
   }
