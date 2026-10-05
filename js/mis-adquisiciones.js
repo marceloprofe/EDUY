@@ -89,8 +89,8 @@ function mostrarAdquisiciones(adquisiciones) {
 
     const boton = document.createElement("a");
     boton.className = "btn btn-oro mt-auto w-100";
-    boton.href = `./detalle.html?cursoId=${encodeURIComponent(adquisicion.cursoId)}&origen=mis-cursos`;
-    boton.textContent = "Acceder al contenido";
+    boton.href = `./curso-estudiante.html?cursoId=${encodeURIComponent(adquisicion.cursoId)}`;
+    boton.textContent = "Ingresar al contenido";
 
     cuerpo.append(estado, titulo, fecha, importe, boton);
     tarjeta.appendChild(cuerpo);

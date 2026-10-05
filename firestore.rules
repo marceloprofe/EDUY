@@ -508,5 +508,95 @@ service cloud.firestore {
       // y permite una nueva compra.
       allow delete: if esAdmin();
     }
+    /*
+|--------------------------------------------------------------------------
+| PROGRESO DE LOS ESTUDIANTES
+|--------------------------------------------------------------------------
+*/
+
+match /progresos/{progresoId} {
+
+  function progresoValido() {
+    return request.resource.data.keys().hasAll([
+        "usuarioId",
+        "cursoId",
+        "contenidosCompletados",
+        "porcentaje",
+        "fechaCreacion",
+        "fechaActualizacion"
+      ])
+      && request.resource.data.keys().hasOnly([
+        "usuarioId",
+        "cursoId",
+        "contenidosCompletados",
+        "porcentaje",
+        "fechaCreacion",
+        "fechaActualizacion"
+      ])
+      && request.resource.data.usuarioId is string
+      && request.resource.data.cursoId is string
+      && request.resource.data.contenidosCompletados is list
+      && request.resource.data.porcentaje is number
+      && request.resource.data.porcentaje >= 0
+      && request.resource.data.porcentaje <= 100
+      && request.resource.data.fechaCreacion is timestamp
+      && request.resource.data.fechaActualizacion is timestamp;
+  }
+
+  allow get: if esAdmin()
+             || (
+               esEstudiante()
+               && progresoId.matches(
+                 request.auth.uid + "_.*"
+               )
+             );
+
+  allow list: if esAdmin()
+              || (
+                esEstudiante()
+                && resource.data.usuarioId
+                   == request.auth.uid
+              );
+
+  allow create: if esEstudiante()
+                && progresoValido()
+                && request.resource.data.usuarioId
+                   == request.auth.uid
+                && progresoId
+                   == request.auth.uid
+                      + "_"
+                      + request.resource.data.cursoId
+                && tieneAdquisicionConfirmada(
+                  request.resource.data.cursoId
+                )
+                && request.resource.data.fechaCreacion
+                   == request.time
+                && request.resource.data.fechaActualizacion
+                   == request.time;
+
+  allow update: if esEstudiante()
+                && resource.data.usuarioId
+                   == request.auth.uid
+                && request.resource.data.usuarioId
+                   == resource.data.usuarioId
+                && request.resource.data.cursoId
+                   == resource.data.cursoId
+                && progresoValido()
+                && tieneAdquisicionConfirmada(
+                  resource.data.cursoId
+                )
+                && request.resource.data
+                   .diff(resource.data)
+                   .affectedKeys()
+                   .hasOnly([
+                     "contenidosCompletados",
+                     "porcentaje",
+                     "fechaActualizacion"
+                   ])
+                && request.resource.data.fechaActualizacion
+                   == request.time;
+
+  allow delete: if esAdmin();
+}
   }
 }
