@@ -380,10 +380,8 @@ service cloud.firestore {
     |--------------------------------------------------------------------------
     */
 
-    match /adquisiciones/{adquisicionId} {
+        match /adquisiciones/{adquisicionId} {
 
-      // Permite comprobar si el estudiante ya adquirió
-      // el curso mediante su identificador.
       allow get: if estaAutenticado()
                  && (
                    esAdmin()
@@ -392,8 +390,6 @@ service cloud.firestore {
                    )
                  );
 
-      // El estudiante solamente puede listar sus propias adquisiciones.
-      // El administrador puede consultar todas.
       allow list: if estaAutenticado()
                   && (
                     esAdmin()
@@ -401,7 +397,33 @@ service cloud.firestore {
                        == request.auth.uid
                   );
 
+      // El estudiante registra una compra con un método simulado.
+      // No se aceptan datos de tarjeta ni de cuentas bancarias.
       allow create: if esEstudiante()
+                    && request.resource.data.keys().hasAll([
+                      "usuarioId",
+                      "usuarioCorreo",
+                      "cursoId",
+                      "cursoTitulo",
+                      "importe",
+                      "estado",
+                      "pagoSimulado",
+                      "metodoPago",
+                      "estadoPago",
+                      "fechaAdquisicion"
+                    ])
+                    && request.resource.data.keys().hasOnly([
+                      "usuarioId",
+                      "usuarioCorreo",
+                      "cursoId",
+                      "cursoTitulo",
+                      "importe",
+                      "estado",
+                      "pagoSimulado",
+                      "metodoPago",
+                      "estadoPago",
+                      "fechaAdquisicion"
+                    ])
                     && request.resource.data.usuarioId
                        == request.auth.uid
                     && adquisicionId
@@ -412,28 +434,26 @@ service cloud.firestore {
                        == "confirmada"
                     && request.resource.data.pagoSimulado
                        == true
+                    && request.resource.data.metodoPago
+                       in [
+                         "tarjeta_credito",
+                         "tarjeta_debito",
+                         "transferencia",
+                         "mercado_pago"
+                       ]
+                    && request.resource.data.estadoPago
+                       == "aprobado_simulado"
                     && request.resource.data.importe
                        in [1200, 1800, 2400]
                     && request.resource.data.fechaAdquisicion
                        == request.time
                     && get(
                       /databases/$(database)/documents/cursos/$(request.resource.data.cursoId)
-                    ).data.habilitado == true
-                    && request.resource.data
-                       .keys()
-                       .hasOnly([
-                         "usuarioId",
-                         "usuarioCorreo",
-                         "cursoId",
-                         "cursoTitulo",
-                         "importe",
-                         "estado",
-                         "pagoSimulado",
-                         "fechaAdquisicion"
-                       ]);
+                    ).data.habilitado == true;
 
-      // El panel puede registrar una adquisición manual para un estudiante
-      // y un curso existentes. El ID mantiene la clave estudiante_curso.
+      // El panel de administración puede crear registros manuales.
+      // Los campos del método de pago son opcionales para que el panel
+      // siga siendo compatible con registros manuales anteriores.
       allow create: if esAdmin()
                     && request.resource.data.keys().hasAll([
                       "usuarioId",
@@ -453,6 +473,8 @@ service cloud.firestore {
                       "importe",
                       "estado",
                       "pagoSimulado",
+                      "metodoPago",
+                      "estadoPago",
                       "fechaAdquisicion"
                     ])
                     && request.resource.data.usuarioId is string
@@ -483,11 +505,28 @@ service cloud.firestore {
                     && request.resource.data.pagoSimulado
                        == true
                     && request.resource.data.fechaAdquisicion
-                       == request.time;
-
-      // El administrador puede corregir importe o fecha, sin cambiar
-      // estudiante, curso ni el estado de una adquisición confirmada.
-      allow update: if esAdmin()
+                       == request.time
+                    && (
+                      !request.resource.data.keys().hasAny([
+                        "metodoPago"
+                      ])
+                      || request.resource.data.metodoPago
+                         in [
+                           "tarjeta_credito",
+                           "tarjeta_debito",
+                           "transferencia",
+                           "mercado_pago"
+                         ]
+                    )
+                    && (
+                      !request.resource.data.keys().hasAny([
+                        "estadoPago"
+                      ])
+                      || request.resource.data.estadoPago
+                         == "aprobado_simulado"
+                    );
+    
+       allow update: if esAdmin()
                     && request.resource.data
                        .diff(resource.data)
                        .affectedKeys()
@@ -504,8 +543,6 @@ service cloud.firestore {
                     && request.resource.data.pagoSimulado
                        == true;
 
-      // La baja del administrador retira el registro
-      // y permite una nueva compra.
       allow delete: if esAdmin();
     }
     /*

@@ -51,15 +51,15 @@
                 aria-current="page"
               >
                 Carrito
-                <span id="contadorCarrito" class="badge text-bg-warning"
-                  >0</span
-                >
+                <span id="contadorCarrito" class="badge text-bg-warning">
+                  0
+                </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./login.html" data-auth-login
-                >Ingresar</a
-              >
+              <a class="nav-link" href="./login.html" data-auth-login>
+                Ingresar
+              </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./registro.html" data-auth-registro>
@@ -121,9 +121,31 @@
                 <strong id="totalCarrito">$ 0</strong>
               </p>
 
+              <div class="mb-3">
+                <label for="metodoPagoCarrito" class="form-label fw-semibold">
+                  Método de pago simulado
+                </label>
+                <select id="metodoPagoCarrito" class="form-select">
+                  <option value="">Seleccioná un método</option>
+                  <option value="tarjeta_credito">
+                    Tarjeta de crédito (simulada)
+                  </option>
+                  <option value="tarjeta_debito">
+                    Tarjeta de débito (simulada)
+                  </option>
+                  <option value="transferencia">
+                    Transferencia (simulada)
+                  </option>
+                  <option value="mercado_pago">Mercado Pago (simulado)</option>
+                </select>
+                <div class="form-text">
+                  No se ingresan ni guardan datos bancarios o de tarjetas.
+                </div>
+              </div>
+
               <div class="alert alert-info small mb-3">
                 <strong>Pago simulado.</strong>
-                No se ingresan ni guardan datos bancarios o de tarjetas.
+                No se realizan cargos reales.
               </div>
 
               <button
