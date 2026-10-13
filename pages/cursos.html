@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,7 +15,6 @@
   </head>
 
   <body>
-    <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
       <div class="container">
         <a
@@ -27,7 +25,6 @@
           <h1 class="h4 mb-0">Bienvenido a EDUY</h1>
         </a>
 
-        <!-- Botón del menú para celulares -->
         <button
           class="navbar-toggler"
           type="button"
@@ -49,6 +46,14 @@
               <a class="nav-link active" href="./cursos.html">Cursos</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="./carrito.html">
+                Carrito
+                <span id="contadorCarrito" class="badge text-bg-warning"
+                  >0</span
+                >
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="./login.html" data-auth-login>
                 Ingresar
               </a>
@@ -63,7 +68,6 @@
       </div>
     </nav>
 
-    <!-- Contenido principal -->
     <main class="container py-5">
       <div class="text-center mb-5">
         <h1 class="fw-bold">Nuestros cursos</h1>
@@ -72,13 +76,12 @@
         </p>
       </div>
 
-      <!-- Buscador y filtros de cursos -->
       <section class="filtros-cursos p-4 mb-4" aria-labelledby="tituloFiltros">
         <h2 id="tituloFiltros" class="h5 mb-3">Buscar cursos</h2>
 
         <div class="row g-3 align-items-end">
           <div class="col-md-7">
-            <label for="buscarCurso" class="form-label"> Nombre o tema </label>
+            <label for="buscarCurso" class="form-label">Nombre o tema</label>
             <input
               type="search"
               id="buscarCurso"
@@ -88,7 +91,7 @@
           </div>
 
           <div class="col-md-3">
-            <label for="filtroNivel" class="form-label"> Nivel </label>
+            <label for="filtroNivel" class="form-label">Nivel</label>
             <select id="filtroNivel" class="form-select">
               <option value="">Todos los niveles</option>
               <option value="basico">Básico</option>
@@ -116,11 +119,8 @@
 
     <script src="../js/filtros.js"></script>
     <script src="../js/footer.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="module" src="../js/cursos-firestore.js"></script>
-
     <script type="module" src="../js/sesion.js"></script>
   </body>
 </html>
