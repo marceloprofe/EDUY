@@ -546,6 +546,112 @@ service cloud.firestore {
       allow delete: if esAdmin();
     }
     /*
+    |--------------------------------------------------------------------------
+    | VALORACIONES DE DOCENTES
+    |--------------------------------------------------------------------------
+    */
+
+    match /valoracionesDocentes/{valoracionId} {
+
+      function cursoPerteneceAlDocente(cursoId, docenteId) {
+        return exists(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        )
+        && get(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        ).data.docenteId == docenteId;
+      }
+
+      function valoracionValida() {
+        return request.resource.data.keys().hasAll([
+          "estudianteId",
+          "cursoId",
+          "docenteId",
+          "estrellas",
+          "comentario",
+          "fechaCreacion",
+          "fechaActualizacion"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "estudianteId",
+          "cursoId",
+          "docenteId",
+          "estrellas",
+          "comentario",
+          "fechaCreacion",
+          "fechaActualizacion"
+        ])
+        && request.resource.data.estudianteId is string
+        && request.resource.data.cursoId is string
+        && request.resource.data.docenteId is string
+        && request.resource.data.estrellas is int
+        && request.resource.data.estrellas >= 1
+        && request.resource.data.estrellas <= 5
+        && request.resource.data.comentario is string
+        && request.resource.data.comentario.size() <= 500
+        && request.resource.data.fechaCreacion is timestamp
+        && request.resource.data.fechaActualizacion is timestamp;
+      }
+
+      // Las valoraciones y los comentarios se pueden consultar con sesión iniciada.
+      allow get, list: if estaAutenticado();
+
+      // Solo un estudiante que adquirió el curso puede crear su valoración.
+      allow create: if tieneAdquisicionConfirmada(
+                       request.resource.data.cursoId
+                     )
+                    && valoracionValida()
+                    && request.resource.data.estudianteId
+                       == request.auth.uid
+                    && valoracionId
+                       == request.auth.uid
+                          + "_"
+                          + request.resource.data.cursoId
+                    && cursoPerteneceAlDocente(
+                         request.resource.data.cursoId,
+                         request.resource.data.docenteId
+                       )
+                    && request.resource.data.fechaCreacion
+                       == request.time
+                    && request.resource.data.fechaActualizacion
+                       == request.time;
+
+      // El estudiante puede editar estrellas y comentario, sin cambiar curso o autor.
+      allow update: if tieneAdquisicionConfirmada(resource.data.cursoId)
+                    && resource.data.estudianteId
+                       == request.auth.uid
+                    && valoracionId
+                       == request.auth.uid
+                          + "_"
+                          + resource.data.cursoId
+                    && valoracionValida()
+                    && request.resource.data.estudianteId
+                       == resource.data.estudianteId
+                    && request.resource.data.cursoId
+                       == resource.data.cursoId
+                    && request.resource.data.docenteId
+                       == resource.data.docenteId
+                    && cursoPerteneceAlDocente(
+                         resource.data.cursoId,
+                         resource.data.docenteId
+                       )
+                    && request.resource.data
+                       .diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "estrellas",
+                         "comentario",
+                         "fechaActualizacion"
+                       ])
+                    && request.resource.data.fechaCreacion
+                       == resource.data.fechaCreacion
+                    && request.resource.data.fechaActualizacion
+                       == request.time;
+
+      allow delete: if esAdmin();
+    }
+
+    /*
 |--------------------------------------------------------------------------
 | PROGRESO DE LOS ESTUDIANTES
 |--------------------------------------------------------------------------
