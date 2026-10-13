@@ -24,6 +24,7 @@ const estado = document.querySelector("#estadoCarrito");
 const mensaje = document.querySelector("#mensajeCarrito");
 const cantidad = document.querySelector("#cantidadCursos");
 const total = document.querySelector("#totalCarrito");
+const metodoPago = document.querySelector("#metodoPagoCarrito");
 const botonConfirmar = document.querySelector("#btnConfirmarCarrito");
 
 let cursosEnCarrito = [];
@@ -80,9 +81,7 @@ async function cargarCarrito() {
     try {
         const resultados = await Promise.all(
             ids.map(async (id) => {
-                const resultado = await getDocFromServer(
-                    doc(db, "cursos", id)
-                );
+                const resultado = await getDocFromServer(doc(db, "cursos", id));
 
                 return resultado.exists()
                     ? { id: resultado.id, ...resultado.data() }
@@ -180,7 +179,9 @@ async function cargarCarrito() {
 }
 
 async function confirmarAdquisicion() {
-    if (procesando) return;
+    if (procesando) {
+        return;
+    }
 
     if (!usuarioActual) {
         window.location.href = "./login.html";
@@ -189,6 +190,14 @@ async function confirmarAdquisicion() {
 
     if (rolActual !== "estudiante") {
         window.location.href = "./acceso-denegado.html";
+        return;
+    }
+
+    const metodoSeleccionado = metodoPago.value;
+
+    if (!metodoSeleccionado) {
+        mostrarMensaje("Seleccioná un método de pago simulado.", "warning");
+        metodoPago.focus();
         return;
     }
 
@@ -217,8 +226,7 @@ async function confirmarAdquisicion() {
                 );
 
                 const cursoDoc = await transaccion.get(referenciaCurso);
-                const adquisicionDoc =
-                    await transaccion.get(referenciaAdquisicion);
+                const adquisicionDoc = await transaccion.get(referenciaAdquisicion);
 
                 if (!cursoDoc.exists() || cursoDoc.data().habilitado !== true) {
                     throw new Error("curso-no-disponible");
@@ -252,23 +260,20 @@ async function confirmarAdquisicion() {
                     importe,
                     estado: "confirmada",
                     pagoSimulado: true,
+                    metodoPago: metodoSeleccionado,
+                    estadoPago: "aprobado_simulado",
                     fechaAdquisicion: serverTimestamp()
                 });
             });
         });
 
         vaciarCarrito();
-
         mostrarMensaje(
-            "Adquisiciones confirmadas. El pago fue simulado y no se realizó ningún cargo.",
+            "Pago simulado correctamente. Los cursos fueron adquiridos.",
             "success"
         );
 
         await cargarCarrito();
-
-        window.setTimeout(() => {
-            window.location.href = "./mis-adquisiciones.html";
-        }, 1400);
     } catch (error) {
         console.error("No fue posible confirmar las adquisiciones:", error);
 
@@ -296,7 +301,6 @@ async function confirmarAdquisicion() {
 }
 
 botonConfirmar.addEventListener("click", confirmarAdquisicion);
-
 document.addEventListener("carritoActualizado", cargarCarrito);
 
 onAuthStateChanged(auth, async (usuario) => {
@@ -305,13 +309,8 @@ onAuthStateChanged(auth, async (usuario) => {
 
     if (usuario) {
         try {
-            const perfil = await getDoc(
-                doc(db, "usuarios", usuario.uid)
-            );
-
-            rolActual = perfil.exists()
-                ? perfil.data().rol
-                : null;
+            const perfil = await getDoc(doc(db, "usuarios", usuario.uid));
+            rolActual = perfil.exists() ? perfil.data().rol : null;
         } catch (error) {
             console.error("No fue posible consultar el perfil:", error);
         }
