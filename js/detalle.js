@@ -12,6 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 import {
+  addDoc,
   collection,
   doc,
   getDocFromServer,
@@ -318,6 +319,13 @@ if (cursoIdFirestore) {
     const datos = await obtenerCursoFirestore(cursoIdFirestore);
 
     if (datos) {
+      // Una apertura de detalle equivale a una visita, sin guardar datos personales.
+      if (datos.habilitado === true) {
+        addDoc(collection(db, "visitasCursos"), {
+          cursoId: datos.id,
+          fecha: serverTimestamp()
+        }).catch(error => console.warn("No se pudo registrar la visita al curso.", error));
+      }
       curso = {
         id: datos.id,
         titulo: escaparHTML(datos.titulo || "Curso sin título"),
