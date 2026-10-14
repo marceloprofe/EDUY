@@ -45,6 +45,39 @@ body {
   color: #212529;
 }
 
+/* Resumen de estadísticas con la identidad azul y dorada de EDUY. */
+.estadistica-destacada-eduy {
+  background: linear-gradient(135deg, #031f4b, #0b2f6b);
+  color: #f8f9fa;
+  border: 1px solid #b8860b;
+  border-top: 4px solid #ffd700;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgb(2 11 31 / 35%);
+}
+
+.estadistica-destacada-eduy .card-body {
+  padding: 1.5rem;
+}
+
+.estadistica-destacada-titulo {
+  color: #ffd700;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.estadistica-destacada-eduy .h5 {
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.estadistica-destacada-cantidad {
+  color: #f3de55;
+  font-weight: 600;
+  border-top: 1px solid rgb(255 215 0 / 30%);
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
 .icono-valor {
   display: block;
   width: 60px;
