@@ -3,6 +3,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Eventos anónimos de apertura del detalle de cursos publicados.
+    // Los eventos existentes no pueden ser modificados por el visitante.
+    match /visitasCursos/{visitaId} {
+      allow read: if esAdmin();
+      allow create: if request.resource.data.keys().hasAll(["cursoId", "fecha"])
+                    && request.resource.data.keys().hasOnly(["cursoId", "fecha"])
+                    && request.resource.data.cursoId is string
+                    && request.resource.data.fecha == request.time
+                    && exists(/databases/$(database)/documents/cursos/$(request.resource.data.cursoId))
+                    && get(/databases/$(database)/documents/cursos/$(request.resource.data.cursoId)).data.habilitado == true;
+      allow update, delete: if false;
+    }
+
     function estaAutenticado() {
       return request.auth != null;
     }
