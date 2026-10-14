@@ -21,6 +21,10 @@ function obtenerRutas() {
             ? "../index.html"
             : "./index.html",
 
+        cursos: estaEnPages
+            ? "./cursos.html"
+            : "./pages/cursos.html",
+
         perfil: estaEnPages
             ? "./perfil.html"
             : "./pages/perfil.html",
@@ -53,6 +57,7 @@ function crearOpcion(texto, enlace, clases = "") {
 
     elementoEnlace.href = enlace;
     elementoEnlace.textContent = texto;
+    elementoEnlace.dataset.opcionSesion = "true";
 
     elementoLista.appendChild(elementoEnlace);
 
@@ -70,6 +75,49 @@ function quitarOpcionesDeAcceso() {
 
     enlaceLogin?.closest("li")?.remove();
     enlaceRegistro?.closest("li")?.remove();
+}
+
+function crearOpcionSalir(texto, rutas) {
+    const opcion = document.createElement("li");
+    opcion.className = "nav-item";
+    opcion.dataset.opcionSesion = "true";
+
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "btn btn-link nav-link border-0 boton-cerrar-sesion";
+    boton.textContent = texto;
+    boton.addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = rutas.inicio;
+    });
+
+    opcion.appendChild(boton);
+    return opcion;
+}
+
+function mostrarSesionDebajo(nombre, rol, enlacePerfil) {
+    let barra = document.querySelector("#sesionActivaDebajoNav");
+    if (!barra) {
+        barra = document.createElement("div");
+        barra.id = "sesionActivaDebajoNav";
+        barra.className = "barra-sesion";
+        const contenedor = document.createElement("div");
+        contenedor.className = "container text-end";
+        barra.appendChild(contenedor);
+        document.querySelector(".navbar")?.insertAdjacentElement("afterend", barra);
+    }
+
+    const contenedor = barra.firstElementChild;
+    contenedor.replaceChildren();
+    const texto = document.createElement("span");
+    texto.className = "sesion-activa";
+    texto.textContent = "Sesión iniciada: ";
+    contenedor.appendChild(texto);
+    const perfil = document.createElement("a");
+    perfil.className = "sesion-perfil";
+    perfil.href = enlacePerfil;
+    perfil.textContent = `${nombre} (${rol})`;
+    contenedor.appendChild(perfil);
 }
 
 onAuthStateChanged(auth, async (usuario) => {
@@ -110,14 +158,34 @@ onAuthStateChanged(auth, async (usuario) => {
         const rutas = obtenerRutas();
 
         quitarOpcionesDeAcceso();
+        menu.querySelectorAll("[data-opcion-sesion]").forEach((elemento) => elemento.remove());
+
+        if (rol === "admin") {
+            menu.replaceChildren(
+                crearOpcion("Inicio", rutas.inicio),
+                crearOpcion("Cursos", rutas.cursos),
+                crearOpcion("Administración", rutas.panelAdmin),
+                crearOpcionSalir("Cerrar sesión", rutas)
+            );
+            mostrarSesionDebajo(nombre, "Administrador", rutas.perfil);
+            return;
+        }
+
+        const rolesVisibles = {
+            estudiante: "Estudiante",
+            docente: "Docente",
+            admin: "Administrador"
+        };
+        mostrarSesionDebajo(nombre, rolesVisibles[rol] || rol, rutas.perfil);
+
         if (rol === "estudiante") {
-    menu.appendChild(
-        crearOpcion(
-            "Mis adquisiciones",
-            rutas.misAdquisiciones
-        )
-    );
-}
+            menu.appendChild(
+                crearOpcion(
+                    "Mis cursos",
+                    rutas.misAdquisiciones
+                )
+            );
+        }
 
         if (rol === "docente") {
             menu.appendChild(
@@ -128,49 +196,7 @@ onAuthStateChanged(auth, async (usuario) => {
             );
         }
 
-        if (rol === "admin") {
-            menu.appendChild(
-                crearOpcion(
-                    "Panel administrativo",
-                    rutas.panelAdmin
-                )
-            );
-        }
-
-        menu.appendChild(
-            crearOpcion(
-                `${nombre} (${rol})`,
-                rutas.perfil,
-                "text-warning sesion-activa"
-            )
-        );
-
-        const opcionSalir =
-            document.createElement("li");
-
-        opcionSalir.className = "nav-item";
-
-        const botonSalir =
-            document.createElement("button");
-
-        botonSalir.type = "button";
-        botonSalir.className =
-            "btn btn-link nav-link border-0";
-
-        botonSalir.textContent = "Salir";
-
-        botonSalir.addEventListener(
-            "click",
-            async () => {
-                await signOut(auth);
-
-                window.location.href =
-                    rutas.inicio;
-            }
-        );
-
-        opcionSalir.appendChild(botonSalir);
-        menu.appendChild(opcionSalir);
+        menu.appendChild(crearOpcionSalir("Cerrar sesión", rutas));
     } catch (error) {
         console.error(
             "No fue posible consultar el perfil:",

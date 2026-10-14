@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Contenido del curso | EDUY</title>
+
+    <link rel="icon" type="image/png" href="../img/logo.png" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/estilo.css" />
+  </head>
+
+  <body class="d-flex flex-column min-vh-100">
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center gap-2"
+          href="../index.html"
+        >
+          <img src="../img/logo.png" class="logo-navbar" alt="Logo de EDUY" />
+
+          <span class="h4 mb-0">EDUY</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#menuPrincipal"
+          aria-controls="menuPrincipal"
+          aria-expanded="false"
+          aria-label="Mostrar navegación"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html"> Inicio </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="./cursos.html"> Cursos </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="./login.html"> Ingresar </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="./registro.html"> Registro </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container flex-grow-1 py-5">
+      <!-- Ruta de navegación -->
+      <nav aria-label="Navegación secundaria">
+        <ol class="breadcrumb mb-4">
+          <li class="breadcrumb-item">
+            <a href="../index.html"> Inicio </a>
+          </li>
+
+          <li class="breadcrumb-item">
+            <a href="./mis-adquisiciones.html"> Mis cursos </a>
+          </li>
+
+          <li class="breadcrumb-item active" aria-current="page">Contenido</li>
+        </ol>
+      </nav>
+
+      <!-- Mensajes de carga y error -->
+      <div
+        id="mensajeCurso"
+        class="alert alert-info"
+        role="status"
+        aria-live="polite"
+      >
+        Cargando curso...
+      </div>
+
+      <!-- Información del curso -->
+      <section
+        id="informacionCurso"
+        class="d-none"
+        aria-labelledby="tituloCurso"
+      >
+        <div
+          class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-4 mb-4"
+        >
+          <div>
+            <span class="badge text-bg-success mb-3"> Curso adquirido </span>
+
+            <h1 id="tituloCurso" class="display-6 fw-bold mb-3">Curso</h1>
+
+            <p class="mb-0">
+              <strong>Docente:</strong>
+              <span id="docenteCurso"> No disponible </span>
+            </p>
+          </div>
+
+          <a href="./mis-adquisiciones.html" class="btn btn-outline-light">
+            Volver a mis cursos
+          </a>
+        </div>
+
+        <!-- Avance del estudiante -->
+        <section class="card shadow-sm mb-4" aria-labelledby="tituloProgreso">
+          <div class="card-body p-4">
+            <div
+              class="d-flex justify-content-between align-items-center gap-3 mb-3"
+            >
+              <h2 id="tituloProgreso" class="h4 fw-bold mb-0">Mi avance</h2>
+
+              <span id="textoProgreso" class="badge text-bg-primary fs-6">
+                0%
+              </span>
+            </div>
+
+            <div
+              class="progress"
+              role="progressbar"
+              aria-label="Avance del curso"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+              style="height: 22px"
+            >
+              <div
+                id="barraProgreso"
+                class="progress-bar progress-bar-striped"
+                style="width: 0%"
+              >
+                0%
+              </div>
+            </div>
+
+            <p id="resumenProgreso" class="text-body-secondary mt-3 mb-0">
+              Todavía no completaste contenidos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Contenidos -->
+        <section aria-labelledby="tituloContenidos">
+          <div
+            class="d-flex justify-content-between align-items-center gap-3 mb-4"
+          >
+            <h2 id="tituloContenidos" class="h3 fw-bold mb-0">
+              Contenidos del curso
+            </h2>
+
+            <span id="cantidadContenidos" class="badge text-bg-secondary">
+              0 contenidos
+            </span>
+          </div>
+
+          <div
+            id="mensajeSinContenidos"
+            class="alert alert-info d-none"
+            role="status"
+          >
+            Este curso todavía no tiene contenidos disponibles.
+          </div>
+
+          <div id="listaContenidos" class="row g-4" aria-live="polite">
+            <!-- Los contenidos se cargan desde Firestore. -->
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- Pie de página -->
+    <div data-footer-eduy data-raiz=".."></div>
+
+    <script src="../js/footer.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module" src="../js/curso-estudiante.js"></script>
+
+    <script type="module" src="../js/sesion.js"></script>
+  </body>
+</html>

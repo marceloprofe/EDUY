@@ -1,9 +1,15 @@
-import { obtenerCursosHabilitados } from './cursos-datos.js';
-import { escaparHTML, resolverImagen, prepararImagenes } from './curso-utils.js';
+import { obtenerCursosHabilitados } from "./cursos-datos.js";
+import {
+    escaparHTML,
+    resolverImagen,
+    prepararImagenes
+} from "./curso-utils.js";
+import {
+    agregarAlCarrito,
+    actualizarContadorCarrito
+} from "./carrito-store.js";
 
-const listaCursos =
-    document.querySelector("#listaCursos");
-
+const listaCursos = document.querySelector("#listaCursos");
 
 function obtenerNombreNivel(nivel) {
     const nombres = {
@@ -32,14 +38,11 @@ function obtenerPrecioCurso(curso) {
 }
 
 function formatearPrecio(precio) {
-    return new Intl.NumberFormat(
-        "es-UY",
-        {
-            style: "currency",
-            currency: "UYU",
-            maximumFractionDigits: 0
-        }
-    ).format(precio);
+    return new Intl.NumberFormat("es-UY", {
+        style: "currency",
+        currency: "UYU",
+        maximumFractionDigits: 0
+    }).format(precio);
 }
 
 function crearTarjetaCurso(curso) {
@@ -48,90 +51,130 @@ function crearTarjetaCurso(curso) {
     const precio = obtenerPrecioCurso(curso);
 
     const columna = document.createElement("div");
-
     columna.className = "col-md-6 col-xl-4";
     columna.dataset.cursoFirestore = "true";
     columna.dataset.cursoId = curso.id;
 
     const enlaceAdquisicion =
-        `./adquisicion.html?cursoId=${encodeURIComponent(curso.id)
-        }`;
-        const enlaceDetalle =
+        `./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}`;
+
+    const enlaceDetalle =
         `./detalle.html?cursoId=${encodeURIComponent(curso.id)}`;
+
     columna.innerHTML = `
-        <article class="card h-100 curso-card">
-            <img data-imagen-curso class="card-img-top" loading="lazy" src="${escaparHTML(resolverImagen(curso.imagen))}" alt="${escaparHTML(curso.titulo)}" />
-            <div class="card-body d-flex flex-column">
-                <span
-                    class="badge nivel-${escaparHTML(nivel)}
-                           align-self-start mb-2"
-                >
-                    ${escaparHTML(nombreNivel)}
-                </span>
+    <article class="card h-100 curso-card">
+      <img
+        data-imagen-curso
+        class="card-img-top"
+        loading="lazy"
+        src="${escaparHTML(resolverImagen(curso.imagen))}"
+        alt="${escaparHTML(curso.titulo)}"
+      />
 
-                <h2 class="card-title h5">
-                    ${escaparHTML(curso.titulo)}
-                </h2>
+      <div class="card-body d-flex flex-column">
+        <span class="badge nivel-${escaparHTML(nivel)} align-self-start mb-2">
+          ${escaparHTML(nombreNivel)}
+        </span>
 
-                <p class="card-text">
-                    ${escaparHTML(curso.descripcion)}
-                </p>
+        <h2 class="card-title h5">
+          ${escaparHTML(curso.titulo)}
+        </h2>
 
-                <p class="small text-body-secondary mb-2">
-                    Docente:
-                    ${escaparHTML(
-        curso.docenteNombre || "EDUY"
-    )}
-                </p>
+        <p class="card-text">
+          ${escaparHTML(curso.descripcion)}
+        </p>
 
-                <p class="fw-bold mb-3">
-                    Precio simulado:
-                    ${formatearPrecio(precio)}
-                </p>
+        <p class="small text-body-secondary mb-2">
+          Docente: ${escaparHTML(curso.docenteNombre || "EDUY")}
+        </p>
 
-                <div class="d-grid gap-2 mt-auto">
-    <a href="${enlaceDetalle}"
-       class="btn btn-outline-secondary">
-        Ver detalle
-    </a>
+        <p class="fw-bold mb-3">
+          Precio simulado: ${formatearPrecio(precio)}
+        </p>
 
-    <a href="${enlaceAdquisicion}"
-       class="btn btn-oro">
-        Adquirir curso
-    </a>
-</div>
-            </div>
-        </article>
-    `;
-    
+        <div class="d-grid gap-2 mt-auto">
+          <a href="${enlaceDetalle}" class="btn btn-outline-secondary">
+            Ver detalle
+          </a>
+
+          <button
+            type="button"
+            class="btn btn-oro"
+            data-agregar-carrito="${escaparHTML(curso.id)}"
+          >
+            Agregar al carrito
+          </button>
+
+          <a href="${enlaceAdquisicion}" class="btn btn-outline-primary">
+            Adquirir ahora
+          </a>
+        </div>
+      </div>
+    </article>
+  `;
 
     return columna;
 }
 
+listaCursos.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("[data-agregar-carrito]");
+
+    if (!boton) return;
+
+    const agregado = agregarAlCarrito(boton.dataset.agregarCarrito);
+
+    actualizarContadorCarrito();
+
+    boton.textContent = agregado
+        ? "Agregado al carrito"
+        : "Ya está en el carrito";
+
+    boton.disabled = true;
+
+    window.setTimeout(() => {
+        boton.textContent = "Agregar al carrito";
+        boton.disabled = false;
+    }, 1400);
+});
+
+actualizarContadorCarrito();
+
 async function cargarCursosHabilitados() {
-    listaCursos.dataset.estado = 'cargando';
-    listaCursos.textContent = 'Cargando cursos…';
-    document.dispatchEvent(new CustomEvent('cursosActualizados'));
-    listaCursos.setAttribute('aria-busy', 'true');
+    listaCursos.dataset.estado = "cargando";
+    listaCursos.textContent = "Cargando cursos…";
+
+    document.dispatchEvent(new CustomEvent("cursosActualizados"));
+    listaCursos.setAttribute("aria-busy", "true");
+
     try {
         const cursos = await obtenerCursosHabilitados();
+
         listaCursos.replaceChildren(...cursos.map(crearTarjetaCurso));
-        if (!cursos.length) listaCursos.textContent = 'Todavía no hay cursos habilitados.';
-        listaCursos.dataset.estado = 'listo';
+
+        if (!cursos.length) {
+            listaCursos.textContent = "Todavía no hay cursos habilitados.";
+        }
+
+        listaCursos.dataset.estado = "listo";
         prepararImagenes(listaCursos);
-        document.dispatchEvent(new CustomEvent('cursosActualizados'));
+        document.dispatchEvent(new CustomEvent("cursosActualizados"));
     } catch (error) {
-        listaCursos.dataset.estado = 'error';
-        document.dispatchEvent(new CustomEvent('cursosActualizados'));
-        console.error('No fue posible cargar los cursos:', error);
-        listaCursos.textContent = 'No fue posible cargar los cursos. Revisá tu conexión e intentá nuevamente.';
-        const reintentar = document.createElement('button');
-        reintentar.className = 'btn btn-oro';
-        reintentar.textContent = 'Reintentar';
-        reintentar.addEventListener('click', cargarCursosHabilitados);
+        listaCursos.dataset.estado = "error";
+        document.dispatchEvent(new CustomEvent("cursosActualizados"));
+
+        console.error("No fue posible cargar los cursos:", error);
+
+        listaCursos.textContent =
+            "No fue posible cargar los cursos. Revisá tu conexión e intentá nuevamente.";
+
+        const reintentar = document.createElement("button");
+        reintentar.className = "btn btn-oro";
+        reintentar.textContent = "Reintentar";
+        reintentar.addEventListener("click", cargarCursosHabilitados);
         listaCursos.append(reintentar);
     } finally {
-        listaCursos.setAttribute('aria-busy', 'false');
+        listaCursos.setAttribute("aria-busy", "false");
     }
 }
+
 cargarCursosHabilitados();

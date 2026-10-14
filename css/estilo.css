@@ -45,6 +45,39 @@ body {
   color: #212529;
 }
 
+/* Resumen de estadísticas con la identidad azul y dorada de EDUY. */
+.estadistica-destacada-eduy {
+  background: linear-gradient(135deg, #031f4b, #0b2f6b);
+  color: #f8f9fa;
+  border: 1px solid #b8860b;
+  border-top: 4px solid #ffd700;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgb(2 11 31 / 35%);
+}
+
+.estadistica-destacada-eduy .card-body {
+  padding: 1.5rem;
+}
+
+.estadistica-destacada-titulo {
+  color: #ffd700;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.estadistica-destacada-eduy .h5 {
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.estadistica-destacada-cantidad {
+  color: #f3de55;
+  font-weight: 600;
+  border-top: 1px solid rgb(255 215 0 / 30%);
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
 .icono-valor {
   display: block;
   width: 60px;
@@ -519,6 +552,39 @@ body {
     color: #4ade80;
     font-size: 0.7rem;
     margin-right: 0.4rem;
+}
+
+.barra-sesion {
+    padding: 0.4rem 0;
+    background-color: #031f4b;
+    border-bottom: 2px solid #ffd700;
+    color: #f8f9fa;
+    font-size: 0.9rem;
+}
+
+.sesion-perfil {
+    color: #ffd700;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sesion-perfil:hover,
+.sesion-perfil:focus {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.tarjeta-curso-adquirido {
+  color: #212529;
+  border: 0;
+  border-top: 5px solid #ffd700;
+  border-radius: 0.85rem;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tarjeta-curso-adquirido:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 22%);
 }
 
 .boton-cerrar-sesion {
