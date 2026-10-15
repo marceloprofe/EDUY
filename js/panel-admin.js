@@ -926,8 +926,8 @@ onAuthStateChanged(auth, async (usuario) => {
     try {
         const perfilAdmin = await comprobarAdministrador(usuario);
         if (!perfilAdmin) {
-            alert("Esta sección es exclusiva para administradores.");
-            window.location.href = "../index.html";
+            contenidoAdmin.classList.add("d-none");
+            window.location.replace("./acceso-denegado.html");
             return;
         }
 
