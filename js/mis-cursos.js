@@ -560,48 +560,57 @@ formulario.addEventListener(
 
 /*
 |--------------------------------------------------------------------------
-| VERIFICAR SESIÓN
+| VERIFICAR SESIÓN Y ROL
 |--------------------------------------------------------------------------
 */
 
-onAuthStateChanged(
-    auth,
-    async (usuario) => {
-        if (!usuario) {
-            window.location.href =
-                "./login.html";
+const panelDocente = document.querySelector("#panelDocente");
 
-            return;
-        }
+onAuthStateChanged(auth, async (usuario) => {
+    // Ocultar el panel y limpiar la identidad anterior.
+    panelDocente.classList.add("d-none");
+    usuarioActual = null;
+    perfilActual = null;
 
-        try {
-            const perfil =
-                await comprobarDocente(
-                    usuario
-                );
-
-            if (!perfil) {
-                alert(
-                    "Esta sección es exclusiva para docentes."
-                );
-
-                window.location.href =
-                    "../index.html";
-
-                return;
-            }
-
-            usuarioActual = usuario;
-            perfilActual = perfil;
-
-            await cargarCursos();
-        } catch (error) {
-            console.error(error);
-
-            mostrarMensaje(
-                "No fue posible verificar el perfil docente.",
-                "danger"
-            );
-        }
+    if (!usuario) {
+        window.location.replace("./login.html");
+        return;
     }
-);
+
+    let perfil;
+
+    try {
+        perfil = await comprobarDocente(usuario);
+    } catch (error) {
+        console.error("Error al comprobar el rol docente:", error);
+
+        alert(
+            "No fue posible comprobar tus permisos. " +
+            "Volvé a iniciar sesión."
+        );
+
+        window.location.replace("./login.html");
+        return;
+    }
+
+    if (!perfil) {
+        window.location.replace("./acceso-denegado.html");
+        return;
+    }
+
+    usuarioActual = usuario;
+    perfilActual = perfil;
+
+    panelDocente.classList.remove("d-none");
+
+    try {
+        await cargarCursos();
+    } catch (error) {
+        console.error("Error al cargar los cursos:", error);
+
+        mostrarMensaje(
+            "No fue posible cargar tus cursos. Intentá nuevamente.",
+            "danger"
+        );
+    }
+});
