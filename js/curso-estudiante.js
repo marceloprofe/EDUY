@@ -21,6 +21,11 @@ import {
     contenidosHtmlCss
 } from "./curso-html-css-contenidos.js";
 
+import {
+    CURSO_ARDUINO_ID,
+    contenidosArduino
+} from "./curso-arduino-contenidos.js";
+
 /*
 |--------------------------------------------------------------------------
 | ELEMENTOS DE LA PÁGINA
@@ -671,6 +676,16 @@ async function cargarContenidos() {
                 (contenido) => ({
                     ...contenido,
                     url: `./aula-html-css.html?leccion=${encodeURIComponent(contenido.id)}`
+                })
+            );
+
+        return;
+    }
+    if (cursoId === CURSO_ARDUINO_ID) {
+        contenidosCurso =
+            contenidosArduino.map(
+                (contenido) => ({
+                    ...contenido
                 })
             );
 
