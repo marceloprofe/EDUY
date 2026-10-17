@@ -16,6 +16,11 @@ import {
     setDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+import {
+    CURSO_HTML_CSS_ID,
+    contenidosHtmlCss
+} from "./curso-html-css-contenidos.js";
+
 /*
 |--------------------------------------------------------------------------
 | ELEMENTOS DE LA PÁGINA
@@ -250,15 +255,21 @@ function crearTarjetaContenido(contenido) {
     const tipo =
         document.createElement("span");
 
-    tipo.className =
-        contenido.tipo === "pdf"
-            ? "badge text-bg-primary"
-            : "badge text-bg-danger";
+    const tipos = {
+        pdf: ["badge text-bg-primary", "PDF"],
+        video: ["badge text-bg-danger", "Video"],
+        leccion: ["badge text-bg-primary", "Lección"],
+        practica: ["badge text-bg-info", "Práctica"],
+        proyecto: ["badge text-bg-warning", "Proyecto"],
+        evaluacion: ["badge text-bg-success", "Evaluación"]
+    };
 
-    tipo.textContent =
-        contenido.tipo === "pdf"
-            ? "PDF"
-            : "Video";
+    const datosTipo =
+        tipos[contenido.tipo] ||
+        ["badge text-bg-secondary", "Contenido"];
+
+    tipo.className = datosTipo[0];
+    tipo.textContent = datosTipo[1];
 
     const orden =
         document.createElement("span");
@@ -304,16 +315,26 @@ function crearTarjetaContenido(contenido) {
     enlace.href =
         contenido.url;
 
-    enlace.target =
-        "_blank";
+    const esContenidoPropio =
+        contenido.url.startsWith("./");
 
-    enlace.rel =
-        "noopener noreferrer";
+    if (!esContenidoPropio) {
+        enlace.target = "_blank";
+        enlace.rel = "noopener noreferrer";
+    }
+
+    const textosBoton = {
+        pdf: "Abrir PDF",
+        video: "Abrir video",
+        leccion: "Comenzar lección",
+        practica: "Abrir práctica",
+        proyecto: "Abrir laboratorio",
+        evaluacion: "Realizar evaluación"
+    };
 
     enlace.textContent =
-        contenido.tipo === "pdf"
-            ? "Abrir PDF"
-            : "Abrir video";
+        textosBoton[contenido.tipo] ||
+        "Abrir contenido";
 
     const contenedorMarcado =
         document.createElement("div");
@@ -644,6 +665,18 @@ async function cargarProgreso() {
 */
 
 async function cargarContenidos() {
+    if (cursoId === CURSO_HTML_CSS_ID) {
+        contenidosCurso =
+            contenidosHtmlCss.map(
+                (contenido) => ({
+                    ...contenido,
+                    url: `./aula-html-css.html?leccion=${encodeURIComponent(contenido.id)}`
+                })
+            );
+
+        return;
+    }
+
     const resultado =
         await getDocs(
             collection(
