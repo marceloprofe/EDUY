@@ -62,6 +62,15 @@ const barraProgreso =
 const resumenProgreso =
     document.querySelector("#resumenProgreso");
 
+const estadoAccesoCurso =
+    document.querySelector("#estadoAccesoCurso");
+
+const enlaceVolverCurso =
+    document.querySelector("#enlaceVolverCurso");
+
+const enlaceBreadcrumbCurso =
+    document.querySelector("#enlaceBreadcrumbCurso");
+
 const contenedorBarra =
     barraProgreso.parentElement;
 
@@ -82,6 +91,7 @@ let contenidosCurso = [];
 let contenidosCompletados = new Set();
 let progresoCreado = false;
 let guardandoProgreso = false;
+let esVistaPreviaAdmin = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,6 +110,26 @@ function mostrarMensaje(
 
 function ocultarMensaje() {
     mensajeCurso.classList.add("d-none");
+}
+
+function configurarVistaPreviaAdmin() {
+    estadoAccesoCurso.textContent =
+        "Vista previa de administrador";
+
+    estadoAccesoCurso.className =
+        "badge text-bg-warning mb-3";
+
+    enlaceVolverCurso.href =
+        "./panel-admin.html";
+
+    enlaceVolverCurso.textContent =
+        "Volver a administración";
+
+    enlaceBreadcrumbCurso.href =
+        "./panel-admin.html";
+
+    enlaceBreadcrumbCurso.textContent =
+        "Administración";
 }
 
 /*
@@ -473,6 +503,10 @@ function bloquearCasillas(bloquear) {
 */
 
 async function guardarProgreso() {
+    if (esVistaPreviaAdmin) {
+        return;
+    }
+
     const progresoId =
         `${usuarioActual.uid}_${cursoId}`;
 
@@ -558,6 +592,18 @@ async function cambiarEstadoContenido(evento) {
                 : "Marcar como completado";
     }
 
+    if (esVistaPreviaAdmin) {
+        guardandoProgreso = false;
+        bloquearCasillas(false);
+
+        mostrarMensaje(
+            "Vista previa: el avance no se guardará.",
+            "warning"
+        );
+
+        return;
+    }
+
     try {
         await guardarProgreso();
 
@@ -615,6 +661,12 @@ async function cambiarEstadoContenido(evento) {
 */
 
 async function cargarProgreso() {
+    if (esVistaPreviaAdmin) {
+        contenidosCompletados = new Set();
+        progresoCreado = true;
+        return;
+    }
+
     const progresoId =
         `${usuarioActual.uid}_${cursoId}`;
 
@@ -730,6 +782,10 @@ async function cargarContenidos() {
 */
 
 async function verificarAdquisicion() {
+    if (esVistaPreviaAdmin) {
+        return true;
+    }
+
     const adquisicionId =
         `${usuarioActual.uid}_${cursoId}`;
 
@@ -818,7 +874,16 @@ async function iniciarPagina() {
         "d-none"
     );
 
-    ocultarMensaje();
+    if (esVistaPreviaAdmin) {
+        configurarVistaPreviaAdmin();
+
+        mostrarMensaje(
+            "Estás viendo el curso como estudiante. No se creó una compra y el avance de esta vista no se guardará.",
+            "warning"
+        );
+    } else {
+        ocultarMensaje();
+    }
 }
 
 /*
@@ -848,9 +913,13 @@ onAuthStateChanged(
                     )
                 );
 
+            const rol = perfil.exists()
+                ? perfil.data().rol
+                : null;
+
             if (
-                !perfil.exists() ||
-                perfil.data().rol !== "estudiante"
+                rol !== "estudiante" &&
+                rol !== "admin"
             ) {
                 window.location.replace(
                     "./acceso-denegado.html"
@@ -860,6 +929,8 @@ onAuthStateChanged(
             }
 
             usuarioActual = usuario;
+            esVistaPreviaAdmin =
+                rol === "admin";
 
             await iniciarPagina();
         } catch (error) {
