@@ -379,44 +379,31 @@ if (!curso) {
 
   const usuarioSesion = await esperarUsuarioAutenticado();
   let cursoAdquirido = false;
-  let esAdministrador = false;
 
   if (usuarioSesion) {
     try {
-      const perfil = await getDocFromServer(
-        doc(db, "usuarios", usuarioSesion.uid)
+      const referenciaAdquisicion = doc(
+        db,
+        "adquisiciones",
+        `${usuarioSesion.uid}_${curso.id}`
+      );
+      const documentoAdquisicion = await getDocFromServer(
+        referenciaAdquisicion
       );
 
-      esAdministrador =
-        perfil.exists() &&
-        perfil.data().rol === "admin";
-
-      if (!esAdministrador) {
-        const referenciaAdquisicion = doc(
-          db,
-          "adquisiciones",
-          `${usuarioSesion.uid}_${curso.id}`
-        );
-        const documentoAdquisicion = await getDocFromServer(
-          referenciaAdquisicion
-        );
-
-        cursoAdquirido =
-          documentoAdquisicion.exists() &&
-          documentoAdquisicion.data().estado === "confirmada";
-      }
+      cursoAdquirido =
+        documentoAdquisicion.exists() &&
+        documentoAdquisicion.data().estado === "confirmada";
     } catch (error) {
-      console.error("No fue posible comprobar el acceso al curso:", error);
+      console.error("No fue posible comprobar la adquisición:", error);
     }
   }
 
   const botonPrincipal = vieneDeMisCursos
     ? '<a href="./mis-adquisiciones.html" class="btn btn-oro w-100 mb-2">Volver a Mis cursos adquiridos</a>'
-    : esAdministrador
-      ? `<a href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}&vista=estudiante" class="btn btn-oro w-100 mb-2">Vista previa como estudiante</a>`
-      : cursoAdquirido
-        ? `<a href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Ir al curso</a>`
-        : `<a href="./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Adquirir curso</a>`;
+    : cursoAdquirido
+      ? `<a href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Ir al curso</a>`
+      : `<a href="./adquisicion.html?cursoId=${encodeURIComponent(curso.id)}" class="btn btn-oro w-100 mb-2">Adquirir curso</a>`;
 
   document.querySelector("#app").innerHTML = `
     <nav class="navbar navbar-expand-lg navbar-dark">
