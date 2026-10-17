@@ -456,8 +456,11 @@ service cloud.firestore {
                        ]
                     && request.resource.data.estadoPago
                        == "aprobado_simulado"
+                    && request.resource.data.importe is number
                     && request.resource.data.importe
-                       in [1200, 1800, 2400]
+                       == get(
+                         /databases/$(database)/documents/cursos/$(request.resource.data.cursoId)
+                       ).data.precio
                     && request.resource.data.fechaAdquisicion
                        == request.time
                     && get(
