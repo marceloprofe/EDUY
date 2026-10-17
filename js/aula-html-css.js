@@ -48,6 +48,7 @@ let usuarioActual = null;
 let contenidoActual = buscarContenidoHtmlCss(contenidoInicial);
 let contenidosCompletados = new Set();
 let progresoCreado = false;
+let modoVistaAdministrador = false;
 
 const etiquetasTipo = {
   leccion: "Lección",
@@ -82,7 +83,11 @@ function actualizarProgresoVisual() {
 }
 
 function urlLeccion(id) {
-  const vistaPrevia = modoVistaPrevia ? "&demo=1" : "";
+  const vistaPrevia = modoVistaPrevia
+    ? "&demo=1"
+    : modoVistaAdministrador
+      ? "&vista=estudiante"
+      : "";
   return `./aula-html-css.html?leccion=${encodeURIComponent(id)}${vistaPrevia}`;
 }
 
@@ -253,7 +258,7 @@ function mostrarRetroalimentacion(texto, tipo) {
 }
 
 async function guardarProgreso() {
-  if (modoVistaPrevia) {
+  if (modoVistaPrevia || modoVistaAdministrador) {
     progresoCreado = true;
     return;
   }
@@ -290,9 +295,11 @@ async function completarLeccion() {
     renderizarIndice();
     actualizarBotonCompletar();
     mostrarRetroalimentacion(
-      porcentajeActual() === 100
-        ? "¡Curso completado! Terminaste todas las unidades de HTML y CSS."
-        : "Lección completada. Tu avance quedó guardado.",
+      modoVistaAdministrador
+        ? "Vista previa: la lección se completó solo durante esta sesión."
+        : porcentajeActual() === 100
+          ? "¡Curso completado! Terminaste todas las unidades de HTML y CSS."
+          : "Lección completada. Tu avance quedó guardado.",
       "success"
     );
   } catch (error) {
@@ -305,6 +312,12 @@ async function completarLeccion() {
 }
 
 async function cargarProgreso() {
+  if (modoVistaAdministrador) {
+    contenidosCompletados = new Set();
+    progresoCreado = true;
+    return;
+  }
+
   const progresoId = `${usuarioActual.uid}_${CURSO_HTML_CSS_ID}`;
   const resultado = await getDoc(doc(db, "progresos", progresoId));
 
@@ -323,15 +336,30 @@ async function cargarProgreso() {
 }
 
 async function verificarAcceso(usuario) {
-  const [perfil, adquisicion] = await Promise.all([
-    getDoc(doc(db, "usuarios", usuario.uid)),
-    getDoc(doc(db, "adquisiciones", `${usuario.uid}_${CURSO_HTML_CSS_ID}`))
-  ]);
+  const perfil = await getDoc(doc(db, "usuarios", usuario.uid));
 
-  return perfil.exists()
-    && perfil.data().rol === "estudiante"
-    && adquisicion.exists()
-    && adquisicion.data().estado === "confirmada";
+  if (!perfil.exists()) {
+    return null;
+  }
+
+  const rol = perfil.data().rol;
+
+  if (rol === "admin") {
+    return "admin";
+  }
+
+  if (rol !== "estudiante") {
+    return null;
+  }
+
+  const adquisicion = await getDoc(
+    doc(db, "adquisiciones", `${usuario.uid}_${CURSO_HTML_CSS_ID}`)
+  );
+
+  return adquisicion.exists()
+    && adquisicion.data().estado === "confirmada"
+    ? "estudiante"
+    : null;
 }
 
 formActividad.addEventListener("submit", (evento) => {
@@ -401,20 +429,28 @@ onAuthStateChanged(auth, async (usuario) => {
   }
 
   try {
-    const tieneAcceso = await verificarAcceso(usuario);
-    if (!tieneAcceso) {
+    const tipoAcceso = await verificarAcceso(usuario);
+    if (!tipoAcceso) {
       window.location.replace("./acceso-denegado.html");
       return;
     }
 
     usuarioActual = usuario;
+    modoVistaAdministrador = tipoAcceso === "admin";
     await cargarProgreso();
     contenidoActual = buscarContenidoHtmlCss(contenidoInicial);
     renderizarIndice();
     renderizarLeccion();
     actualizarProgresoVisual();
     aulaCurso.classList.remove("d-none");
-    ocultarMensaje();
+    if (modoVistaAdministrador) {
+      mostrarMensaje(
+        "Vista previa de administrador: podés probar las actividades, pero el avance no se guardará.",
+        "warning"
+      );
+    } else {
+      ocultarMensaje();
+    }
   } catch (error) {
     console.error("No fue posible abrir el aula:", error);
     mostrarMensaje("No fue posible cargar el aula. Verificá la conexión e intentá nuevamente.", "danger");

@@ -1,4 +1,7 @@
+import { auth, db } from "./firebase-config.js";
 import { obtenerCursosHabilitados } from "./cursos-datos.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import {
     escaparHTML,
     resolverImagen,
@@ -45,7 +48,7 @@ function formatearPrecio(precio) {
     }).format(precio);
 }
 
-function crearTarjetaCurso(curso) {
+function crearTarjetaCurso(curso, rolActual) {
     const nivel = curso.nivel || "basico";
     const nombreNivel = obtenerNombreNivel(nivel);
     const precio = obtenerPrecioCurso(curso);
@@ -60,6 +63,28 @@ function crearTarjetaCurso(curso) {
 
     const enlaceDetalle =
         `./detalle.html?cursoId=${encodeURIComponent(curso.id)}`;
+
+    const acciones = rolActual === "admin"
+        ? `
+          <a href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}&vista=estudiante" class="btn btn-oro">
+            Vista previa como estudiante
+          </a>
+
+          <a href="./panel-admin.html" class="btn btn-outline-primary">
+            Administrar curso
+          </a>`
+        : `
+          <button
+            type="button"
+            class="btn btn-oro"
+            data-agregar-carrito="${escaparHTML(curso.id)}"
+          >
+            Agregar al carrito
+          </button>
+
+          <a href="${enlaceAdquisicion}" class="btn btn-outline-primary">
+            Adquirir ahora
+          </a>`;
 
     columna.innerHTML = `
     <article class="card h-100 curso-card">
@@ -97,17 +122,7 @@ function crearTarjetaCurso(curso) {
             Ver detalle
           </a>
 
-          <button
-            type="button"
-            class="btn btn-oro"
-            data-agregar-carrito="${escaparHTML(curso.id)}"
-          >
-            Agregar al carrito
-          </button>
-
-          <a href="${enlaceAdquisicion}" class="btn btn-outline-primary">
-            Adquirir ahora
-          </a>
+          ${acciones}
         </div>
       </div>
     </article>
@@ -139,6 +154,25 @@ listaCursos.addEventListener("click", (evento) => {
 
 actualizarContadorCarrito();
 
+async function obtenerRolActual() {
+    const usuario = auth.currentUser || await new Promise((resolve) => {
+        const dejarDeObservar = onAuthStateChanged(auth, (sesion) => {
+            dejarDeObservar();
+            resolve(sesion);
+        });
+    });
+
+    if (!usuario) {
+        return null;
+    }
+
+    const perfil = await getDoc(doc(db, "usuarios", usuario.uid));
+
+    return perfil.exists()
+        ? perfil.data().rol || null
+        : null;
+}
+
 async function cargarCursosHabilitados() {
     listaCursos.dataset.estado = "cargando";
     listaCursos.textContent = "Cargando cursos…";
@@ -147,9 +181,14 @@ async function cargarCursosHabilitados() {
     listaCursos.setAttribute("aria-busy", "true");
 
     try {
-        const cursos = await obtenerCursosHabilitados();
+        const [cursos, rolActual] = await Promise.all([
+            obtenerCursosHabilitados(),
+            obtenerRolActual()
+        ]);
 
-        listaCursos.replaceChildren(...cursos.map(crearTarjetaCurso));
+        listaCursos.replaceChildren(
+            ...cursos.map((curso) => crearTarjetaCurso(curso, rolActual))
+        );
 
         if (!cursos.length) {
             listaCursos.textContent = "Todavía no hay cursos habilitados.";
