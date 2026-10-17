@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula HTML y CSS | EDUY</title>
+  <link rel="icon" type="image/png" href="../img/logo.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <img src="../img/logo.png" class="logo-navbar" alt="Logo de EDUY">
+        <span class="h4 mb-0">EDUY</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+        aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar navegación">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="menuPrincipal">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="./cursos.html">Cursos</a></li>
+          <li class="nav-item"><a class="nav-link active" href="./mis-adquisiciones.html">Mi aprendizaje</a></li>
+          <li class="nav-item"><a class="nav-link" href="./login.html" data-auth-login>Ingresar</a></li>
+          <li class="nav-item"><a class="nav-link" href="./registro.html" data-auth-registro>Registro</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container flex-grow-1 py-4 py-lg-5">
+    <div id="mensajeAula" class="alert alert-info" role="status" aria-live="polite">Verificando acceso al aula...</div>
+
+    <section id="aulaCurso" class="d-none" aria-labelledby="tituloLeccion">
+      <nav aria-label="Navegación secundaria" class="mb-4">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="./mis-adquisiciones.html">Mis cursos</a></li>
+          <li class="breadcrumb-item"><a href="./curso-estudiante.html?cursoId=html-css">HTML y CSS</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Aula</li>
+        </ol>
+      </nav>
+
+      <header class="aula-encabezado mb-4">
+        <div>
+          <span class="aula-etiqueta">Curso demostrativo completo</span>
+          <h1 class="display-6 fw-bold mt-3 mb-2">HTML y CSS: desarrollo web</h1>
+          <p class="mb-0">Aprendé construyendo, comprobá cada concepto y guardá tu avance.</p>
+        </div>
+        <div class="aula-progreso" aria-label="Progreso total del curso">
+          <strong id="porcentajeAula">0%</strong>
+          <span>completado</span>
+        </div>
+      </header>
+
+      <div class="progress aula-barra mb-4" role="progressbar" aria-label="Avance del curso" aria-valuemin="0"
+        aria-valuemax="100" aria-valuenow="0">
+        <div id="barraAula" class="progress-bar" style="width: 0%"></div>
+      </div>
+
+      <div class="row g-4 align-items-start">
+        <aside class="col-12 col-lg-4 col-xl-3">
+          <div class="card aula-indice sticky-lg-top">
+            <div class="card-body">
+              <h2 class="h5 fw-bold mb-3">Contenido del curso</h2>
+              <nav id="indiceLecciones" class="list-group list-group-flush" aria-label="Lecciones del curso"></nav>
+            </div>
+          </div>
+        </aside>
+
+        <div class="col-12 col-lg-8 col-xl-9">
+          <article class="card aula-leccion">
+            <div class="card-body p-4 p-xl-5">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <span id="tipoLeccion" class="badge text-bg-primary">Lección</span>
+                <span id="duracionLeccion" class="badge text-bg-light">25 min</span>
+                <span id="estadoLeccion" class="badge text-bg-secondary">Pendiente</span>
+              </div>
+
+              <h2 id="tituloLeccion" class="display-6 fw-bold"></h2>
+              <p id="descripcionLeccion" class="lead text-body-secondary"></p>
+
+              <section class="aula-bloque" aria-labelledby="tituloObjetivos">
+                <h3 id="tituloObjetivos" class="h5 fw-bold">Al finalizar podrás</h3>
+                <ul id="listaObjetivos" class="aula-lista-check mb-0"></ul>
+              </section>
+
+              <section id="contenidoTeorico" class="aula-texto"></section>
+
+              <section id="bloqueCodigo" class="aula-bloque aula-codigo d-none" aria-labelledby="tituloEjemplo">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                  <h3 id="tituloEjemplo" class="h5 fw-bold mb-0">Ejemplo práctico</h3>
+                  <button id="btnCopiarCodigo" type="button" class="btn btn-sm btn-outline-light">Copiar código</button>
+                </div>
+                <pre class="mb-0"><code id="codigoLeccion"></code></pre>
+              </section>
+
+              <section id="laboratorio" class="aula-bloque d-none" aria-labelledby="tituloLaboratorio">
+                <h3 id="tituloLaboratorio" class="h5 fw-bold">Laboratorio interactivo</h3>
+                <p>Editá el HTML y el CSS. Luego presioná <strong>Actualizar vista previa</strong>.</p>
+                <div class="row g-3">
+                  <div class="col-12 col-xl-6">
+                    <label for="editorHtml" class="form-label">HTML</label>
+                    <textarea id="editorHtml" class="form-control aula-editor" spellcheck="false"></textarea>
+                  </div>
+                  <div class="col-12 col-xl-6">
+                    <label for="editorCss" class="form-label">CSS</label>
+                    <textarea id="editorCss" class="form-control aula-editor" spellcheck="false"></textarea>
+                  </div>
+                </div>
+                <button id="btnActualizarPreview" type="button" class="btn btn-oro mt-3">Actualizar vista previa</button>
+                <iframe id="vistaPrevia" class="aula-preview mt-3" title="Vista previa del proyecto" sandbox></iframe>
+              </section>
+
+              <section id="actividadSimple" class="aula-bloque" aria-labelledby="tituloActividad">
+                <h3 id="tituloActividad" class="h5 fw-bold">Comprobá lo aprendido</h3>
+                <form id="formActividad">
+                  <fieldset>
+                    <legend id="preguntaActividad" class="fs-6 fw-semibold mb-3"></legend>
+                    <div id="opcionesActividad" class="d-grid gap-2"></div>
+                  </fieldset>
+                  <button type="submit" class="btn btn-primary mt-3">Comprobar respuesta</button>
+                </form>
+              </section>
+
+              <section id="evaluacionFinal" class="aula-bloque d-none" aria-labelledby="tituloEvaluacion">
+                <h3 id="tituloEvaluacion" class="h5 fw-bold">Evaluación final</h3>
+                <form id="formEvaluacion" class="d-grid gap-4"></form>
+              </section>
+
+              <div id="retroalimentacion" class="d-none mt-3" role="status" aria-live="polite"></div>
+
+              <div class="aula-acciones mt-4 pt-4">
+                <a id="btnAnterior" class="btn btn-outline-secondary" href="#">← Anterior</a>
+                <button id="btnCompletar" class="btn btn-oro" type="button" disabled>Completar lección</button>
+                <a id="btnSiguiente" class="btn btn-outline-primary" href="#">Siguiente →</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-footer-eduy data-raiz=".."></div>
+  <script src="../js/footer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../js/aula-html-css.js"></script>
+  <script type="module" src="../js/sesion.js"></script>
+</body>
+</html>
