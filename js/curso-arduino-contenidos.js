@@ -49,7 +49,7 @@ export const contenidosArduino = [
   {
     id: "arduino-proyecto-placa-real",
     orden: 6,
-    tipo: "proyecto",
+    tipo: "video",
     titulo: "6. De Tinkercad a la placa Arduino",
     descripcion: "Proyecto final para trasladar una simulación de Tinkercad a una placa Arduino real y comprobar su funcionamiento.",
     duracion: "5:07",
