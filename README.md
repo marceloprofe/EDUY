@@ -6,6 +6,7 @@ EDUY es el proyecto integrador desarrollado para Taller Integrador de Sistemas.
 - **Repositorio:** https://github.com/marceloprofe/EDUY
 - **Kanban:** https://github.com/users/marceloprofe/projects/2/views/1
 - **Lista de cierre de Entrega 3:** [docs/entrega-3-checklist.md](docs/entrega-3-checklist.md)
+- **Criterios de accesibilidad:** [docs/accesibilidad.md](docs/accesibilidad.md)
 - **Rama de integración:** `develop`
 - **Rama publicada:** `main`
 
@@ -358,6 +359,7 @@ EDUY/
 │   ├── index.js
 │   └── package.json
 ├── docs/
+│   ├── accesibilidad.md
 │   └── entrega-3-checklist.md
 ├── firebase.json
 ├── .firebaserc

@@ -401,6 +401,10 @@
                                align-middle"
                     >
 
+                        <caption class="visually-hidden">
+                            Usuarios registrados en EDUY
+                        </caption>
+
 
                         <thead class="table-dark">
 
@@ -452,6 +456,8 @@
                 <p
                     id="estadoUsuarios"
                     class="text-body-secondary"
+                    role="status"
+                    aria-live="polite"
                 >
 
                     Cargando usuarios...
@@ -526,6 +532,7 @@
 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
+                        <caption class="visually-hidden">Cursos disponibles para administración</caption>
                         <thead class="table-dark">
                             <tr>
                                 <th scope="col">Curso</th>
@@ -540,7 +547,7 @@
                     </table>
                 </div>
 
-                <p id="estadoCursosAdmin" class="text-body-secondary">Cargando cursos...</p>
+                <p id="estadoCursosAdmin" class="text-body-secondary" role="status" aria-live="polite">Cargando cursos...</p>
 
 
             </section>
@@ -610,6 +617,7 @@
 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
+                        <caption class="visually-hidden">Adquisiciones registradas en EDUY</caption>
                         <thead class="table-dark">
                             <tr>
                                 <th scope="col">Estudiante</th>
@@ -624,7 +632,7 @@
                     </table>
                 </div>
 
-                <p id="estadoAdquisicionesAdmin" class="text-body-secondary">Cargando adquisiciones...</p>
+                <p id="estadoAdquisicionesAdmin" class="text-body-secondary" role="status" aria-live="polite">Cargando adquisiciones...</p>
 
 
             </section>
@@ -668,6 +676,7 @@
                 <input id="buscarEstadisticas" type="search" class="form-control mb-3" placeholder="Curso o docente">
                 <div class="table-responsive">
                     <table class="table table-striped align-middle">
+                        <caption class="visually-hidden">Estadísticas de cursos, adquisiciones y estudiantes</caption>
                         <thead class="table-dark"><tr><th scope="col">Curso</th><th scope="col">Cursos visitados (visitas)</th><th scope="col">Cursos adquiridos</th><th scope="col">Ganancias por curso</th><th scope="col">Docentes asignados</th><th scope="col">Cantidad de estudiantes</th></tr></thead>
                         <tbody id="listaEstadisticas"></tbody>
                     </table>

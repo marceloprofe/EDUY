@@ -111,6 +111,8 @@ async function comprobarDocente(usuario) {
 */
 
 async function cargarCursos() {
+    listaCursos.setAttribute("aria-busy", "true");
+
     listaCursos.innerHTML = `
         <p class="text-body-secondary">
             Cargando cursos...
@@ -166,6 +168,8 @@ async function cargarCursos() {
                 </div>
             </div>
         `;
+    } finally {
+        listaCursos.setAttribute("aria-busy", "false");
     }
 }
 
