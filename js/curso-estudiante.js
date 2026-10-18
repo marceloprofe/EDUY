@@ -86,12 +86,20 @@ const parametros =
 const cursoId =
     parametros.get("cursoId");
 
+const vistaSolicitada =
+    parametros.get("vista");
+
 let usuarioActual = null;
 let contenidosCurso = [];
 let contenidosCompletados = new Set();
 let progresoCreado = false;
 let guardandoProgreso = false;
 let esVistaPreviaAdmin = false;
+let esVistaPreviaDocente = false;
+
+function esModoVistaPrevia() {
+    return esVistaPreviaAdmin || esVistaPreviaDocente;
+}
 
 function obtenerUrlVideoYouTube(url) {
     try {
@@ -172,6 +180,26 @@ function configurarVistaPreviaAdmin() {
 
     enlaceBreadcrumbCurso.textContent =
         "Administración";
+}
+
+function configurarVistaPreviaDocente() {
+    estadoAccesoCurso.textContent =
+        "Vista previa del docente";
+
+    estadoAccesoCurso.className =
+        "badge text-bg-info mb-3";
+
+    enlaceVolverCurso.href =
+        "./mis-cursos.html";
+
+    enlaceVolverCurso.textContent =
+        "Volver a Mis cursos";
+
+    enlaceBreadcrumbCurso.href =
+        "./mis-cursos.html";
+
+    enlaceBreadcrumbCurso.textContent =
+        "Mis cursos";
 }
 
 /*
@@ -608,7 +636,7 @@ function bloquearCasillas(bloquear) {
 */
 
 async function guardarProgreso() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         return;
     }
 
@@ -697,7 +725,7 @@ async function cambiarEstadoContenido(evento) {
                 : "Marcar como completado";
     }
 
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         guardandoProgreso = false;
         bloquearCasillas(false);
 
@@ -766,7 +794,7 @@ async function cambiarEstadoContenido(evento) {
 */
 
 async function cargarProgreso() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         contenidosCompletados = new Set();
         progresoCreado = true;
         return;
@@ -887,7 +915,7 @@ async function cargarContenidos() {
 */
 
 async function verificarAdquisicion() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         return true;
     }
 
@@ -968,6 +996,16 @@ async function iniciarPagina() {
     const curso =
         await cargarCurso();
 
+    if (
+        esVistaPreviaDocente &&
+        curso.docenteId !== usuarioActual.uid
+    ) {
+        window.location.replace(
+            "./acceso-denegado.html"
+        );
+        return;
+    }
+
     mostrarInformacionCurso(curso);
 
     await cargarContenidos();
@@ -985,6 +1023,13 @@ async function iniciarPagina() {
         mostrarMensaje(
             "Estás viendo el curso como estudiante. No se creó una compra y el avance de esta vista no se guardará.",
             "warning"
+        );
+    } else if (esVistaPreviaDocente) {
+        configurarVistaPreviaDocente();
+
+        mostrarMensaje(
+            "Estás viendo tu curso como estudiante. El avance de esta vista no se guardará.",
+            "info"
         );
     } else {
         ocultarMensaje();
@@ -1024,7 +1069,11 @@ onAuthStateChanged(
 
             if (
                 rol !== "estudiante" &&
-                rol !== "admin"
+                rol !== "admin" &&
+                !(
+                    rol === "docente" &&
+                    vistaSolicitada === "docente"
+                )
             ) {
                 window.location.replace(
                     "./acceso-denegado.html"
@@ -1036,6 +1085,10 @@ onAuthStateChanged(
             usuarioActual = usuario;
             esVistaPreviaAdmin =
                 rol === "admin";
+
+            esVistaPreviaDocente =
+                rol === "docente" &&
+                vistaSolicitada === "docente";
 
             await iniciarPagina();
         } catch (error) {

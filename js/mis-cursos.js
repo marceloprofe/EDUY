@@ -219,6 +219,10 @@ function mostrarCursos(cursos) {
                     `./contenidos-curso.html?cursoId=${encodeURIComponent(curso.id)
                     }`;
 
+                const enlaceVistaPrevia =
+                    `./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)
+                    }&vista=docente`;
+
                 return `
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="card h-100 shadow-sm">
@@ -276,6 +280,13 @@ function mostrarCursos(cursos) {
                                         class="btn btn-oro"
                                     >
                                         Gestionar contenidos
+                                    </a>
+
+                                    <a
+                                        href="${enlaceVistaPrevia}"
+                                        class="btn btn-outline-primary"
+                                    >
+                                        Vista previa como estudiante
                                     </a>
 
                                     <button
