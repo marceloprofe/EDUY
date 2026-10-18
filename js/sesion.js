@@ -100,7 +100,7 @@ function crearOpcionSalir(rutas) {
 }
 
 function obtenerOpcionesComunes(rutas) {
-    const opciones = [];
+    const opciones = [crearOpcionCarrito(rutas)];
 
     if (opcionBusqueda) {
         opciones.push(opcionBusqueda);
@@ -117,7 +117,6 @@ function obtenerOpcionesComunes(rutas) {
 function mostrarMenuVisitante(rutas) {
     menu.replaceChildren(
         ...obtenerOpcionesComunes(rutas),
-        crearOpcionCarrito(rutas),
         crearOpcion("Ingresar", rutas.login),
         crearOpcion("Registro", rutas.registro)
     );
@@ -130,8 +129,7 @@ function mostrarMenuAutenticado(rol, rutas) {
 
     if (rol === "estudiante") {
         opciones.push(
-            crearOpcion("Mis cursos", rutas.misAdquisiciones),
-            crearOpcionCarrito(rutas)
+            crearOpcion("Mis cursos", rutas.misAdquisiciones)
         );
     }
 
@@ -152,9 +150,7 @@ function mostrarMenuAutenticado(rol, rutas) {
     opciones.push(crearOpcionSalir(rutas));
     menu.replaceChildren(...opciones);
 
-    if (rol === "estudiante") {
-        actualizarContadorCarrito();
-    }
+    actualizarContadorCarrito();
 }
 
 function mostrarSesionDebajo(nombre, rol, enlacePerfil) {
