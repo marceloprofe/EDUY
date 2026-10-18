@@ -116,6 +116,25 @@ function obtenerUrlVideoYouTube(url) {
     }
 }
 
+function obtenerUrlVideoDrive(url) {
+    try {
+        const direccion = new URL(url);
+
+        if (!direccion.hostname.includes("drive.google.com")) {
+            return "";
+        }
+
+        const coincidencia =
+            direccion.pathname.match(/\/file\/d\/([^/]+)/);
+
+        return coincidencia
+            ? `https://drive.google.com/file/d/${coincidencia[1]}/preview`
+            : "";
+    } catch {
+        return "";
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | MENSAJES
@@ -369,6 +388,16 @@ function crearTarjetaContenido(contenido) {
             ? obtenerUrlVideoYouTube(contenido.url)
             : "";
 
+    const urlVideoDrive =
+        contenido.tipo === "video"
+            ? obtenerUrlVideoDrive(contenido.url)
+            : "";
+
+    const esVideoSubido =
+        contenido.tipo === "video" &&
+        !urlVideo &&
+        !urlVideoDrive;
+
     let recurso;
 
     if (urlVideo) {
@@ -390,6 +419,36 @@ function crearTarjetaContenido(contenido) {
         reproductor.allowFullscreen = true;
 
         recurso.appendChild(reproductor);
+    } else if (urlVideoDrive) {
+        recurso = document.createElement("div");
+        recurso.className = "ratio ratio-16x9 mb-3";
+
+        const reproductor =
+            document.createElement("iframe");
+
+        reproductor.src = urlVideoDrive;
+        reproductor.title =
+            `Video: ${contenido.titulo || "Contenido del curso"}`;
+        reproductor.loading = "lazy";
+        reproductor.allow = "autoplay; fullscreen";
+        reproductor.allowFullscreen = true;
+
+        recurso.appendChild(reproductor);
+    } else if (esVideoSubido) {
+        recurso = document.createElement("video");
+        recurso.className =
+            "w-100 rounded mb-3 bg-dark";
+        recurso.src = contenido.url;
+        recurso.controls = true;
+        recurso.preload = "metadata";
+        recurso.setAttribute(
+            "playsinline",
+            ""
+        );
+        recurso.setAttribute(
+            "aria-label",
+            `Video: ${contenido.titulo || "Contenido del curso"}`
+        );
     } else {
         recurso = document.createElement("a");
         recurso.className =

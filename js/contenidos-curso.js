@@ -1,4 +1,8 @@
-import { auth, db } from "./firebase-config.js";
+import {
+    auth,
+    db,
+    storage
+} from "./firebase-config.js";
 
 import {
     onAuthStateChanged
@@ -7,6 +11,7 @@ import {
 import {
     addDoc,
     collection,
+    deleteField,
     deleteDoc,
     doc,
     getDoc,
@@ -14,6 +19,13 @@ import {
     serverTimestamp,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+import {
+    deleteObject,
+    getDownloadURL,
+    ref,
+    uploadBytesResumable
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-storage.js";
 
 
 /*
@@ -48,6 +60,18 @@ const campoTipo =
 
 const campoUrl =
     document.querySelector("#url");
+
+const grupoArchivoVideo =
+    document.querySelector("#grupoArchivoVideo");
+
+const campoArchivoVideo =
+    document.querySelector("#archivoVideo");
+
+const contenedorProgresoVideo =
+    document.querySelector("#contenedorProgresoVideo");
+
+const progresoVideo =
+    document.querySelector("#progresoVideo");
 
 const campoOrden =
     document.querySelector("#orden");
@@ -86,6 +110,14 @@ const cursoId =
 let usuarioActual = null;
 let cursoActual = null;
 let contenidosActuales = [];
+
+const TAMANO_MAXIMO_VIDEO =
+    250 * 1024 * 1024;
+
+const TIPOS_VIDEO_PERMITIDOS = [
+    "video/mp4",
+    "video/webm"
+];
 
 
 /*
@@ -152,7 +184,122 @@ function reiniciarFormulario() {
 
     botonCancelarEdicion.classList.add("d-none");
 
+    actualizarCamposVideo();
+    actualizarProgresoVideo(0, false);
+
     ocultarMensaje();
+}
+
+function actualizarCamposVideo() {
+    const esVideo = campoTipo.value === "video";
+
+    grupoArchivoVideo.classList.toggle(
+        "d-none",
+        !esVideo
+    );
+
+    campoArchivoVideo.disabled = !esVideo;
+
+    if (!esVideo) {
+        campoArchivoVideo.value = "";
+        actualizarProgresoVideo(0, false);
+    }
+}
+
+function actualizarProgresoVideo(
+    porcentaje,
+    visible = true
+) {
+    const valor = Math.round(porcentaje);
+
+    contenedorProgresoVideo.classList.toggle(
+        "d-none",
+        !visible
+    );
+
+    contenedorProgresoVideo.setAttribute(
+        "aria-valuenow",
+        String(valor)
+    );
+
+    progresoVideo.style.width = `${valor}%`;
+    progresoVideo.textContent = `${valor}%`;
+}
+
+function validarArchivoVideo(archivo) {
+    return TIPOS_VIDEO_PERMITIDOS.includes(
+        archivo.type
+    ) && archivo.size <= TAMANO_MAXIMO_VIDEO;
+}
+
+function limpiarNombreArchivo(nombre) {
+    return nombre
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "-")
+        .toLowerCase();
+}
+
+function subirVideo(archivo) {
+    const nombreSeguro =
+        limpiarNombreArchivo(archivo.name);
+
+    const ruta =
+        `cursos/${cursoId}/videos/` +
+        `${usuarioActual.uid}/${Date.now()}-${nombreSeguro}`;
+
+    const referencia = ref(storage, ruta);
+
+    const tarea = uploadBytesResumable(
+        referencia,
+        archivo,
+        {
+            contentType: archivo.type,
+            customMetadata: {
+                cursoId,
+                docenteId: usuarioActual.uid
+            }
+        }
+    );
+
+    return new Promise((resolve, reject) => {
+        tarea.on(
+            "state_changed",
+            (estado) => {
+                const porcentaje =
+                    estado.bytesTransferred /
+                    estado.totalBytes * 100;
+
+                actualizarProgresoVideo(porcentaje);
+            },
+            reject,
+            async () => {
+                try {
+                    const url = await getDownloadURL(
+                        tarea.snapshot.ref
+                    );
+
+                    resolve({ url, ruta });
+                } catch (error) {
+                    reject(error);
+                }
+            }
+        );
+    });
+}
+
+async function eliminarVideoAlmacenado(ruta) {
+    if (!ruta) {
+        return;
+    }
+
+    try {
+        await deleteObject(ref(storage, ruta));
+    } catch (error) {
+        if (error.code !== "storage/object-not-found") {
+            throw error;
+        }
+    }
 }
 
 function validarUrlHttps(valor) {
@@ -509,6 +656,10 @@ function iniciarEdicion(contenidoId) {
     campoUrl.value =
         contenido.url || "";
 
+    campoArchivoVideo.value = "";
+    actualizarCamposVideo();
+    actualizarProgresoVideo(0, false);
+
     campoOrden.value =
         contenido.orden || 1;
 
@@ -567,6 +718,17 @@ async function eliminarContenido(contenidoId) {
             )
         );
 
+        try {
+            await eliminarVideoAlmacenado(
+                contenido.storagePath
+            );
+        } catch (errorStorage) {
+            console.warn(
+                "El contenido se eliminó, pero no fue posible borrar su archivo.",
+                errorStorage
+            );
+        }
+
         mostrarMensaje(
             "Contenido eliminado correctamente.",
             "success"
@@ -623,8 +785,13 @@ formulario.addEventListener(
         const tipo =
             campoTipo.value;
 
-        const url =
+        let url =
             campoUrl.value.trim();
+
+        const archivoVideo =
+            tipo === "video"
+                ? campoArchivoVideo.files[0] || null
+                : null;
 
         const orden =
             Number(campoOrden.value);
@@ -647,9 +814,24 @@ formulario.addEventListener(
             return;
         }
 
-        if (!validarUrlHttps(url)) {
+        if (
+            tipo === "video" &&
+            archivoVideo &&
+            !validarArchivoVideo(archivoVideo)
+        ) {
             mostrarMensaje(
-                "El enlace debe comenzar con https://",
+                "Seleccioná un video MP4 o WebM de hasta 250 MB.",
+                "warning"
+            );
+
+            return;
+        }
+
+        if (!archivoVideo && !validarUrlHttps(url)) {
+            mostrarMensaje(
+                tipo === "video"
+                    ? "Pegá un enlace HTTPS o seleccioná un video."
+                    : "El enlace debe comenzar con https://",
                 "warning"
             );
 
@@ -671,9 +853,30 @@ formulario.addEventListener(
 
         botonGuardar.disabled = true;
         botonGuardar.textContent =
-            "Guardando...";
+            archivoVideo
+                ? "Subiendo video..."
+                : "Guardando...";
+
+        const contenidoAnterior = contenidoId
+            ? contenidosActuales.find(
+                (contenido) =>
+                    contenido.id === contenidoId
+            )
+            : null;
+
+        let nuevaRutaStorage = "";
+        let contenidoGuardado = false;
 
         try {
+            if (archivoVideo) {
+                const videoSubido =
+                    await subirVideo(archivoVideo);
+
+                url = videoSubido.url;
+                nuevaRutaStorage = videoSubido.ruta;
+                botonGuardar.textContent = "Guardando...";
+            }
+
             const datosContenido = {
                 titulo,
                 descripcion,
@@ -683,6 +886,20 @@ formulario.addEventListener(
                 fechaActualizacion:
                     serverTimestamp()
             };
+
+            if (nuevaRutaStorage) {
+                datosContenido.storagePath =
+                    nuevaRutaStorage;
+            } else if (
+                contenidoAnterior?.storagePath &&
+                (
+                    tipo !== "video" ||
+                    url !== contenidoAnterior.url
+                )
+            ) {
+                datosContenido.storagePath =
+                    deleteField();
+            }
 
             if (contenidoId) {
                 await updateDoc(
@@ -696,10 +913,37 @@ formulario.addEventListener(
                     datosContenido
                 );
 
+                contenidoGuardado = true;
+
                 mostrarMensaje(
                     "Contenido actualizado correctamente.",
                     "success"
                 );
+
+                const rutaAnterior =
+                    contenidoAnterior?.storagePath || "";
+
+                const reemplazoArchivo =
+                    nuevaRutaStorage &&
+                    rutaAnterior !== nuevaRutaStorage;
+
+                const cambioAEnlace =
+                    !nuevaRutaStorage &&
+                    rutaAnterior &&
+                    url !== contenidoAnterior.url;
+
+                if (reemplazoArchivo || cambioAEnlace) {
+                    try {
+                        await eliminarVideoAlmacenado(
+                            rutaAnterior
+                        );
+                    } catch (errorStorage) {
+                        console.warn(
+                            "El contenido se actualizó, pero el archivo anterior no pudo eliminarse.",
+                            errorStorage
+                        );
+                    }
+                }
             } else {
                 await addDoc(
                     collection(
@@ -715,6 +959,8 @@ formulario.addEventListener(
                     }
                 );
 
+                contenidoGuardado = true;
+
                 mostrarMensaje(
                     "Contenido agregado correctamente.",
                     "success"
@@ -726,12 +972,24 @@ formulario.addEventListener(
         } catch (error) {
             console.error(error);
 
+            if (nuevaRutaStorage && !contenidoGuardado) {
+                try {
+                    await eliminarVideoAlmacenado(
+                        nuevaRutaStorage
+                    );
+                } catch (errorLimpieza) {
+                    console.error(errorLimpieza);
+                }
+            }
+
             mostrarMensaje(
-                "No fue posible guardar el contenido. " +
-                "Verificá las reglas de Firestore.",
+                error.code?.startsWith("storage/")
+                    ? "No fue posible subir el video. Verificá el archivo y las reglas de Storage."
+                    : "No fue posible guardar el contenido. Verificá las reglas de Firestore.",
                 "danger"
             );
         } finally {
+            actualizarProgresoVideo(0, false);
             botonGuardar.disabled = false;
 
             botonGuardar.textContent =
@@ -741,6 +999,13 @@ formulario.addEventListener(
         }
     }
 );
+
+campoTipo.addEventListener(
+    "change",
+    actualizarCamposVideo
+);
+
+actualizarCamposVideo();
 
 
 /*

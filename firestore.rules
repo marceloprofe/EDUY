@@ -346,6 +346,7 @@ service cloud.firestore {
               "descripcion",
               "tipo",
               "url",
+              "storagePath",
               "orden",
               "fechaCreacion",
               "fechaActualizacion"
@@ -361,6 +362,20 @@ service cloud.firestore {
             && request.resource.data.url.size() > 8
             && request.resource.data.url.size() <= 2048
             && request.resource.data.url.matches("https://.*")
+            && (
+              !request.resource.data.keys().hasAny([
+                "storagePath"
+              ])
+              || (
+                request.resource.data.storagePath is string
+                && request.resource.data.storagePath.size() > 0
+                && request.resource.data.storagePath.size() <= 1024
+                && request.resource.data.storagePath.matches(
+                  "cursos/" + cursoId + "/videos/"
+                    + request.auth.uid + "/.*"
+                )
+              )
+            )
             && request.resource.data.orden is int
             && request.resource.data.orden >= 1
             && request.resource.data.orden <= 100
@@ -395,6 +410,7 @@ service cloud.firestore {
                            "descripcion",
                            "tipo",
                            "url",
+                           "storagePath",
                            "orden",
                            "fechaActualizacion"
                          ])
