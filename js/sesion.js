@@ -15,6 +15,7 @@ import {
 } from "./carrito-store.js";
 
 const menu = document.querySelector(".navbar-nav");
+const claveRolSesion = "eduyRolSesion";
 
 const opcionBusqueda =
     menu
@@ -91,6 +92,7 @@ function crearOpcionSalir(rutas) {
     boton.textContent = "Cerrar sesión";
     boton.addEventListener("click", async () => {
         boton.disabled = true;
+        sessionStorage.removeItem(claveRolSesion);
         await signOut(auth);
         window.location.href = rutas.inicio;
     });
@@ -153,39 +155,12 @@ function mostrarMenuAutenticado(rol, rutas) {
     actualizarContadorCarrito();
 }
 
-function mostrarSesionDebajo(nombre, rol, enlacePerfil) {
-    let barra = document.querySelector("#sesionActivaDebajoNav");
+const rutasIniciales = obtenerRutas();
+const rolRecordado = sessionStorage.getItem(claveRolSesion);
 
-    if (!barra) {
-        barra = document.createElement("div");
-        barra.id = "sesionActivaDebajoNav";
-        barra.className = "barra-sesion";
-
-        const contenedor = document.createElement("div");
-        contenedor.className = "container text-end";
-        barra.appendChild(contenedor);
-        document
-            .querySelector(".navbar")
-            ?.insertAdjacentElement("afterend", barra);
-    }
-
-    const contenedor = barra.firstElementChild;
-    contenedor.replaceChildren();
-
-    const texto = document.createElement("span");
-    texto.className = "sesion-activa";
-    texto.textContent = "Sesión iniciada: ";
-
-    const perfil = document.createElement("a");
-    perfil.className = "sesion-perfil";
-    perfil.href = enlacePerfil;
-    perfil.textContent = `${nombre} (${rol})`;
-
-    contenedor.append(texto, perfil);
-}
-
-function ocultarSesionDebajo() {
-    document.querySelector("#sesionActivaDebajoNav")?.remove();
+if (menu && rolRecordado) {
+    mostrarMenuAutenticado(rolRecordado, rutasIniciales);
+    menu.hidden = false;
 }
 
 onAuthStateChanged(auth, async (usuario) => {
@@ -196,7 +171,7 @@ onAuthStateChanged(auth, async (usuario) => {
     const rutas = obtenerRutas();
 
     if (!usuario) {
-        ocultarSesionDebajo();
+        sessionStorage.removeItem(claveRolSesion);
         mostrarMenuVisitante(rutas);
         menu.hidden = false;
         return;
@@ -211,25 +186,10 @@ onAuthStateChanged(auth, async (usuario) => {
             ? documentoUsuario.data()
             : {};
 
-        const nombre =
-            datosUsuario.nombre ||
-            usuario.displayName ||
-            usuario.email;
-
         const rol = datosUsuario.rol || "estudiante";
 
-        const rolesVisibles = {
-            estudiante: "Estudiante",
-            docente: "Docente",
-            admin: "Administrador"
-        };
-
+        sessionStorage.setItem(claveRolSesion, rol);
         mostrarMenuAutenticado(rol, rutas);
-        mostrarSesionDebajo(
-            nombre,
-            rolesVisibles[rol] || rol,
-            rutas.perfil
-        );
     } catch (error) {
         console.error("No fue posible consultar el perfil:", error);
         mostrarMenuAutenticado("", rutas);
