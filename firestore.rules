@@ -137,6 +137,16 @@ service cloud.firestore {
     */
 
     match /cursos/{cursoId} {
+      function videoPresentacionValido(video) {
+  return video is string
+    && video.size() <= 2048
+    && (
+      video == ""
+      || video.matches(
+        "https://(www[.])?(youtube[.]com|youtu[.]be)/.*"
+      )
+    );
+}
 
       allow get: if esAdmin()
                  || resource.data.habilitado == true
@@ -171,6 +181,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -187,6 +198,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -207,6 +219,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
@@ -242,6 +257,7 @@ service cloud.firestore {
                          "descripcion",
                          "nivel",
                          "imagen",
+                         "videoPresentacion",
                          "duracion",
                          "precio",
                          "habilitado",
@@ -260,6 +276,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0

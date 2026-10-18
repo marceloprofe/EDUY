@@ -93,6 +93,29 @@ let progresoCreado = false;
 let guardandoProgreso = false;
 let esVistaPreviaAdmin = false;
 
+function obtenerUrlVideoYouTube(url) {
+    try {
+        const direccion = new URL(url);
+        let videoId = "";
+
+        if (direccion.hostname.includes("youtu.be")) {
+            videoId = direccion.pathname.slice(1);
+        } else if (direccion.pathname.includes("/shorts/")) {
+            videoId = direccion.pathname.split("/shorts/")[1];
+        } else {
+            videoId = direccion.searchParams.get("v");
+        }
+
+        if (!videoId) {
+            return "";
+        }
+
+        return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    } catch {
+        return "";
+    }
+}
+
 /*
 |--------------------------------------------------------------------------
 | MENSAJES
@@ -341,36 +364,59 @@ function crearTarjetaContenido(contenido) {
     acciones.className =
         "mt-auto pt-3";
 
-    const enlace =
-        document.createElement("a");
+    const urlVideo =
+        contenido.tipo === "video"
+            ? obtenerUrlVideoYouTube(contenido.url)
+            : "";
 
-    enlace.className =
-        "btn btn-outline-primary w-100 mb-3";
+    let recurso;
 
-    enlace.href =
-        contenido.url;
+    if (urlVideo) {
+        recurso = document.createElement("div");
+        recurso.className = "ratio ratio-16x9 mb-3";
 
-    const esContenidoPropio =
-        contenido.url.startsWith("./");
+        const reproductor =
+            document.createElement("iframe");
 
-    if (!esContenidoPropio) {
-        enlace.target = "_blank";
-        enlace.rel = "noopener noreferrer";
+        reproductor.src = urlVideo;
+        reproductor.title =
+            `Video: ${contenido.titulo || "Contenido del curso"}`;
+        reproductor.loading = "lazy";
+        reproductor.referrerPolicy =
+            "strict-origin-when-cross-origin";
+        reproductor.allow =
+            "accelerometer; autoplay; clipboard-write; " +
+            "encrypted-media; gyroscope; picture-in-picture; web-share";
+        reproductor.allowFullscreen = true;
+
+        recurso.appendChild(reproductor);
+    } else {
+        recurso = document.createElement("a");
+        recurso.className =
+            "btn btn-outline-primary w-100 mb-3";
+        recurso.href = contenido.url;
+
+        const esContenidoPropio =
+            contenido.url.startsWith("./");
+
+        if (!esContenidoPropio) {
+            recurso.target = "_blank";
+            recurso.rel = "noopener noreferrer";
+        }
+
+        const textosBoton = {
+            pdf: "Abrir PDF",
+            video: "Abrir video",
+            leccion: "Comenzar lección",
+            practica: "Abrir práctica",
+            proyecto: "Abrir laboratorio",
+            evaluacion: "Realizar evaluación"
+        };
+
+        recurso.textContent =
+            textosBoton[contenido.tipo] ||
+            "Abrir contenido";
     }
-
-    const textosBoton = {
-        pdf: "Abrir PDF",
-        video: "Abrir video",
-        leccion: "Comenzar lección",
-        practica: "Abrir práctica",
-        proyecto: "Abrir laboratorio",
-        evaluacion: "Realizar evaluación"
-    };
-
-    enlace.textContent =
-        textosBoton[contenido.tipo] ||
-        "Abrir contenido";
-
     const contenedorMarcado =
         document.createElement("div");
 
@@ -420,7 +466,7 @@ function crearTarjetaContenido(contenido) {
     );
 
     acciones.append(
-        enlace,
+        recurso,
         contenedorMarcado
     );
 
