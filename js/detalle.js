@@ -448,7 +448,7 @@ if (!curso) {
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="menuPrincipal">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto" data-menu-sesion hidden>
             <li class="nav-item"><a class="nav-link" href="../index.html">Inicio</a></li>
             <li class="nav-item"><a class="nav-link active" href="./cursos.html">Cursos</a></li>
             <li class="nav-item"><a class="nav-link" href="./login.html" data-auth-login>Ingresar</a></li>
