@@ -1,5 +1,14 @@
 # EDUY – Plataforma Educativa
 
+EDUY es el proyecto integrador desarrollado para Taller Integrador de Sistemas.
+
+- **Plataforma pública:** https://marceloprofe.github.io/EDUY/
+- **Repositorio:** https://github.com/marceloprofe/EDUY
+- **Kanban:** https://github.com/users/marceloprofe/projects/2/views/1
+- **Lista de cierre de Entrega 3:** [docs/entrega-3-checklist.md](docs/entrega-3-checklist.md)
+- **Rama de integración:** `develop`
+- **Rama publicada:** `main`
+
 ## 1. Descripción del proyecto
 
 EDUY es una plataforma educativa orientada a facilitar el acceso a cursos y materiales de aprendizaje.
@@ -19,8 +28,12 @@ Actualmente, el proyecto incluye:
 - Inicio de sesión.
 - Perfil del usuario.
 - Panel docente “Mis cursos”.
-- Panel de administración de usuarios.
+- Gestión de contenidos de los cursos.
+- Aula del estudiante con seguimiento de progreso.
+- Historial de adquisiciones del estudiante.
+- Panel de administración de usuarios, cursos, adquisiciones y estadísticas.
 - Página de adquisición de cursos.
+- Carrito de cursos.
 - Página de acceso denegado.
 - Navegación adaptable para computadoras y dispositivos móviles.
 
@@ -99,6 +112,9 @@ El administrador:
 - Puede eliminar cuentas no administrativas que no tengan cursos asociados.
 - No puede modificar su propio rol desde la plataforma.
 - No necesita modificar manualmente cada usuario desde la consola de Firestore.
+- Puede consultar y administrar cursos y adquisiciones.
+- Puede consultar indicadores de cursos, estudiantes, visitas e ingresos simulados.
+- Puede previsualizar cursos con la experiencia de estudiante.
 
 La primera cuenta administradora debe configurarse manualmente en Firestore. Después, el administrador puede gestionar las cuentas desde la propia plataforma.
 
@@ -127,6 +143,8 @@ Todo curso nuevo se guarda con:
 Cuando el docente habilita el curso, este aparece en el catálogo.
 
 Si el docente vuelve a convertirlo en borrador, deja de mostrarse públicamente, aunque permanece guardado en Firestore.
+
+Los docentes también pueden organizar contenidos de tipo video o PDF. Los videos pueden incorporarse mediante enlaces de YouTube o Google Drive, o cargarse a Cloudinary. El docente propietario puede previsualizar el curso con la experiencia del estudiante antes de publicarlo.
 
 ## 7. Búsqueda y filtros de cursos
 
@@ -176,6 +194,8 @@ Si el curso ya tiene un campo numérico `precio`, la plataforma utiliza ese valo
 
 Para evitar duplicados, cada adquisición utiliza un identificador compuesto por el UID del estudiante y el identificador del curso.
 
+El historial se consulta desde “Mis cursos”. Cada estudiante ve únicamente sus propias adquisiciones y puede ingresar al contenido de los cursos confirmados. El progreso queda almacenado en Firestore y continúa disponible después de cerrar e iniciar sesión nuevamente.
+
 ## 9. Firebase y Firestore
 
 El proyecto utiliza Firebase para:
@@ -187,6 +207,8 @@ El proyecto utiliza Firebase para:
 - Administración de permisos.
 - Almacenamiento y publicación de cursos.
 - Persistencia de adquisiciones.
+- Contenidos, progreso y valoraciones.
+- Estadísticas administrativas.
 
 ### Colección `usuarios`
 
@@ -238,6 +260,13 @@ Campos principales:
 
 El campo `estado` se guarda con el valor `confirmada` y `pagoSimulado` se guarda con el valor `true`.
 
+### Otras colecciones
+
+- `cursos/{cursoId}/contenidos`: videos y documentos administrados por el docente propietario.
+- `progresos`: contenidos completados y porcentaje de avance del estudiante.
+- `valoracionesDocentes`: puntuación y comentario del estudiante.
+- `visitasCursos`: aperturas de cursos habilitados utilizadas en las estadísticas.
+
 ## 10. Seguridad
 
 Las reglas de Firestore controlan que:
@@ -278,6 +307,8 @@ La pestaña Usuarios consulta `usuarios/{uid}`. El alta crea la cuenta con una i
 - Firebase Authentication.
 - Cloud Firestore.
 - Cloud Functions.
+- Cloudinary para la carga opcional de videos.
+- Google Drive y YouTube para contenidos externos.
 - Git.
 - GitHub.
 - GitHub Projects.
@@ -292,8 +323,12 @@ EDUY/
 │   ├── acceso-denegado.html
 │   ├── adquisicion.html
 │   ├── cursos.html
+│   ├── carrito.html
+│   ├── contenidos-curso.html
+│   ├── curso-estudiante.html
 │   ├── detalle.html
 │   ├── login.html
+│   ├── mis-adquisiciones.html
 │   ├── mis-cursos.html
 │   ├── panel-admin.html
 │   ├── perfil.html
@@ -302,20 +337,28 @@ EDUY/
 │   └── estilo.css
 ├── js/
 │   ├── adquisicion.js
+│   ├── carrito.js
+│   ├── cloudinary-config.js
+│   ├── contenidos-curso.js
+│   ├── curso-estudiante.js
 │   ├── cursos-firestore.js
 │   ├── detalle.js
 │   ├── filtros.js
 │   ├── firebase-config.js
 │   ├── footer.js
 │   ├── login.js
+│   ├── mis-adquisiciones.js
 │   ├── mis-cursos.js
 │   ├── panel-admin.js
+│   ├── panel-estadisticas.js
 │   ├── perfil.js
 │   ├── registro.js
 │   └── sesion.js
 ├── functions/
 │   ├── index.js
 │   └── package.json
+├── docs/
+│   └── entrega-3-checklist.md
 ├── firebase.json
 ├── .firebaserc
 ├── img/
@@ -346,17 +389,26 @@ Actualmente se encuentran implementadas las siguientes funcionalidades:
 - Simulación de pago.
 - Persistencia de adquisiciones en Firestore.
 - Prevención de adquisiciones duplicadas.
+- Historial de adquisiciones del estudiante.
+- Acceso a los contenidos adquiridos.
+- Registro del progreso del estudiante.
+- Valoraciones de docentes.
+- Gestión de usuarios, cursos y adquisiciones desde el panel administrativo.
+- Estadísticas administrativas.
+- Gestión de contenidos con YouTube, Google Drive y Cloudinary.
+- Vista previa de cursos para docentes y administradores.
 
 ## 14. Funcionalidades pendientes
 
-Las próximas funcionalidades previstas son:
+Antes de la entrega final se debe:
 
-- Página “Mis adquisiciones” para el estudiante.
-- Consulta de adquisiciones desde el panel administrador.
-- Integración final de estilos y diseño adaptable.
-- Pruebas completas con los tres roles.
-- Publicación de la versión final.
-- Actualización de la documentación final del proyecto.
+- Completar las pruebas de aceptación con visitante, estudiante, docente y administrador.
+- Confirmar el comportamiento responsive en computadora y dispositivo móvil.
+- Verificar que las reglas de Firestore y las Cloud Functions estén desplegadas en `eduy-d6421`.
+- Preparar dos cuentas de demostración con roles diferentes y entregar sus credenciales al docente por un medio privado.
+- Resolver o reclasificar las issues y pull requests abiertos del Sprint 4.
+- Integrar la versión verificada de `develop` en `main` para actualizar GitHub Pages.
+- Exportar y entregar el PDF final con enlaces, participación del equipo y limitaciones conocidas.
 
 ## 15. Flujo de trabajo con Git y GitHub
 
