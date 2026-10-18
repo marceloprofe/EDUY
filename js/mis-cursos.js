@@ -481,6 +481,22 @@ formulario.addEventListener(
             formulario.imagen
                 .value
                 .trim();
+        const videoPresentacion =
+            formulario.videoPresentacion.value.trim();
+
+        const videoValido =
+            !videoPresentacion ||
+            /^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(
+                videoPresentacion
+            );
+
+        if (!videoValido) {
+            mostrarMensaje(
+                "Ingresá un enlace HTTPS válido de YouTube.",
+                "warning"
+            );
+            return;
+        }
 
         const imagenValida =
             !imagen ||
@@ -514,6 +530,7 @@ formulario.addEventListener(
                     descripcion,
                     nivel,
                     imagen,
+                    videoPresentacion,
 
                     docenteId:
                         usuarioActual.uid,

@@ -67,6 +67,7 @@ const campoCursoDocente = document.querySelector("#cursoAdminDocente");
 const campoCursoPrecio = document.querySelector("#cursoAdminPrecio");
 const campoCursoDuracion = document.querySelector("#cursoAdminDuracion");
 const campoCursoImagen = document.querySelector("#cursoAdminImagen");
+const campoCursoVideoPresentacion = document.querySelector("#cursoAdminVideoPresentacion");
 const campoCursoEstado = document.querySelector("#cursoAdminEstado");
 const listaAdquisicionesAdmin = document.querySelector("#listaAdquisicionesAdmin");
 const estadoAdquisicionesAdmin = document.querySelector("#estadoAdquisicionesAdmin");
@@ -498,6 +499,7 @@ function abrirEdicionCurso(evento) {
     campoCursoPrecio.value = curso.precio ?? preciosPorNivel[curso.nivel] ?? 1200;
     campoCursoDuracion.value = curso.duracion || "";
     campoCursoImagen.value = curso.imagen || "";
+    campoCursoVideoPresentacion.value = curso.videoPresentacion || "";
     campoCursoEstado.value = curso.habilitado === true ? "habilitado" : "borrador";
     tituloModalCurso.textContent = "Modificar curso";
     btnGuardarCursoAdmin.textContent = "Guardar cambios";
@@ -529,7 +531,11 @@ function cargarOpcionesDocentesCurso(curso) {
 }
 
 function validarImagenCurso(imagen) {
-    return !imagen || /^https:\/\//i.test(imagen) || /^img\/[a-zA-Z0-9_./-]+$/.test(imagen);
+    return (
+        !imagen ||
+        /^https:\/\//i.test(imagen) ||
+        /^img\/[a-zA-Z0-9_./-]+$/.test(imagen)
+    );
 }
 
 async function guardarCursoAdmin(evento) {
@@ -557,6 +563,19 @@ async function guardarCursoAdmin(evento) {
     const precio = Number(campoCursoPrecio.value);
     const duracion = campoCursoDuracion.value.trim();
     const imagen = campoCursoImagen.value.trim();
+    const videoPresentacion = campoCursoVideoPresentacion.value.trim();
+    if (
+        videoPresentacion &&
+        !/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(
+            videoPresentacion
+        )
+    ) {
+        mostrarMensaje(
+            "Ingresá un enlace HTTPS válido de YouTube.",
+            "warning"
+        );
+        return;
+    }
     const habilitado = campoCursoEstado.value === "habilitado";
 
     if (!validarImagenCurso(imagen)) {
@@ -575,6 +594,7 @@ async function guardarCursoAdmin(evento) {
         descripcion,
         nivel,
         imagen,
+        videoPresentacion,
         duracion,
         precio,
         habilitado,
