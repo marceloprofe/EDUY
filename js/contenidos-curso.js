@@ -1,8 +1,13 @@
 import {
     auth,
-    db,
-    storage
+    db
 } from "./firebase-config.js";
+
+import {
+    CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_UPLOAD_PRESET,
+    cloudinaryConfigurado
+} from "./cloudinary-config.js";
 
 import {
     onAuthStateChanged
@@ -19,14 +24,6 @@ import {
     serverTimestamp,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-import {
-    deleteObject,
-    getDownloadURL,
-    ref,
-    uploadBytesResumable
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-storage.js";
-
 
 /*
 |--------------------------------------------------------------------------
@@ -112,7 +109,7 @@ let cursoActual = null;
 let contenidosActuales = [];
 
 const TAMANO_MAXIMO_VIDEO =
-    250 * 1024 * 1024;
+    100 * 1024 * 1024;
 
 const TIPOS_VIDEO_PERMITIDOS = [
     "video/mp4",
@@ -232,74 +229,76 @@ function validarArchivoVideo(archivo) {
     ) && archivo.size <= TAMANO_MAXIMO_VIDEO;
 }
 
-function limpiarNombreArchivo(nombre) {
-    return nombre
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9._-]/g, "-")
-        .toLowerCase();
-}
-
 function subirVideo(archivo) {
-    const nombreSeguro =
-        limpiarNombreArchivo(archivo.name);
+    if (!cloudinaryConfigurado()) {
+        throw new Error("cloudinary-no-configurado");
+    }
 
-    const ruta =
-        `cursos/${cursoId}/videos/` +
-        `${usuarioActual.uid}/${Date.now()}-${nombreSeguro}`;
-
-    const referencia = ref(storage, ruta);
-
-    const tarea = uploadBytesResumable(
-        referencia,
-        archivo,
-        {
-            contentType: archivo.type,
-            customMetadata: {
-                cursoId,
-                docenteId: usuarioActual.uid
-            }
-        }
+    const datos = new FormData();
+    datos.append("file", archivo);
+    datos.append(
+        "upload_preset",
+        CLOUDINARY_UPLOAD_PRESET
     );
 
+    const endpoint =
+        "https://api.cloudinary.com/v1_1/" +
+        `${CLOUDINARY_CLOUD_NAME}/video/upload`;
+
     return new Promise((resolve, reject) => {
-        tarea.on(
-            "state_changed",
-            (estado) => {
-                const porcentaje =
-                    estado.bytesTransferred /
-                    estado.totalBytes * 100;
+        const solicitud = new XMLHttpRequest();
 
-                actualizarProgresoVideo(porcentaje);
-            },
-            reject,
-            async () => {
-                try {
-                    const url = await getDownloadURL(
-                        tarea.snapshot.ref
+        solicitud.upload.addEventListener(
+            "progress",
+            (evento) => {
+                if (evento.lengthComputable) {
+                    actualizarProgresoVideo(
+                        evento.loaded / evento.total * 100
                     );
-
-                    resolve({ url, ruta });
-                } catch (error) {
-                    reject(error);
                 }
             }
         );
+
+        solicitud.addEventListener("load", () => {
+            let respuesta = null;
+
+            try {
+                respuesta = JSON.parse(
+                    solicitud.responseText
+                );
+            } catch {
+                // La respuesta inválida se trata como un error de subida.
+            }
+
+            if (
+                solicitud.status >= 200 &&
+                solicitud.status < 300 &&
+                respuesta?.secure_url &&
+                respuesta?.public_id
+            ) {
+                resolve({
+                    url: respuesta.secure_url,
+                    publicId: respuesta.public_id
+                });
+                return;
+            }
+
+            reject(new Error(
+                respuesta?.error?.message ||
+                "cloudinary-error-subida"
+            ));
+        });
+
+        solicitud.addEventListener(
+            "error",
+            () => reject(
+                new Error("cloudinary-error-red")
+            )
+        );
+
+        solicitud.open("POST", endpoint);
+        solicitud.send(datos);
     });
-}
-
-async function eliminarVideoAlmacenado(ruta) {
-    if (!ruta) {
-        return;
-    }
-
-    try {
-        await deleteObject(ref(storage, ruta));
-    } catch (error) {
-        if (error.code !== "storage/object-not-found") {
-            throw error;
-        }
-    }
 }
 
 function validarUrlHttps(valor) {
@@ -718,17 +717,6 @@ async function eliminarContenido(contenidoId) {
             )
         );
 
-        try {
-            await eliminarVideoAlmacenado(
-                contenido.storagePath
-            );
-        } catch (errorStorage) {
-            console.warn(
-                "El contenido se eliminó, pero no fue posible borrar su archivo.",
-                errorStorage
-            );
-        }
-
         mostrarMensaje(
             "Contenido eliminado correctamente.",
             "success"
@@ -820,7 +808,7 @@ formulario.addEventListener(
             !validarArchivoVideo(archivoVideo)
         ) {
             mostrarMensaje(
-                "Seleccioná un video MP4 o WebM de hasta 250 MB.",
+                "Seleccioná un video MP4 o WebM de hasta 100 MB.",
                 "warning"
             );
 
@@ -864,8 +852,7 @@ formulario.addEventListener(
             )
             : null;
 
-        let nuevaRutaStorage = "";
-        let contenidoGuardado = false;
+        let nuevoPublicId = "";
 
         try {
             if (archivoVideo) {
@@ -873,7 +860,7 @@ formulario.addEventListener(
                     await subirVideo(archivoVideo);
 
                 url = videoSubido.url;
-                nuevaRutaStorage = videoSubido.ruta;
+                nuevoPublicId = videoSubido.publicId;
                 botonGuardar.textContent = "Guardando...";
             }
 
@@ -887,17 +874,17 @@ formulario.addEventListener(
                     serverTimestamp()
             };
 
-            if (nuevaRutaStorage) {
-                datosContenido.storagePath =
-                    nuevaRutaStorage;
+            if (nuevoPublicId) {
+                datosContenido.cloudinaryPublicId =
+                    nuevoPublicId;
             } else if (
-                contenidoAnterior?.storagePath &&
+                contenidoAnterior?.cloudinaryPublicId &&
                 (
                     tipo !== "video" ||
                     url !== contenidoAnterior.url
                 )
             ) {
-                datosContenido.storagePath =
+                datosContenido.cloudinaryPublicId =
                     deleteField();
             }
 
@@ -913,37 +900,10 @@ formulario.addEventListener(
                     datosContenido
                 );
 
-                contenidoGuardado = true;
-
                 mostrarMensaje(
                     "Contenido actualizado correctamente.",
                     "success"
                 );
-
-                const rutaAnterior =
-                    contenidoAnterior?.storagePath || "";
-
-                const reemplazoArchivo =
-                    nuevaRutaStorage &&
-                    rutaAnterior !== nuevaRutaStorage;
-
-                const cambioAEnlace =
-                    !nuevaRutaStorage &&
-                    rutaAnterior &&
-                    url !== contenidoAnterior.url;
-
-                if (reemplazoArchivo || cambioAEnlace) {
-                    try {
-                        await eliminarVideoAlmacenado(
-                            rutaAnterior
-                        );
-                    } catch (errorStorage) {
-                        console.warn(
-                            "El contenido se actualizó, pero el archivo anterior no pudo eliminarse.",
-                            errorStorage
-                        );
-                    }
-                }
             } else {
                 await addDoc(
                     collection(
@@ -959,8 +919,6 @@ formulario.addEventListener(
                     }
                 );
 
-                contenidoGuardado = true;
-
                 mostrarMensaje(
                     "Contenido agregado correctamente.",
                     "success"
@@ -972,20 +930,10 @@ formulario.addEventListener(
         } catch (error) {
             console.error(error);
 
-            if (nuevaRutaStorage && !contenidoGuardado) {
-                try {
-                    await eliminarVideoAlmacenado(
-                        nuevaRutaStorage
-                    );
-                } catch (errorLimpieza) {
-                    console.error(errorLimpieza);
-                }
-            }
-
             mostrarMensaje(
-                error.code?.startsWith("storage/")
-                    ? "No fue posible subir el video. Verificá el archivo y las reglas de Storage."
-                    : "No fue posible guardar el contenido. Verificá las reglas de Firestore.",
+                error.message === "cloudinary-no-configurado"
+                    ? "Configurá Cloudinary o usá un enlace de YouTube o Google Drive."
+                    : "No fue posible guardar el contenido. Verificá Cloudinary y las reglas de Firestore.",
                 "danger"
             );
         } finally {
