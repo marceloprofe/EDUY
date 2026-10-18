@@ -346,6 +346,7 @@ service cloud.firestore {
               "descripcion",
               "tipo",
               "url",
+              "cloudinaryPublicId",
               "orden",
               "fechaCreacion",
               "fechaActualizacion"
@@ -361,6 +362,16 @@ service cloud.firestore {
             && request.resource.data.url.size() > 8
             && request.resource.data.url.size() <= 2048
             && request.resource.data.url.matches("https://.*")
+            && (
+              !request.resource.data.keys().hasAny([
+                "cloudinaryPublicId"
+              ])
+              || (
+                request.resource.data.cloudinaryPublicId is string
+                && request.resource.data.cloudinaryPublicId.size() > 0
+                && request.resource.data.cloudinaryPublicId.size() <= 512
+              )
+            )
             && request.resource.data.orden is int
             && request.resource.data.orden >= 1
             && request.resource.data.orden <= 100
@@ -395,6 +406,7 @@ service cloud.firestore {
                            "descripcion",
                            "tipo",
                            "url",
+                           "cloudinaryPublicId",
                            "orden",
                            "fechaActualizacion"
                          ])
