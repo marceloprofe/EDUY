@@ -102,13 +102,14 @@ function crearOpcionSalir(rutas) {
 }
 
 function obtenerOpcionesComunes(rutas) {
-    const opciones = [crearOpcionCarrito(rutas)];
+    const opciones = [];
 
     if (opcionBusqueda) {
         opciones.push(opcionBusqueda);
     }
 
     opciones.push(
+        crearOpcionCarrito(rutas),
         crearOpcion("Inicio", rutas.inicio),
         crearOpcion("Cursos", rutas.cursos)
     );
