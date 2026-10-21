@@ -16,6 +16,7 @@ import {
 
 const menu = document.querySelector(".navbar-nav");
 const claveRolSesion = "eduyRolSesion";
+const claveNombreSesion = "eduyNombreSesion";
 
 const opcionBusqueda =
     menu
@@ -93,6 +94,7 @@ function crearOpcionSalir(rutas) {
     boton.addEventListener("click", async () => {
         boton.disabled = true;
         sessionStorage.removeItem(claveRolSesion);
+        sessionStorage.removeItem(claveNombreSesion);
         await signOut(auth);
         window.location.href = rutas.inicio;
     });
@@ -127,7 +129,7 @@ function mostrarMenuVisitante(rutas) {
     actualizarContadorCarrito();
 }
 
-function mostrarMenuAutenticado(rol, rutas) {
+function mostrarMenuAutenticado(rol, rutas, nombre = "") {
     const opciones = obtenerOpcionesComunes(rutas);
 
     if (rol === "estudiante") {
@@ -142,7 +144,11 @@ function mostrarMenuAutenticado(rol, rutas) {
         );
     }
 
-    opciones.push(crearOpcion("Mi perfil", rutas.perfil));
+    const textoPerfil = nombre
+        ? `Mi perfil: ${nombre}`
+        : "Mi perfil";
+
+    opciones.push(crearOpcion(textoPerfil, rutas.perfil));
 
     if (rol === "admin") {
         opciones.push(
@@ -158,9 +164,15 @@ function mostrarMenuAutenticado(rol, rutas) {
 
 const rutasIniciales = obtenerRutas();
 const rolRecordado = sessionStorage.getItem(claveRolSesion);
+const nombreRecordado =
+    sessionStorage.getItem(claveNombreSesion) || "";
 
 if (menu && rolRecordado) {
-    mostrarMenuAutenticado(rolRecordado, rutasIniciales);
+    mostrarMenuAutenticado(
+        rolRecordado,
+        rutasIniciales,
+        nombreRecordado
+    );
     menu.hidden = false;
 }
 
@@ -173,6 +185,7 @@ onAuthStateChanged(auth, async (usuario) => {
 
     if (!usuario) {
         sessionStorage.removeItem(claveRolSesion);
+        sessionStorage.removeItem(claveNombreSesion);
         mostrarMenuVisitante(rutas);
         menu.hidden = false;
         return;
@@ -188,12 +201,29 @@ onAuthStateChanged(auth, async (usuario) => {
             : {};
 
         const rol = datosUsuario.rol || "estudiante";
+        const nombrePerfil =
+            typeof datosUsuario.nombre === "string"
+                ? datosUsuario.nombre.trim()
+                : "";
+        const nombre = nombrePerfil ||
+            (usuario.displayName || "").trim();
 
         sessionStorage.setItem(claveRolSesion, rol);
-        mostrarMenuAutenticado(rol, rutas);
+        if (nombre) {
+            sessionStorage.setItem(claveNombreSesion, nombre);
+        } else {
+            sessionStorage.removeItem(claveNombreSesion);
+        }
+
+        mostrarMenuAutenticado(rol, rutas, nombre);
     } catch (error) {
         console.error("No fue posible consultar el perfil:", error);
-        mostrarMenuAutenticado("", rutas);
+        mostrarMenuAutenticado(
+            sessionStorage.getItem(claveRolSesion) || "",
+            rutas,
+            sessionStorage.getItem(claveNombreSesion) ||
+                (usuario.displayName || "").trim()
+        );
     } finally {
         menu.hidden = false;
     }
