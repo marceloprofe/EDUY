@@ -11,8 +11,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 import {
-    actualizarContadorCarrito
-} from "./carrito-store.js";
+    actualizarContadorFavoritos
+} from "./favoritos-store.js";
 
 const menu = document.querySelector(".navbar-nav");
 const claveRolSesion = "eduyRolSesion";
@@ -29,7 +29,7 @@ function obtenerRutas() {
     return {
         inicio: estaEnPages ? "../index.html" : "./index.html",
         cursos: estaEnPages ? "./cursos.html" : "./pages/cursos.html",
-        carrito: estaEnPages ? "./carrito.html" : "./pages/carrito.html",
+        favoritos: estaEnPages ? "./favoritos.html" : "./pages/favoritos.html",
         login: estaEnPages ? "./login.html" : "./pages/login.html",
         registro: estaEnPages ? "./registro.html" : "./pages/registro.html",
         perfil: estaEnPages ? "./perfil.html" : "./pages/perfil.html",
@@ -68,13 +68,13 @@ function crearOpcion(texto, enlace) {
     return elementoLista;
 }
 
-function crearOpcionCarrito(rutas) {
-    const opcion = crearOpcion("Favoritos", rutas.carrito);
+function crearOpcionFavoritos(rutas) {
+    const opcion = crearOpcion("Favoritos", rutas.favoritos);
     const enlace = opcion.querySelector("a");
     const contador = document.createElement("span");
 
-    contador.id = "contadorCarrito";
-    contador.className = "badge text-bg-warning ms-1 contador-carrito";
+    contador.id = "contadorFavoritos";
+    contador.className = "badge text-bg-warning ms-1 contador-favoritos";
     contador.textContent = "0";
     enlace.appendChild(contador);
 
@@ -109,7 +109,7 @@ function obtenerOpcionesComunes(rutas) {
     }
 
     opciones.push(
-        crearOpcionCarrito(rutas),
+        crearOpcionFavoritos(rutas),
         crearOpcion("Inicio", rutas.inicio),
         crearOpcion("Cursos", rutas.cursos)
     );
@@ -124,7 +124,7 @@ function mostrarMenuVisitante(rutas) {
         crearOpcion("Registro", rutas.registro)
     );
 
-    actualizarContadorCarrito();
+    actualizarContadorFavoritos();
 }
 
 function mostrarMenuAutenticado(rol, rutas) {
@@ -153,7 +153,7 @@ function mostrarMenuAutenticado(rol, rutas) {
     opciones.push(crearOpcionSalir(rutas));
     menu.replaceChildren(...opciones);
 
-    actualizarContadorCarrito();
+    actualizarContadorFavoritos();
 }
 
 const rutasIniciales = obtenerRutas();
