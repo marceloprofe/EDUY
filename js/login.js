@@ -1,12 +1,21 @@
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 import {
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithPopup,
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence,
   sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const formulario = document.querySelector("#formLogin");
 const campoCorreo = document.querySelector("#correo");
@@ -16,6 +25,7 @@ const mensajeLogin = document.querySelector("#mensajeLogin");
 const botonRecuperar = document.querySelector(
   "#btnRecuperarContrasena"
 );
+const botonGoogle = document.querySelector("#btnGoogle");
 
 const botonIngresar = formulario.querySelector(
   'button[type="submit"]'
@@ -38,13 +48,53 @@ function obtenerMensajeError(
     "auth/user-disabled":
       "Esta cuenta está deshabilitada.",
     "auth/too-many-requests":
-      "Demasiados intentos. Intenta más tarde."
+      "Demasiados intentos. Intenta más tarde.",
+    "auth/popup-closed-by-user":
+      "Se cerró la ventana de Google antes de completar el ingreso.",
+    "auth/popup-blocked":
+      "El navegador bloqueó la ventana de Google.",
+    "auth/cancelled-popup-request":
+      "El ingreso con Google fue cancelado.",
+    "auth/account-exists-with-different-credential":
+      "Ya existe una cuenta con ese correo. Ingresá con el método utilizado al registrarte.",
+    "auth/unauthorized-domain":
+      "Este dominio no está autorizado para ingresar con Google en Firebase.",
+    "auth/operation-not-allowed":
+      "El ingreso con Google no está habilitado en Firebase.",
+    "auth/network-request-failed":
+      "No fue posible conectar con Google. Revisá tu conexión.",
+    "permission-denied":
+      "Firestore no permitió guardar el perfil."
   };
 
   return (
     mensajes[codigo] ||
     mensajePredeterminado
   );
+}
+
+async function configurarPersistencia() {
+  const persistencia = campoRecordarme.checked
+    ? browserLocalPersistence
+    : browserSessionPersistence;
+
+  await setPersistence(auth, persistencia);
+}
+
+async function asegurarPerfilEstudiante(usuario) {
+  const referenciaUsuario = doc(db, "usuarios", usuario.uid);
+  const documentoUsuario = await getDoc(referenciaUsuario);
+
+  if (documentoUsuario.exists()) {
+    return;
+  }
+
+  await setDoc(referenciaUsuario, {
+    nombre: usuario.displayName || "Estudiante",
+    correo: usuario.email || "",
+    rol: "estudiante",
+    fechaCreacion: serverTimestamp()
+  });
 }
 
 formulario.addEventListener("submit", async (evento) => {
@@ -57,11 +107,7 @@ formulario.addEventListener("submit", async (evento) => {
   botonIngresar.textContent = "Ingresando...";
 
   try {
-    const persistencia = campoRecordarme.checked
-      ? browserLocalPersistence
-      : browserSessionPersistence;
-
-    await setPersistence(auth, persistencia);
+    await configurarPersistencia();
 
     await signInWithEmailAndPassword(
       auth,
@@ -86,6 +132,52 @@ formulario.addEventListener("submit", async (evento) => {
     botonIngresar.textContent = "Ingresar";
   }
 });
+
+botonGoogle.addEventListener("click", async () => {
+  botonGoogle.disabled = true;
+  botonGoogle.textContent = "Conectando con Google...";
+
+  try {
+    await configurarPersistencia();
+
+    const proveedorGoogle = new GoogleAuthProvider();
+    proveedorGoogle.setCustomParameters({
+      prompt: "select_account"
+    });
+    const resultado = await signInWithPopup(auth, proveedorGoogle);
+
+    await asegurarPerfilEstudiante(resultado.user);
+
+    mostrarMensaje(
+      "Inicio de sesión con Google correcto.",
+      "success"
+    );
+
+    window.location.href = "./perfil.html";
+  } catch (error) {
+    console.error("Error al ingresar con Google:", error);
+    mostrarMensaje(
+      obtenerMensajeError(
+        error.code,
+        "No fue posible iniciar sesión con Google."
+      ),
+      "danger"
+    );
+  } finally {
+    botonGoogle.disabled = false;
+    botonGoogle.innerHTML = `
+      <img
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        width="20"
+        height="20"
+        alt=""
+        class="me-2"
+      />
+      Continuar con Google
+    `;
+  }
+});
+
 botonRecuperar.addEventListener("click", async () => {
   const correo = campoCorreo.value.trim();
 

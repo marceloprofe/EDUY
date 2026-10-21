@@ -153,6 +153,9 @@ botonGoogle.addEventListener("click", async () => {
     try {
         const proveedorGoogle =
             new GoogleAuthProvider();
+        proveedorGoogle.setCustomParameters({
+            prompt: "select_account"
+        });
 
         const resultado = await signInWithPopup(
             auth,
