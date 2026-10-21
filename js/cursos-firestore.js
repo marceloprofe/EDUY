@@ -8,9 +8,10 @@ import {
     prepararImagenes
 } from "./curso-utils.js";
 import {
-    agregarAlCarrito,
-    actualizarContadorCarrito
-} from "./carrito-store.js";
+    agregarAFavoritos,
+    actualizarContadorFavoritos,
+    obtenerFavoritos
+} from "./favoritos-store.js";
 
 const listaCursos = document.querySelector("#listaCursos");
 
@@ -77,9 +78,11 @@ function crearTarjetaCurso(curso, rolActual) {
           <button
             type="button"
             class="btn btn-oro"
-            data-agregar-carrito="${escaparHTML(curso.id)}"
+            data-agregar-favoritos="${escaparHTML(curso.id)}"
           >
-            Agregar al carrito
+            ${obtenerFavoritos().includes(curso.id)
+                ? "Ya está en favoritos"
+                : "Agregar a favoritos"}
           </button>
 
           <a href="${enlaceAdquisicion}" class="btn btn-outline-primary">
@@ -132,27 +135,27 @@ function crearTarjetaCurso(curso, rolActual) {
 }
 
 listaCursos.addEventListener("click", (evento) => {
-    const boton = evento.target.closest("[data-agregar-carrito]");
+    const boton = evento.target.closest("[data-agregar-favoritos]");
 
     if (!boton) return;
 
-    const agregado = agregarAlCarrito(boton.dataset.agregarCarrito);
+    const agregado = agregarAFavoritos(boton.dataset.agregarFavoritos);
 
-    actualizarContadorCarrito();
+    actualizarContadorFavoritos();
 
     boton.textContent = agregado
-        ? "Agregado al carrito"
-        : "Ya está en el carrito";
+        ? "Agregado a favoritos"
+        : "Ya está en favoritos";
 
     boton.disabled = true;
 
     window.setTimeout(() => {
-        boton.textContent = "Agregar al carrito";
+        boton.textContent = "Ya está en favoritos";
         boton.disabled = false;
     }, 1400);
 });
 
-actualizarContadorCarrito();
+actualizarContadorFavoritos();
 
 async function obtenerRolActual() {
     const usuario = auth.currentUser || await new Promise((resolve) => {

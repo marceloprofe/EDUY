@@ -22,7 +22,7 @@ Esta lista complementa el README y se utiliza para reunir la evidencia antes de 
 - [ ] Catálogo, búsqueda, filtros y detalle desde Firestore.
 - [ ] Creación, edición, publicación y despublicación de un curso.
 - [ ] Gestión y vista previa de contenidos.
-- [ ] Carrito y adquisición con pago simulado.
+- [ ] Favoritos y adquisición con pago simulado.
 - [ ] Persistencia de la adquisición después de cerrar sesión.
 - [ ] Historial visible únicamente para el estudiante propietario.
 - [ ] Acceso al aula, reproducción de contenidos y progreso.

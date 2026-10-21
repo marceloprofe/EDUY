@@ -33,7 +33,7 @@ Actualmente, el proyecto incluye:
 - Historial de adquisiciones del estudiante.
 - Panel de administración de usuarios, cursos, adquisiciones y estadísticas.
 - Página de adquisición de cursos.
-- Carrito de cursos.
+- Lista de cursos favoritos con acceso a la adquisición simulada.
 - Página de acceso denegado.
 - Navegación adaptable para computadoras y dispositivos móviles.
 
@@ -46,6 +46,9 @@ Flujo general:
 ```text
 Inicio → Cursos → Adquirir curso
 ```
+
+Los cursos también pueden guardarse en “Favoritos” para consultarlos más
+adelante y acceder desde allí a su detalle o adquisición.
 
 La página de Inicio también incorpora una lupa que abre una ventana de búsqueda rápida.
 
@@ -166,6 +169,10 @@ Estas funciones fueron desarrolladas con JavaScript y funcionan sin recargar com
 ## 8. Adquisición de cursos
 
 Los estudiantes autenticados pueden adquirir cursos habilitados.
+
+La lista de favoritos se guarda localmente en el navegador. Desde esa lista se
+puede revisar cada curso, quitarlo o abrir su página de adquisición. La compra
+se confirma de forma individual en la página de adquisición.
 
 El flujo de adquisición funciona de la siguiente manera:
 
@@ -323,7 +330,7 @@ EDUY/
 │   ├── acceso-denegado.html
 │   ├── adquisicion.html
 │   ├── cursos.html
-│   ├── carrito.html
+│   ├── favoritos.html
 │   ├── contenidos-curso.html
 │   ├── curso-estudiante.html
 │   ├── detalle.html
@@ -337,7 +344,8 @@ EDUY/
 │   └── estilo.css
 ├── js/
 │   ├── adquisicion.js
-│   ├── carrito.js
+│   ├── favoritos.js
+│   ├── favoritos-store.js
 │   ├── cloudinary-config.js
 │   ├── contenidos-curso.js
 │   ├── curso-estudiante.js
