@@ -14,9 +14,9 @@ La implementación presente en `develop` cubre los flujos principales exigidos p
 | Adquisición y pago simulado | Confirmación, importe, método simulado, validación de duplicados y persistencia | Implementado; requiere prueba final |
 | Historial del estudiante | Consulta de adquisiciones por usuario y acceso a cursos adquiridos | Implementado; requiere prueba de persistencia |
 | Contenidos y progreso | Aula, contenidos, reproducción y colección `progresos` | Implementado; requiere prueba completa |
-| Gestión docente | Creación de cursos, estado, contenidos y vista previa como estudiante | Implementado |
+| Gestión docente | Creación de cursos, estado, contenidos, vista previa y seguimiento de estudiantes | Implementado; requiere prueba final con cuentas reales |
 | Panel administrativo | Gestión de usuarios, cursos y adquisiciones | Implementado; depende de reglas y Functions desplegadas |
-| Información administrativa | Estadísticas generales por cursos, docentes y adquisiciones | Implementado para administración |
+| Información administrativa | Estadísticas generales para administración y resumen por curso propio para docentes | Implementado; requiere prueba final docente |
 | Validaciones y errores | Mensajes visibles, controles de acceso y reglas de Firestore | Implementado; 13 pruebas automatizadas aprobadas |
 | Adaptación responsive | Existen reglas responsive en CSS | Pendiente de comprobación manual |
 | Publicación final | GitHub Pages publica desde `main` | Pendiente; `develop` aún no está integrada en `main` |
@@ -41,8 +41,8 @@ firebase deploy --only functions --project eduy-d6421
 ## Issues abiertas
 
 - [#93 Unificar y adaptar los estilos de las páginas](https://github.com/marceloprofe/EDUY/issues/93): falta comprobar la presentación en escritorio y móvil y limitar el alcance a correcciones necesarias, sin rediseñar la identidad visual acordada por el equipo.
-- [#95 Agregar estadísticas para docentes y administración](https://github.com/marceloprofe/EDUY/issues/95): las estadísticas administrativas están implementadas; falta la vista limitada para docentes.
-- [#114 Avance de cursos](https://github.com/marceloprofe/EDUY/issues/114): el estudiante guarda su progreso, pero falta la consulta del avance por parte del docente y la prueba de certificado indicada en la issue.
+- [#95 Agregar estadísticas para docentes y administración](https://github.com/marceloprofe/EDUY/issues/95): ambas vistas están implementadas; queda probar la vista docente con cuentas reales antes de cerrar.
+- [#114 Mostrar al docente el avance de sus estudiantes](https://github.com/marceloprofe/EDUY/issues/114): la consulta de avance está implementada y protegida por reglas; queda la prueba manual y validar el criterio que utilizará el certificado.
 
 ## Pull requests
 
@@ -69,6 +69,6 @@ Los issues y pull requests del repositorio ya reflejan mejor el estado real: las
 - Todos los archivos JavaScript pasan la comprobación de sintaxis de Node.
 - Las referencias locales de las páginas apuntan a archivos existentes; el único enlace no tratado como archivo por la comprobación es el enlace telefónico `tel:` del pie de página.
 - La configuración Firebase se encuentra centralizada y no contiene referencias versionadas a la base anterior.
-- La matriz de seguridad de Firestore pasó 13 de 13 pruebas en el emulador mediante la PR #148.
+- La matriz de seguridad de Firestore pasó 17 de 17 pruebas en el emulador, incluidas las consultas de progreso del docente propietario y la denegación a otros docentes.
 
 Estas comprobaciones no reemplazan las pruebas manuales con cuentas reales ni la verificación de los despliegues en Firebase.
