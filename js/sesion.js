@@ -17,6 +17,20 @@ import {
 const menu = document.querySelector(".navbar-nav");
 const claveRolSesion = "eduyRolSesion";
 const claveNombreSesion = "eduyNombreSesion";
+const barraSesion = document.createElement("div");
+barraSesion.className = "barra-sesion-usuario";
+barraSesion.setAttribute("role", "region");
+barraSesion.setAttribute("aria-label", "Información de la sesión");
+barraSesion.hidden = true;
+barraSesion.innerHTML = `
+    <div class="container d-flex flex-wrap align-items-center justify-content-end gap-2 py-2">
+        <span class="barra-sesion-nombre"></span>
+        <span class="barra-sesion-rol"></span>
+    </div>`;
+
+const nodoNombreSesion = barraSesion.querySelector(".barra-sesion-nombre");
+const nodoRolSesion = barraSesion.querySelector(".barra-sesion-rol");
+menu?.closest("nav")?.insertAdjacentElement("afterend", barraSesion);
 
 const opcionBusqueda =
     menu
@@ -82,6 +96,16 @@ function crearOpcionFavoritos(rutas) {
     return opcion;
 }
 
+function obtenerEtiquetaRol(rol) {
+    const etiquetas = {
+        admin: "Administrador",
+        docente: "Docente",
+        estudiante: "Estudiante"
+    };
+
+    return etiquetas[rol] || (rol ? rol.charAt(0).toUpperCase() + rol.slice(1) : "No disponible");
+}
+
 function crearOpcionSalir(rutas) {
     const opcion = document.createElement("li");
     opcion.className = "nav-item";
@@ -123,6 +147,7 @@ function obtenerOpcionesComunes(rutas, incluirFavoritos = false) {
 }
 
 function mostrarMenuVisitante(rutas) {
+    barraSesion.hidden = true;
     menu.replaceChildren(
         ...obtenerOpcionesComunes(rutas),
         crearOpcion("Ingresar", rutas.login),
@@ -133,6 +158,10 @@ function mostrarMenuVisitante(rutas) {
 }
 
 function mostrarMenuAutenticado(rol, rutas, nombre = "") {
+    barraSesion.hidden = false;
+    nodoNombreSesion.textContent = nombre || "Usuario";
+    nodoRolSesion.textContent = obtenerEtiquetaRol(rol);
+
     const opciones = obtenerOpcionesComunes(rutas, true);
 
     if (rol === "estudiante") {
@@ -147,11 +176,7 @@ function mostrarMenuAutenticado(rol, rutas, nombre = "") {
         );
     }
 
-    const textoPerfil = nombre
-        ? `Mi perfil: ${nombre}`
-        : "Mi perfil";
-
-    opciones.push(crearOpcion(textoPerfil, rutas.perfil));
+    opciones.push(crearOpcion("Mi perfil", rutas.perfil));
 
     if (rol === "admin") {
         opciones.push(
