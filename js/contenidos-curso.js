@@ -91,6 +91,24 @@ const mensajeSinContenidos =
 const cantidadContenidos =
     document.querySelector("#cantidadContenidos");
 
+const panelEdicionContenido =
+    document.querySelector("#panelEdicionContenido");
+
+const columnaListaContenidos =
+    document.querySelector("#columnaListaContenidos");
+
+const avisoVistaPreviaAdmin =
+    document.querySelector("#avisoVistaPreviaAdmin");
+
+const enlaceVolverContenidos =
+    document.querySelector("#enlaceVolverContenidos");
+
+const enlaceBreadcrumbContenidos =
+    document.querySelector("#enlaceBreadcrumbContenidos");
+
+const descripcionPaginaContenidos =
+    document.querySelector("#descripcionPaginaContenidos");
+
 
 /*
 |--------------------------------------------------------------------------
@@ -104,9 +122,13 @@ const parametros =
 const cursoId =
     parametros.get("cursoId");
 
+const vistaSolicitada =
+    parametros.get("vista");
+
 let usuarioActual = null;
 let cursoActual = null;
 let contenidosActuales = [];
+let esVistaPreviaAdmin = false;
 
 const TAMANO_MAXIMO_VIDEO =
     100 * 1024 * 1024;
@@ -151,6 +173,18 @@ function habilitarFormulario(habilitado) {
         .forEach((elemento) => {
             elemento.disabled = !habilitado;
         });
+}
+
+function configurarVistaPreviaAdmin() {
+    avisoVistaPreviaAdmin.classList.remove("d-none");
+    panelEdicionContenido.classList.add("d-none");
+    columnaListaContenidos.className = "col-12";
+    enlaceVolverContenidos.href = "./panel-admin.html";
+    enlaceVolverContenidos.textContent = "Volver al panel administrativo";
+    enlaceBreadcrumbContenidos.href = "./panel-admin.html";
+    enlaceBreadcrumbContenidos.textContent = "Administración";
+    descripcionPaginaContenidos.textContent =
+        "Vista de los materiales disponibles para el docente.";
 }
 
 function obtenerSiguienteOrden() {
@@ -318,7 +352,7 @@ function validarUrlHttps(valor) {
 |--------------------------------------------------------------------------
 */
 
-async function obtenerPerfilDocente(usuario) {
+async function obtenerPerfilUsuario(usuario) {
     const referenciaUsuario =
         doc(db, "usuarios", usuario.uid);
 
@@ -332,7 +366,10 @@ async function obtenerPerfilDocente(usuario) {
     const datosUsuario =
         documentoUsuario.data();
 
-    if (datosUsuario.rol !== "docente") {
+    if (
+        datosUsuario.rol !== "docente" &&
+        datosUsuario.rol !== "admin"
+    ) {
         return null;
     }
 
@@ -357,7 +394,10 @@ async function obtenerCursoDocente(usuario) {
     const datosCurso =
         documentoCurso.data();
 
-    if (datosCurso.docenteId !== usuario.uid) {
+    if (
+        !esVistaPreviaAdmin &&
+        datosCurso.docenteId !== usuario.uid
+    ) {
         throw new Error("curso-no-pertenece");
     }
 
@@ -492,11 +532,14 @@ function crearTarjetaContenido(contenido) {
         () => eliminarContenido(contenido.id)
     );
 
-    acciones.append(
-        enlace,
-        botonEditar,
-        botonEliminar
-    );
+    acciones.append(enlace);
+
+    if (!esVistaPreviaAdmin) {
+        acciones.append(
+            botonEditar,
+            botonEliminar
+        );
+    }
 
     cuerpo.append(
         encabezado,
@@ -625,6 +668,10 @@ async function cargarContenidos() {
 */
 
 function iniciarEdicion(contenidoId) {
+    if (esVistaPreviaAdmin) {
+        return;
+    }
+
     const contenido =
         contenidosActuales.find(
             (elemento) =>
@@ -688,6 +735,10 @@ function iniciarEdicion(contenidoId) {
 */
 
 async function eliminarContenido(contenidoId) {
+    if (esVistaPreviaAdmin) {
+        return;
+    }
+
     const contenido =
         contenidosActuales.find(
             (elemento) =>
@@ -751,6 +802,14 @@ formulario.addEventListener(
     "submit",
     async (evento) => {
         evento.preventDefault();
+
+        if (esVistaPreviaAdmin) {
+            mostrarMensaje(
+                "La vista previa del administrador es de solo lectura.",
+                "warning"
+            );
+            return;
+        }
 
         if (!usuarioActual || !cursoActual) {
             mostrarMensaje(
@@ -991,13 +1050,27 @@ onAuthStateChanged(
 
         try {
             const perfil =
-                await obtenerPerfilDocente(usuario);
+                await obtenerPerfilUsuario(usuario);
 
             if (!perfil) {
                 window.location.replace(
                     "./acceso-denegado.html"
                 );
 
+                return;
+            }
+
+            esVistaPreviaAdmin =
+                perfil.rol === "admin" &&
+                vistaSolicitada === "docente";
+
+            if (
+                perfil.rol === "admin" &&
+                !esVistaPreviaAdmin
+            ) {
+                window.location.replace(
+                    "./acceso-denegado.html"
+                );
                 return;
             }
 
@@ -1022,7 +1095,12 @@ onAuthStateChanged(
                     : "secondary"
             );
 
-            habilitarFormulario(true);
+            if (esVistaPreviaAdmin) {
+                configurarVistaPreviaAdmin();
+                habilitarFormulario(false);
+            } else {
+                habilitarFormulario(true);
+            }
 
             await cargarContenidos();
         } catch (error) {
