@@ -21,6 +21,18 @@ body {
 .navbar .nav-link.active {
   color: #ffd700 !important;
 }
+/* Reserva el espacio del menu mientras Firebase recupera la sesion. */
+@media (min-width: 992px) {
+  .navbar-nav[data-menu-sesion] {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .navbar-nav[data-menu-sesion][hidden] {
+    display: flex !important;
+    visibility: hidden;
+  }
+}
 
 #lenguetasAdmin .nav-link.active,
 #lenguetasAdmin .nav-item.show .nav-link {
@@ -542,38 +554,6 @@ body {
 .boton-busqueda-nav:focus {
   color: #ffd700 !important;
 }
-.sesion-activa {
-    color: #ffc107 !important;
-    font-weight: 600;
-}
-
-.sesion-activa::before {
-    content: "●";
-    color: #4ade80;
-    font-size: 0.7rem;
-    margin-right: 0.4rem;
-}
-
-.barra-sesion {
-    padding: 0.4rem 0;
-    background-color: #031f4b;
-    border-bottom: 2px solid #ffd700;
-    color: #f8f9fa;
-    font-size: 0.9rem;
-}
-
-.sesion-perfil {
-    color: #ffd700;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.sesion-perfil:hover,
-.sesion-perfil:focus {
-    color: #fff;
-    text-decoration: underline;
-}
-
 .tarjeta-curso-adquirido {
   color: #212529;
   border: 0;

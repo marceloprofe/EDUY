@@ -29,6 +29,15 @@ const vieneDeMisCursos = parametros.get("origen") === "mis-cursos";
 
 let curso = null;
 let errorConsulta = false;
+function obtenerUrlVideoYouTube(url) {
+  const coincidencia = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/
+  );
+
+  return coincidencia
+    ? `https://www.youtube-nocookie.com/embed/${coincidencia[1]}`
+    : "";
+}
 
 function esperarUsuarioAutenticado() {
   if (auth.currentUser) {
@@ -334,6 +343,10 @@ if (cursoIdFirestore) {
         ),
         nivel: nombresNivel[datos.nivel] || "Básico",
         imagen: escaparHTML(resolverImagen(datos.imagen)),
+        videoPresentacion:
+          typeof datos.videoPresentacion === "string"
+            ? datos.videoPresentacion
+            : "",
         docenteNombre: escaparHTML(datos.docenteNombre || "Equipo EDUY"),
         docenteId: typeof datos.docenteId === "string" ? datos.docenteId : "",
         duracion: escaparHTML(datos.duracion || "No especificada"),
@@ -376,6 +389,25 @@ if (!curso) {
         <p class="mb-0">${descripcion}</p>
       </div>
     </article>`).join("");
+  const urlVideoPresentacion =
+    obtenerUrlVideoYouTube(curso.videoPresentacion);
+
+  const seccionVideoPresentacion = urlVideoPresentacion
+    ? `
+    <section class="card mt-4">
+      <div class="card-body">
+        <h2 class="h4">Presentación del curso</h2>
+        <div class="ratio ratio-16x9">
+          <iframe
+            src="${urlVideoPresentacion}"
+            title="Presentación de ${curso.titulo}"
+            loading="lazy"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </section>`
+    : "";
 
   const usuarioSesion = await esperarUsuarioAutenticado();
   let cursoAdquirido = false;
@@ -416,7 +448,7 @@ if (!curso) {
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="menuPrincipal">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto" data-menu-sesion hidden>
             <li class="nav-item"><a class="nav-link" href="../index.html">Inicio</a></li>
             <li class="nav-item"><a class="nav-link active" href="./cursos.html">Cursos</a></li>
             <li class="nav-item"><a class="nav-link" href="./login.html" data-auth-login>Ingresar</a></li>
@@ -443,6 +475,7 @@ if (!curso) {
           <p class="lead mb-0">${curso.descripcion}</p>
         </div>
       </section>
+      ${seccionVideoPresentacion}
 
       <section class="row g-4 mt-4">
         <div class="col-lg-8">

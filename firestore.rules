@@ -137,6 +137,16 @@ service cloud.firestore {
     */
 
     match /cursos/{cursoId} {
+      function videoPresentacionValido(video) {
+  return video is string
+    && video.size() <= 2048
+    && (
+      video == ""
+      || video.matches(
+        "https://(www[.])?(youtube[.]com|youtu[.]be)/.*"
+      )
+    );
+}
 
       allow get: if esAdmin()
                  || resource.data.habilitado == true
@@ -171,6 +181,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -187,6 +198,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -207,6 +219,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
@@ -242,6 +257,7 @@ service cloud.firestore {
                          "descripcion",
                          "nivel",
                          "imagen",
+                         "videoPresentacion",
                          "duracion",
                          "precio",
                          "habilitado",
@@ -260,6 +276,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
@@ -327,6 +346,7 @@ service cloud.firestore {
               "descripcion",
               "tipo",
               "url",
+              "cloudinaryPublicId",
               "orden",
               "fechaCreacion",
               "fechaActualizacion"
@@ -342,6 +362,16 @@ service cloud.firestore {
             && request.resource.data.url.size() > 8
             && request.resource.data.url.size() <= 2048
             && request.resource.data.url.matches("https://.*")
+            && (
+              !request.resource.data.keys().hasAny([
+                "cloudinaryPublicId"
+              ])
+              || (
+                request.resource.data.cloudinaryPublicId is string
+                && request.resource.data.cloudinaryPublicId.size() > 0
+                && request.resource.data.cloudinaryPublicId.size() <= 512
+              )
+            )
             && request.resource.data.orden is int
             && request.resource.data.orden >= 1
             && request.resource.data.orden <= 100
@@ -376,6 +406,7 @@ service cloud.firestore {
                            "descripcion",
                            "tipo",
                            "url",
+                           "cloudinaryPublicId",
                            "orden",
                            "fechaActualizacion"
                          ])

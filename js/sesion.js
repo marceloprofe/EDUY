@@ -10,83 +10,89 @@ import {
     getDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+import {
+    actualizarContadorCarrito
+} from "./carrito-store.js";
+
 const menu = document.querySelector(".navbar-nav");
+const claveRolSesion = "eduyRolSesion";
+
+const opcionBusqueda =
+    menu
+        ?.querySelector(".boton-busqueda-nav")
+        ?.closest(".nav-item") || null;
 
 function obtenerRutas() {
     const estaEnPages =
         window.location.pathname.includes("/pages/");
 
     return {
-        inicio: estaEnPages
-            ? "../index.html"
-            : "./index.html",
-
-        cursos: estaEnPages
-            ? "./cursos.html"
-            : "./pages/cursos.html",
-
-        perfil: estaEnPages
-            ? "./perfil.html"
-            : "./pages/perfil.html",
-
+        inicio: estaEnPages ? "../index.html" : "./index.html",
+        cursos: estaEnPages ? "./cursos.html" : "./pages/cursos.html",
+        carrito: estaEnPages ? "./carrito.html" : "./pages/carrito.html",
+        login: estaEnPages ? "./login.html" : "./pages/login.html",
+        registro: estaEnPages ? "./registro.html" : "./pages/registro.html",
+        perfil: estaEnPages ? "./perfil.html" : "./pages/perfil.html",
         misAdquisiciones: estaEnPages
             ? "./mis-adquisiciones.html"
             : "./pages/mis-adquisiciones.html",
-
         misCursos: estaEnPages
             ? "./mis-cursos.html"
             : "./pages/mis-cursos.html",
-
         panelAdmin: estaEnPages
             ? "./panel-admin.html"
             : "./pages/panel-admin.html"
     };
 }
 
-function crearOpcion(texto, enlace, clases = "") {
-    const elementoLista =
-        document.createElement("li");
+function esRutaActual(enlace) {
+    const destino = new URL(enlace, window.location.href);
+    return destino.pathname === window.location.pathname;
+}
 
+function crearOpcion(texto, enlace) {
+    const elementoLista = document.createElement("li");
     elementoLista.className = "nav-item";
 
-    const elementoEnlace =
-        document.createElement("a");
-
-    elementoEnlace.className =
-        `nav-link ${clases}`.trim();
-
+    const elementoEnlace = document.createElement("a");
+    elementoEnlace.className = "nav-link";
     elementoEnlace.href = enlace;
     elementoEnlace.textContent = texto;
-    elementoEnlace.dataset.opcionSesion = "true";
+
+    if (esRutaActual(enlace)) {
+        elementoEnlace.classList.add("active");
+        elementoEnlace.setAttribute("aria-current", "page");
+    }
 
     elementoLista.appendChild(elementoEnlace);
-
     return elementoLista;
 }
 
-function quitarOpcionesDeAcceso() {
-    const enlaceLogin = document.querySelector(
-        'a[href$="login.html"]'
-    );
+function crearOpcionCarrito(rutas) {
+    const opcion = crearOpcion("Carrito", rutas.carrito);
+    const enlace = opcion.querySelector("a");
+    const contador = document.createElement("span");
 
-    const enlaceRegistro = document.querySelector(
-        'a[href$="registro.html"]'
-    );
+    contador.id = "contadorCarrito";
+    contador.className = "badge text-bg-warning ms-1 contador-carrito";
+    contador.textContent = "0";
+    enlace.appendChild(contador);
 
-    enlaceLogin?.closest("li")?.remove();
-    enlaceRegistro?.closest("li")?.remove();
+    return opcion;
 }
 
-function crearOpcionSalir(texto, rutas) {
+function crearOpcionSalir(rutas) {
     const opcion = document.createElement("li");
     opcion.className = "nav-item";
-    opcion.dataset.opcionSesion = "true";
 
     const boton = document.createElement("button");
     boton.type = "button";
-    boton.className = "btn btn-link nav-link border-0 boton-cerrar-sesion";
-    boton.textContent = texto;
+    boton.className =
+        "btn btn-link nav-link border-0 boton-cerrar-sesion";
+    boton.textContent = "Cerrar sesión";
     boton.addEventListener("click", async () => {
+        boton.disabled = true;
+        sessionStorage.removeItem(claveRolSesion);
         await signOut(auth);
         window.location.href = rutas.inicio;
     });
@@ -95,112 +101,100 @@ function crearOpcionSalir(texto, rutas) {
     return opcion;
 }
 
-function mostrarSesionDebajo(nombre, rol, enlacePerfil) {
-    let barra = document.querySelector("#sesionActivaDebajoNav");
-    if (!barra) {
-        barra = document.createElement("div");
-        barra.id = "sesionActivaDebajoNav";
-        barra.className = "barra-sesion";
-        const contenedor = document.createElement("div");
-        contenedor.className = "container text-end";
-        barra.appendChild(contenedor);
-        document.querySelector(".navbar")?.insertAdjacentElement("afterend", barra);
+function obtenerOpcionesComunes(rutas) {
+    const opciones = [];
+
+    if (opcionBusqueda) {
+        opciones.push(opcionBusqueda);
     }
 
-    const contenedor = barra.firstElementChild;
-    contenedor.replaceChildren();
-    const texto = document.createElement("span");
-    texto.className = "sesion-activa";
-    texto.textContent = "Sesión iniciada: ";
-    contenedor.appendChild(texto);
-    const perfil = document.createElement("a");
-    perfil.className = "sesion-perfil";
-    perfil.href = enlacePerfil;
-    perfil.textContent = `${nombre} (${rol})`;
-    contenedor.appendChild(perfil);
+    opciones.push(
+        crearOpcionCarrito(rutas),
+        crearOpcion("Inicio", rutas.inicio),
+        crearOpcion("Cursos", rutas.cursos)
+    );
+
+    return opciones;
+}
+
+function mostrarMenuVisitante(rutas) {
+    menu.replaceChildren(
+        ...obtenerOpcionesComunes(rutas),
+        crearOpcion("Ingresar", rutas.login),
+        crearOpcion("Registro", rutas.registro)
+    );
+
+    actualizarContadorCarrito();
+}
+
+function mostrarMenuAutenticado(rol, rutas) {
+    const opciones = obtenerOpcionesComunes(rutas);
+
+    if (rol === "estudiante") {
+        opciones.push(
+            crearOpcion("Mis cursos", rutas.misAdquisiciones)
+        );
+    }
+
+    if (rol === "docente") {
+        opciones.push(
+            crearOpcion("Mis cursos", rutas.misCursos)
+        );
+    }
+
+    opciones.push(crearOpcion("Mi perfil", rutas.perfil));
+
+    if (rol === "admin") {
+        opciones.push(
+            crearOpcion("Administración", rutas.panelAdmin)
+        );
+    }
+
+    opciones.push(crearOpcionSalir(rutas));
+    menu.replaceChildren(...opciones);
+
+    actualizarContadorCarrito();
+}
+
+const rutasIniciales = obtenerRutas();
+const rolRecordado = sessionStorage.getItem(claveRolSesion);
+
+if (menu && rolRecordado) {
+    mostrarMenuAutenticado(rolRecordado, rutasIniciales);
+    menu.hidden = false;
 }
 
 onAuthStateChanged(auth, async (usuario) => {
-    if (!usuario || !menu) {
+    if (!menu) {
+        return;
+    }
+
+    const rutas = obtenerRutas();
+
+    if (!usuario) {
+        sessionStorage.removeItem(claveRolSesion);
+        mostrarMenuVisitante(rutas);
+        menu.hidden = false;
         return;
     }
 
     try {
-        const referenciaUsuario = doc(
-            db,
-            "usuarios",
-            usuario.uid
-        );
-
         const documentoUsuario = await getDoc(
-            referenciaUsuario
+            doc(db, "usuarios", usuario.uid)
         );
 
-        if (!documentoUsuario.exists()) {
-            console.warn(
-                "El usuario no tiene un perfil en Firestore."
-            );
-            return;
-        }
+        const datosUsuario = documentoUsuario.exists()
+            ? documentoUsuario.data()
+            : {};
 
-        const datosUsuario =
-            documentoUsuario.data();
+        const rol = datosUsuario.rol || "estudiante";
 
-        const nombre =
-            datosUsuario.nombre ||
-            usuario.displayName ||
-            usuario.email;
-
-        const rol =
-            datosUsuario.rol ||
-            "estudiante";
-
-        const rutas = obtenerRutas();
-
-        quitarOpcionesDeAcceso();
-        menu.querySelectorAll("[data-opcion-sesion]").forEach((elemento) => elemento.remove());
-
-        if (rol === "admin") {
-            menu.replaceChildren(
-                crearOpcion("Inicio", rutas.inicio),
-                crearOpcion("Cursos", rutas.cursos),
-                crearOpcion("Administración", rutas.panelAdmin),
-                crearOpcionSalir("Cerrar sesión", rutas)
-            );
-            mostrarSesionDebajo(nombre, "Administrador", rutas.perfil);
-            return;
-        }
-
-        const rolesVisibles = {
-            estudiante: "Estudiante",
-            docente: "Docente",
-            admin: "Administrador"
-        };
-        mostrarSesionDebajo(nombre, rolesVisibles[rol] || rol, rutas.perfil);
-
-        if (rol === "estudiante") {
-            menu.appendChild(
-                crearOpcion(
-                    "Mis cursos",
-                    rutas.misAdquisiciones
-                )
-            );
-        }
-
-        if (rol === "docente") {
-            menu.appendChild(
-                crearOpcion(
-                    "Mis cursos",
-                    rutas.misCursos
-                )
-            );
-        }
-
-        menu.appendChild(crearOpcionSalir("Cerrar sesión", rutas));
+        sessionStorage.setItem(claveRolSesion, rol);
+        mostrarMenuAutenticado(rol, rutas);
     } catch (error) {
-        console.error(
-            "No fue posible consultar el perfil:",
-            error
-        );
+        console.error("No fue posible consultar el perfil:", error);
+        mostrarMenuAutenticado("", rutas);
+    } finally {
+        menu.hidden = false;
     }
 });

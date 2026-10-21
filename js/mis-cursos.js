@@ -219,6 +219,10 @@ function mostrarCursos(cursos) {
                     `./contenidos-curso.html?cursoId=${encodeURIComponent(curso.id)
                     }`;
 
+                const enlaceVistaPrevia =
+                    `./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)
+                    }&vista=docente`;
+
                 return `
                     <div class="col-12 col-md-6 col-lg-4">
                         <article class="card h-100 shadow-sm">
@@ -276,6 +280,13 @@ function mostrarCursos(cursos) {
                                         class="btn btn-oro"
                                     >
                                         Gestionar contenidos
+                                    </a>
+
+                                    <a
+                                        href="${enlaceVistaPrevia}"
+                                        class="btn btn-outline-primary"
+                                    >
+                                        Vista previa como estudiante
                                     </a>
 
                                     <button
@@ -481,6 +492,22 @@ formulario.addEventListener(
             formulario.imagen
                 .value
                 .trim();
+        const videoPresentacion =
+            formulario.videoPresentacion.value.trim();
+
+        const videoValido =
+            !videoPresentacion ||
+            /^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(
+                videoPresentacion
+            );
+
+        if (!videoValido) {
+            mostrarMensaje(
+                "Ingresá un enlace HTTPS válido de YouTube.",
+                "warning"
+            );
+            return;
+        }
 
         const imagenValida =
             !imagen ||
@@ -514,6 +541,7 @@ formulario.addEventListener(
                     descripcion,
                     nivel,
                     imagen,
+                    videoPresentacion,
 
                     docenteId:
                         usuarioActual.uid,

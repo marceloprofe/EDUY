@@ -99,7 +99,7 @@
                 id="menuPrincipal"
             >
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto" data-menu-sesion hidden>
 
 
                     <li class="nav-item">
@@ -987,6 +987,11 @@
                         <div class="col-md-6">
                             <label for="cursoAdminImagen" class="form-label">Imagen (URL HTTPS o ruta img/...)</label>
                             <input type="text" id="cursoAdminImagen" class="form-control" maxlength="500" />
+                        </div>
+                        <div class="col-12">
+                            <label for="cursoAdminVideoPresentacion" class="form-label">Video de presentación (opcional)</label>
+                            <input type="url" id="cursoAdminVideoPresentacion" class="form-control" maxlength="2048" placeholder="https://www.youtube.com/watch?v=..." />
+                            <div class="form-text">Enlace HTTPS opcional. El video no se reproduce automáticamente.</div>
                         </div>
                         <div class="col-md-6">
                             <label for="cursoAdminEstado" class="form-label">Estado del catálogo</label>

@@ -43,7 +43,7 @@
         </button>
 
         <div class="collapse navbar-collapse" id="menuPrincipal">
-          <ul class="navbar-nav ms-auto">
+          <ul class="navbar-nav ms-auto" data-menu-sesion hidden>
             <li class="nav-item">
               <a class="nav-link" href="../index.html"> Inicio </a>
             </li>
@@ -173,12 +173,49 @@
                     name="url"
                     maxlength="2048"
                     placeholder="https://..."
-                    required
                   />
 
                   <div class="form-text">
-                    Ingresá un enlace HTTPS de YouTube, Google Drive u otro
-                    servicio confiable.
+                    Para videos podés pegar un enlace de YouTube o Google
+                    Drive, o subir un archivo mediante Cloudinary. Para PDF
+                    ingresá un enlace HTTPS.
+                  </div>
+                </div>
+
+                <div id="grupoArchivoVideo" class="mb-3 d-none">
+                  <label for="archivoVideo" class="form-label">
+                    Subir video desde el equipo
+                  </label>
+
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="archivoVideo"
+                    name="archivoVideo"
+                    accept="video/mp4,video/webm"
+                    aria-describedby="ayudaArchivoVideo"
+                  />
+
+                  <div id="ayudaArchivoVideo" class="form-text">
+                    Formatos admitidos: MP4 y WebM. Tamaño máximo: 100 MB.
+                    Si elegís un archivo, reemplazará el enlace ingresado.
+                  </div>
+
+                  <div
+                    id="contenedorProgresoVideo"
+                    class="progress mt-3 d-none"
+                    role="progressbar"
+                    aria-label="Progreso de subida del video"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                  >
+                    <div
+                      id="progresoVideo"
+                      class="progress-bar"
+                      style="width: 0%"
+                    >
+                      0%
+                    </div>
                   </div>
                 </div>
 

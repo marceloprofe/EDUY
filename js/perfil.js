@@ -1,8 +1,7 @@
 import { auth, db } from "./firebase-config.js";
 
 import{
-    onAuthStateChanged,
-    signOut
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 import {
@@ -15,7 +14,6 @@ const contenidoperfil = document.querySelector("#contenidoPerfil");
 const nombreUsuario = document.querySelector("#nombreUsuario");
 const correoUsuario = document.querySelector("#correoUsuario");
 const rolUsuario = document.querySelector("#rolUsuario");
-const botonCerrarSesion = document.querySelector("#btnCerrarSesion");
 
 onAuthStateChanged(auth, async (usuario) => {
   if (!usuario) {
@@ -42,18 +40,4 @@ onAuthStateChanged(auth, async (usuario) => {
     cargandoPerfil.classList.add("d-none");
     contenidoperfil.classList.remove("d-none");
   }
-});
-
-botonCerrarSesion.addEventListener("click", async () => {
-    try {
-        botonCerrarSesion.disabled = true;
-        botonCerrarSesion.textContent = "Cerrando sesión...";
-        await signOut(auth);
-        window.location.href = "./login.html";
-    } catch (error) {
-        console.error("No se pudo cerrar la sesión:", error);
-        botonCerrarSesion.disabled = false;
-        botonCerrarSesion.textContent = "Cerrar sesión";
-
-    }
 });
