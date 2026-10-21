@@ -260,6 +260,21 @@ body {
   object-fit: cover;
 }
 
+.imagen-curso-favorito {
+  width: 160px;
+  height: 105px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 575.98px) {
+  .imagen-curso-favorito {
+    width: 100%;
+    height: 170px;
+  }
+}
+
 .nivel-basico {
   background-color: #198754;
 }
