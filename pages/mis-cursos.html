@@ -172,6 +172,42 @@
           <p class="text-body-secondary">Cargando cursos...</p>
         </div>
       </section>
+
+      <div
+        class="modal fade"
+        id="modalAvanceCurso"
+        tabindex="-1"
+        aria-labelledby="tituloAvanceCurso"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title h4" id="tituloAvanceCurso">
+                Avance del curso
+              </h2>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div
+                id="estadoAvanceCurso"
+                class="alert alert-info"
+                role="status"
+                aria-live="polite"
+              >
+                Seleccioná un curso para consultar su avance.
+              </div>
+              <div id="resumenAvanceCurso" class="row g-3 mb-4"></div>
+              <div id="listaAvanceCurso"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <div data-footer-eduy data-raiz=".."></div>
