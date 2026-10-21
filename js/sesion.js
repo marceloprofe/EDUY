@@ -69,7 +69,7 @@ function crearOpcion(texto, enlace) {
 }
 
 function crearOpcionCarrito(rutas) {
-    const opcion = crearOpcion("Carrito", rutas.carrito);
+    const opcion = crearOpcion("Favoritos", rutas.carrito);
     const enlace = opcion.querySelector("a");
     const contador = document.createElement("span");
 
