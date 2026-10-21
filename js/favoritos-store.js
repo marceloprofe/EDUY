@@ -1,9 +1,23 @@
-const CLAVE_FAVORITOS = "eduy-favoritos-v1";
+import { auth } from "./firebase-config.js";
+
+const PREFIJO_CLAVE_FAVORITOS = "eduy-favoritos-v2";
+
+function obtenerClaveFavoritos() {
+    return auth.currentUser
+        ? `${PREFIJO_CLAVE_FAVORITOS}:${auth.currentUser.uid}`
+        : null;
+}
 
 export function obtenerFavoritos() {
+    const claveFavoritos = obtenerClaveFavoritos();
+
+    if (!claveFavoritos) {
+        return [];
+    }
+
     try {
         const guardado = JSON.parse(
-            localStorage.getItem(CLAVE_FAVORITOS) || "[]"
+            localStorage.getItem(claveFavoritos) || "[]"
         );
 
         return Array.isArray(guardado)
@@ -19,8 +33,15 @@ export function obtenerFavoritos() {
 }
 
 function guardarFavoritos(cursos) {
-    localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(cursos));
+    const claveFavoritos = obtenerClaveFavoritos();
+
+    if (!claveFavoritos) {
+        return false;
+    }
+
+    localStorage.setItem(claveFavoritos, JSON.stringify(cursos));
     document.dispatchEvent(new CustomEvent("favoritosActualizados"));
+    return true;
 }
 
 export function agregarAFavoritos(cursoId) {
@@ -35,8 +56,7 @@ export function agregarAFavoritos(cursoId) {
     }
 
     favoritos.push(cursoId);
-    guardarFavoritos(favoritos);
-    return true;
+    return guardarFavoritos(favoritos);
 }
 
 export function quitarDeFavoritos(cursoId) {

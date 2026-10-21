@@ -476,6 +476,17 @@ formulario.addEventListener(
         const nivel =
             formulario.nivel.value;
 
+        const precio =
+            Number(formulario.precio.value);
+
+        if (!Number.isFinite(precio) || precio <= 0) {
+            mostrarMensaje(
+                "El precio debe ser un número mayor que cero.",
+                "warning"
+            );
+            return;
+        }
+
         if (
             !usuarioActual ||
             !perfilActual
@@ -540,6 +551,7 @@ formulario.addEventListener(
                     titulo,
                     descripcion,
                     nivel,
+                    precio,
                     imagen,
                     videoPresentacion,
 

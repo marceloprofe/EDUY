@@ -101,15 +101,18 @@ function crearOpcionSalir(rutas) {
     return opcion;
 }
 
-function obtenerOpcionesComunes(rutas) {
+function obtenerOpcionesComunes(rutas, incluirFavoritos = false) {
     const opciones = [];
 
     if (opcionBusqueda) {
         opciones.push(opcionBusqueda);
     }
 
+    if (incluirFavoritos) {
+        opciones.push(crearOpcionFavoritos(rutas));
+    }
+
     opciones.push(
-        crearOpcionFavoritos(rutas),
         crearOpcion("Inicio", rutas.inicio),
         crearOpcion("Cursos", rutas.cursos)
     );
@@ -128,7 +131,7 @@ function mostrarMenuVisitante(rutas) {
 }
 
 function mostrarMenuAutenticado(rol, rutas) {
-    const opciones = obtenerOpcionesComunes(rutas);
+    const opciones = obtenerOpcionesComunes(rutas, true);
 
     if (rol === "estudiante") {
         opciones.push(
