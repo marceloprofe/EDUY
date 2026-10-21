@@ -51,6 +51,25 @@ service cloud.firestore {
         ).data.estado == "confirmada";
     }
 
+    function precioPredeterminado(nivel) {
+      return nivel == "intermedio"
+        ? 1800
+        : nivel == "avanzado"
+          ? 2400
+          : 1200;
+    }
+
+    function importeCoincideConCurso(cursoId, importe) {
+      let curso = get(
+        /databases/$(database)/documents/cursos/$(cursoId)
+      ).data;
+
+      return importe == curso.get(
+        "precio",
+        precioPredeterminado(curso.nivel)
+      );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | USUARIOS
@@ -169,6 +188,9 @@ service cloud.firestore {
       allow create: if esDocente()
                     && request.resource.data.docenteId
                        == request.auth.uid
+                    && request.resource.data.precio is number
+                    && request.resource.data.precio > 0
+                    && request.resource.data.precio <= 1000000
                     && request.resource.data.habilitado
                        == false
                     && request.resource.data.estado
@@ -488,10 +510,10 @@ service cloud.firestore {
                     && request.resource.data.estadoPago
                        == "aprobado_simulado"
                     && request.resource.data.importe is number
-                    && request.resource.data.importe
-                       == get(
-                         /databases/$(database)/documents/cursos/$(request.resource.data.cursoId)
-                       ).data.precio
+                    && importeCoincideConCurso(
+                         request.resource.data.cursoId,
+                         request.resource.data.importe
+                       )
                     && request.resource.data.fechaAdquisicion
                        == request.time
                     && get(
@@ -572,7 +594,7 @@ service cloud.firestore {
                       || request.resource.data.estadoPago
                          == "aprobado_simulado"
                     );
-    
+
        allow update: if esAdmin()
                     && request.resource.data
                        .diff(resource.data)

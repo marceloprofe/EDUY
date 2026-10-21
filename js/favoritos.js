@@ -1,4 +1,8 @@
-import { db } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 import {
     actualizarContadorFavoritos,
@@ -12,8 +16,12 @@ import {
 } from "./curso-utils.js";
 
 import {
+    collection,
     doc,
-    getDocFromServer
+    getDocFromServer,
+    getDocsFromServer,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const lista = document.querySelector("#listaFavoritos");
@@ -62,7 +70,7 @@ function crearEnlace(texto, href, clase) {
     return enlace;
 }
 
-function crearTarjeta(curso) {
+function crearTarjeta(curso, adquirido) {
     const tarjeta = document.createElement("article");
     tarjeta.className = "card";
 
@@ -105,9 +113,11 @@ function crearTarjeta(curso) {
         `./detalle.html?cursoId=${idCodificado}`,
         "btn btn-outline-secondary"
     );
-    const enlaceAdquisicion = crearEnlace(
-        "Adquirir ahora",
-        `./adquisicion.html?cursoId=${idCodificado}`,
+    const enlaceCurso = crearEnlace(
+        adquirido ? "Ir al curso" : "Adquirir ahora",
+        adquirido
+            ? `./curso-estudiante.html?cursoId=${idCodificado}`
+            : `./adquisicion.html?cursoId=${idCodificado}`,
         "btn btn-oro"
     );
 
@@ -124,7 +134,7 @@ function crearTarjeta(curso) {
     });
 
     contenido.append(imagen, datos);
-    acciones.append(enlaceDetalle, enlaceAdquisicion, botonQuitar);
+    acciones.append(enlaceDetalle, enlaceCurso, botonQuitar);
     cuerpo.append(contenido, acciones);
     tarjeta.append(cuerpo);
 
@@ -146,14 +156,24 @@ async function cargarFavoritos() {
     estado.textContent = "Consultando cursos…";
 
     try {
-        const resultados = await Promise.all(
-            ids.map(async (id) => {
+        const [resultados, resultadoAdquisiciones] = await Promise.all([
+            Promise.all(ids.map(async (id) => {
                 const resultado = await getDocFromServer(doc(db, "cursos", id));
 
                 return resultado.exists()
                     ? { id: resultado.id, ...resultado.data() }
                     : null;
-            })
+            })),
+            getDocsFromServer(query(
+                collection(db, "adquisiciones"),
+                where("usuarioId", "==", auth.currentUser.uid)
+            ))
+        ]);
+
+        const cursosAdquiridos = new Set(
+            resultadoAdquisiciones.docs
+                .filter((documento) => documento.data().estado === "confirmada")
+                .map((documento) => documento.data().cursoId)
         );
 
         const cursosDisponibles = resultados.filter(
@@ -164,7 +184,12 @@ async function cargarFavoritos() {
         );
 
         idsNoDisponibles.forEach(quitarDeFavoritos);
-        lista.replaceChildren(...cursosDisponibles.map(crearTarjeta));
+        lista.replaceChildren(
+            ...cursosDisponibles.map((curso) => crearTarjeta(
+                curso,
+                cursosAdquiridos.has(curso.id)
+            ))
+        );
         prepararImagenes(lista);
         estado.textContent = cursosDisponibles.length
             ? `${cursosDisponibles.length} curso${cursosDisponibles.length === 1 ? "" : "s"} guardado${cursosDisponibles.length === 1 ? "" : "s"}.`
@@ -188,4 +213,11 @@ async function cargarFavoritos() {
 document.addEventListener("favoritosActualizados", cargarFavoritos);
 window.addEventListener("storage", cargarFavoritos);
 
-cargarFavoritos();
+onAuthStateChanged(auth, (usuario) => {
+    if (!usuario) {
+        window.location.href = "./login.html";
+        return;
+    }
+
+    cargarFavoritos();
+});

@@ -135,6 +135,20 @@
               </div>
 
               <div class="mb-3">
+                <label for="precio" class="form-label">Precio (UYU)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="precio"
+                  name="precio"
+                  min="1"
+                  max="1000000"
+                  step="1"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
                 <label for="imagen" class="form-label">Imagen del curso</label>
                 <input type="text" class="form-control" id="imagen" name="imagen" maxlength="2048" required aria-describedby="ayudaImagen" placeholder="https://… o img/cursos/imagen.jpg" />
                 <div id="ayudaImagen" class="form-text">Ingresá el enlace HTTPS de la imagen o su ruta dentro del sitio, por ejemplo img/cursos/curso-python-eduy.jpg.</div>

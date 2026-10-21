@@ -139,6 +139,11 @@ listaCursos.addEventListener("click", (evento) => {
 
     if (!boton) return;
 
+    if (!auth.currentUser) {
+        window.location.href = "./login.html";
+        return;
+    }
+
     const agregado = agregarAFavoritos(boton.dataset.agregarFavoritos);
 
     actualizarContadorFavoritos();
