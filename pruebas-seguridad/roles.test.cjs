@@ -13,8 +13,10 @@ const {
   collection,
   getDoc,
   getDocs,
+  query,
   setDoc,
-  updateDoc
+  updateDoc,
+  where
 } = require("firebase/firestore");
 
 test("Seguridad de roles de EDUY", async (t) => {
@@ -59,6 +61,18 @@ test("Seguridad de roles de EDUY", async (t) => {
           docenteId: "docente1",
           habilitado: false,
           estado: "borrador"
+        }),
+        setDoc(doc(db, "adquisiciones", "estudiante1_curso1"), {
+          usuarioId: "estudiante1",
+          usuarioCorreo: "estudiante@example.com",
+          cursoId: "curso1",
+          estado: "confirmada"
+        }),
+        setDoc(doc(db, "progresos", "estudiante1_curso1"), {
+          usuarioId: "estudiante1",
+          cursoId: "curso1",
+          contenidosCompletados: ["contenido1"],
+          porcentaje: 50
         })
       ]);
     });
@@ -148,6 +162,50 @@ test("Seguridad de roles de EDUY", async (t) => {
         updateDoc(doc(docente, "cursos", "curso1"), {
           docenteId: "docente2"
         })
+      );
+    });
+
+    await t.test("Docente: consulta inscripciones de su curso", async () => {
+      await assertSucceeds(
+        getDocs(
+          query(
+            collection(docente, "adquisiciones"),
+            where("cursoId", "==", "curso1")
+          )
+        )
+      );
+    });
+
+    await t.test("Otro docente: no consulta esas inscripciones", async () => {
+      await assertFails(
+        getDocs(
+          query(
+            collection(otroDocente, "adquisiciones"),
+            where("cursoId", "==", "curso1")
+          )
+        )
+      );
+    });
+
+    await t.test("Docente: consulta el progreso de su curso", async () => {
+      await assertSucceeds(
+        getDocs(
+          query(
+            collection(docente, "progresos"),
+            where("cursoId", "==", "curso1")
+          )
+        )
+      );
+    });
+
+    await t.test("Otro docente: no consulta ese progreso", async () => {
+      await assertFails(
+        getDocs(
+          query(
+            collection(otroDocente, "progresos"),
+            where("cursoId", "==", "curso1")
+          )
+        )
       );
     });
   } finally {

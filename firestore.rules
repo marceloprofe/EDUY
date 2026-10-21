@@ -41,6 +41,16 @@ service cloud.firestore {
         ).data.rol == "admin";
     }
 
+    function esDocenteDelCurso(cursoId) {
+      return esDocente()
+        && exists(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        )
+        && get(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        ).data.docenteId == request.auth.uid;
+    }
+
     function tieneAdquisicionConfirmada(cursoId) {
       return esEstudiante()
         && exists(
@@ -454,6 +464,9 @@ service cloud.firestore {
                    || adquisicionId.matches(
                      request.auth.uid + "_.*"
                    )
+                   || esDocenteDelCurso(
+                     resource.data.cursoId
+                   )
                  );
 
       allow list: if estaAutenticado()
@@ -461,6 +474,9 @@ service cloud.firestore {
                     esAdmin()
                     || resource.data.usuarioId
                        == request.auth.uid
+                    || esDocenteDelCurso(
+                      resource.data.cursoId
+                    )
                   );
 
       // El estudiante registra una compra con un método simulado.
@@ -761,6 +777,9 @@ match /progresos/{progresoId} {
                && progresoId.matches(
                  request.auth.uid + "_.*"
                )
+             )
+             || esDocenteDelCurso(
+               resource.data.cursoId
              );
 
   allow list: if esAdmin()
@@ -768,6 +787,9 @@ match /progresos/{progresoId} {
                 esEstudiante()
                 && resource.data.usuarioId
                    == request.auth.uid
+              )
+              || esDocenteDelCurso(
+                resource.data.cursoId
               );
 
   allow create: if esEstudiante()
