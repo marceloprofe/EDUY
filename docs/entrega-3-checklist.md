@@ -14,7 +14,7 @@ Esta lista complementa el README y se utiliza para reunir la evidencia antes de 
 - [ ] Registro con correo y contraseña.
 - [ ] Inicio y cierre de sesión.
 - [ ] Recuperación de contraseña y recepción del correo.
-- [ ] Consulta y actualización del perfil.
+- [ ] Consulta del perfil del usuario.
 - [ ] Navegación y restricciones como visitante.
 - [ ] Navegación y restricciones como estudiante.
 - [ ] Navegación y restricciones como docente.
@@ -35,6 +35,8 @@ Esta lista complementa el README y se utiliza para reunir la evidencia antes de 
 
 ## Firebase e integraciones
 
+- [x] Ejecutar la matriz automatizada de reglas por rol en el emulador (13 pruebas aprobadas).
+- [ ] Ejecutar `firebase use` y confirmar que muestra `eduy-d6421`.
 - [ ] Publicar y verificar `firestore.rules` en `eduy-d6421`.
 - [ ] Desplegar y verificar la función callable `gestionarUsuario`.
 - [ ] Confirmar que los dominios publicados estén autorizados en Firebase Authentication.
@@ -42,6 +44,13 @@ Esta lista complementa el README y se utiliza para reunir la evidencia antes de 
 - [ ] Probar una carga pequeña mediante el preset unsigned de Cloudinary.
 
 Cloudinary se configura en `js/cloudinary-config.js`. El repositorio solo contiene el nombre público del cloud y el upload preset unsigned; no se deben agregar API secrets ni credenciales privadas.
+
+Los despliegues deben indicar el proyecto de forma explícita:
+
+```sh
+firebase deploy --only firestore:rules --project eduy-d6421
+firebase deploy --only functions --project eduy-d6421
+```
 
 ## Evidencia de GitHub
 
