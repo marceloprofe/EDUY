@@ -1,4 +1,5 @@
 functions/node_modules/
+pruebas-seguridad/node_modules/
 .firebase/
 firebase-debug.log
 firestore-debug.log
