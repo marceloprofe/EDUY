@@ -606,3 +606,64 @@ body {
         margin-left: 0;
     }
 }
+
+/* Gráficas del panel: barras CSS y valores legibles sin depender del color. */
+#estadisticas .graficas-admin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+#estadisticas .grafica-admin {
+  --color-barra: #ffd700;
+  margin: 0;
+  padding: 1.5rem;
+  border: 1px solid rgb(255 215 0 / 35%);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #031f4b, #0b2f6b);
+  color: #f8f9fa;
+  min-width: 0;
+}
+#estadisticas .grafica-admin-docentes { --color-barra: #75caff; }
+#estadisticas .grafica-admin-alumnos { --color-barra: #72e0b4; }
+#estadisticas .grafica-admin figcaption {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-barra);
+}
+#estadisticas .grafica-admin p {
+  color: #d5dfed;
+  font-size: .875rem;
+  margin: .5rem 0 1.5rem;
+}
+#estadisticas .grafica-barras {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+#estadisticas .grafica-etiqueta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .5rem;
+  font-size: .875rem;
+}
+#estadisticas .grafica-etiqueta span { overflow-wrap: anywhere; }
+#estadisticas .grafica-etiqueta strong { flex-shrink: 0; }
+#estadisticas .grafica-pista {
+  height: .65rem;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 12%);
+  overflow: hidden;
+}
+#estadisticas .grafica-barra {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-barra);
+}
+#estadisticas .grafica-vacia { color: #d5dfed; }
+@media (max-width: 991.98px) {
+  #estadisticas .graficas-admin { grid-template-columns: 1fr; }
+}
