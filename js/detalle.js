@@ -512,4 +512,6 @@ if (!curso) {
   await prepararValoracionesDocente(curso);
 }
 
+document.querySelector("#app").setAttribute("aria-busy", "false");
+
 await import("./footer.js");

@@ -48,13 +48,13 @@
   <main class="container py-5 flex-grow-1">
     <h1 class="mb-4">Mi perfil</h1>
 
-    <div id="cargandoPerfil" class="alert alert-info">
+    <div id="cargandoPerfil" class="alert alert-info" role="status" aria-live="polite">
       Cargando información del usuario...
     </div>
 
-    <section id="contenidoPerfil" class="card shadow-sm d-none">
+    <section id="contenidoPerfil" class="card shadow-sm d-none" aria-labelledby="tituloDatosCuenta">
       <div class="card-body p-4">
-        <h2 class="h4 mb-4">Datos de la cuenta</h2>
+        <h2 id="tituloDatosCuenta" class="h4 mb-4">Datos de la cuenta</h2>
 
         <p>
           <strong>Nombre:</strong>
