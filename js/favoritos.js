@@ -7,6 +7,11 @@ import {
 } from "./favoritos-store.js";
 
 import {
+    prepararImagenes,
+    resolverImagen
+} from "./curso-utils.js";
+
+import {
     doc,
     getDocFromServer
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
@@ -65,6 +70,15 @@ function crearTarjeta(curso) {
     cuerpo.className =
         "card-body d-flex flex-column flex-md-row justify-content-between gap-3";
 
+    const contenido = document.createElement("div");
+    contenido.className = "d-flex flex-column flex-sm-row gap-3 flex-grow-1";
+
+    const imagen = document.createElement("img");
+    imagen.className = "imagen-curso-favorito rounded";
+    imagen.dataset.imagenCurso = "";
+    imagen.src = resolverImagen(curso.imagen);
+    imagen.alt = `Imagen del curso ${curso.titulo || "sin título"}`;
+
     const datos = document.createElement("div");
 
     const titulo = document.createElement("h2");
@@ -109,8 +123,9 @@ function crearTarjeta(curso) {
         quitarDeFavoritos(curso.id);
     });
 
+    contenido.append(imagen, datos);
     acciones.append(enlaceDetalle, enlaceAdquisicion, botonQuitar);
-    cuerpo.append(datos, acciones);
+    cuerpo.append(contenido, acciones);
     tarjeta.append(cuerpo);
 
     return tarjeta;
@@ -150,6 +165,7 @@ async function cargarFavoritos() {
 
         idsNoDisponibles.forEach(quitarDeFavoritos);
         lista.replaceChildren(...cursosDisponibles.map(crearTarjeta));
+        prepararImagenes(lista);
         estado.textContent = cursosDisponibles.length
             ? `${cursosDisponibles.length} curso${cursosDisponibles.length === 1 ? "" : "s"} guardado${cursosDisponibles.length === 1 ? "" : "s"}.`
             : "No quedan cursos disponibles en favoritos.";
