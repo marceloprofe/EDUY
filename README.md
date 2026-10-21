@@ -104,6 +104,7 @@ El docente:
 - Puede habilitar un curso para publicarlo.
 - Puede devolver un curso publicado al estado de borrador.
 - Solo puede consultar y administrar sus propios cursos.
+- Puede consultar inscriptos, progreso, finalizaciones y valoración promedio de cada curso propio.
 - No puede acceder al panel administrativo.
 
 ### Administrador
@@ -403,6 +404,7 @@ Actualmente se encuentran implementadas las siguientes funcionalidades:
 - Historial de adquisiciones del estudiante.
 - Acceso a los contenidos adquiridos.
 - Registro del progreso del estudiante.
+- Consulta de avance y estadísticas de cursos propios para docentes.
 - Valoraciones de docentes.
 - Gestión de usuarios, cursos y adquisiciones desde el panel administrativo.
 - Estadísticas administrativas.
