@@ -7,6 +7,7 @@ EDUY es el proyecto integrador desarrollado para Taller Integrador de Sistemas.
 - **Kanban:** https://github.com/users/marceloprofe/projects/2/views/1
 - **Lista de cierre de Entrega 3:** [docs/entrega-3-checklist.md](docs/entrega-3-checklist.md)
 - **Criterios de accesibilidad:** [docs/accesibilidad.md](docs/accesibilidad.md)
+- **Auditoría de Entrega 3:** [docs/auditoria-entrega-3.md](docs/auditoria-entrega-3.md)
 - **Rama de integración:** `develop`
 - **Rama publicada:** `main`
 
@@ -433,6 +434,20 @@ feature/* → develop → main
 - La rama `develop` contiene la versión integrada en desarrollo.
 - La rama `main` se reserva para la versión estable y final.
 - Las actividades se organizan mediante issues, milestone y tablero Kanban.
+
+## Proyecto Firebase canónico
+
+EDUY utiliza únicamente el proyecto Firebase `eduy-d6421`. La configuración web está centralizada en `js/firebase-config.js`; las páginas y módulos no deben crear configuraciones Firebase propias ni copiar credenciales en otros archivos.
+
+Antes de desplegar reglas o Cloud Functions, comprobar el proyecto activo y usar siempre el parámetro explícito `--project`:
+
+```sh
+firebase use eduy-d6421
+firebase deploy --only firestore:rules --project eduy-d6421
+firebase deploy --only functions --project eduy-d6421
+```
+
+El archivo `.firebaserc` también define `eduy-d6421` como proyecto predeterminado. El parámetro explícito evita que una selección local anterior de Firebase CLI dirija el despliegue a otro proyecto.
 
 ## Catálogo centralizado en Firestore
 
