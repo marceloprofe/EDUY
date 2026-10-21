@@ -448,6 +448,8 @@ function mostrarCursosAdmin(lista) {
                 <td><span class="badge ${publicado ? "text-bg-success" : "text-bg-secondary"}">${estado}</span></td>
                 <td>
                     <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-sm btn-outline-success" href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}&vista=estudiante">Vista estudiante</a>
+                        <a class="btn btn-sm btn-outline-info" href="./contenidos-curso.html?cursoId=${encodeURIComponent(curso.id)}&vista=docente">Vista docente</a>
                         <button type="button" class="btn btn-sm btn-outline-primary btn-editar-curso" data-id="${escaparHTML(curso.id)}">Editar</button>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-curso" data-id="${escaparHTML(curso.id)}">Eliminar</button>
                     </div>
