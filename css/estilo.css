@@ -21,6 +21,26 @@ body {
 .navbar .nav-link.active {
   color: #ffd700 !important;
 }
+
+.barra-sesion-usuario {
+  background: #031f4b;
+  border-bottom: 2px solid #b8860b;
+  color: #fff;
+}
+
+.barra-sesion-usuario[hidden] {
+  display: none;
+}
+
+.barra-sesion-nombre {
+  font-weight: 600;
+}
+
+.barra-sesion-rol {
+  color: #ffd700;
+  font-size: 0.9rem;
+}
+
 /* Reserva el espacio del menu mientras Firebase recupera la sesion. */
 @media (min-width: 992px) {
   .navbar-nav[data-menu-sesion] {
