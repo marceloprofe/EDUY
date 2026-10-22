@@ -172,6 +172,11 @@ body {
   border-top: 4px solid #b8860b;
 }
 
+/* Evita que el gutter ancho del pie desborde la pantalla en celulares. */
+.footer-eduy .row {
+  --bs-gutter-x: 1.5rem;
+}
+
 .footer-logo {
   width: 64px;
   height: 64px;
