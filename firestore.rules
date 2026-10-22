@@ -134,7 +134,31 @@ service cloud.firestore {
       allow update: if estaAutenticado()
                     && request.auth.uid == userId
                     && request.resource.data.rol
-                       == resource.data.rol;
+                       == resource.data.rol
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() > 0
+                    && request.resource.data.nombre.size() <= 80
+                    && request.resource.data.correo is string
+                    && request.resource.data.correo.size() > 0
+                    && request.resource.data.correo.size() <= 254
+                    && request.resource.data.fechaActualizacion
+                       == request.time
+                    && request.resource.data
+                       .diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "nombre",
+                         "correo",
+                         "fechaActualizacion"
+                       ])
+                    && (
+                      !request.resource.data
+                        .diff(resource.data)
+                        .affectedKeys()
+                        .hasAny(["correo"])
+                      || request.resource.data.correo
+                         == request.auth.token.email
+                    );
 
       // Admin puede actualizar el nombre y los tres roles en otros perfiles,
       // sin modificar cuentas que ya tengan rol administrador.
