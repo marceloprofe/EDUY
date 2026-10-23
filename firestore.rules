@@ -472,6 +472,87 @@ service cloud.firestore {
         // El docente propietario puede eliminar sus contenidos.
         allow delete: if esDocentePropietario();
       }
+
+      // Los comentarios identificados por UID permiten una valoración por usuario y curso.
+      match /comentarios/{usuarioId} {
+        function cursoPublicado() {
+          return exists(
+            /databases/$(database)/documents/cursos/$(cursoId)
+          )
+          && get(
+            /databases/$(database)/documents/cursos/$(cursoId)
+          ).data.habilitado == true;
+        }
+
+        function comentarioValido() {
+          return request.resource.data.keys().hasAll([
+              "usuarioId",
+              "cursoId",
+              "nombreUsuario",
+              "estrellas",
+              "comentario",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.keys().hasOnly([
+              "usuarioId",
+              "cursoId",
+              "nombreUsuario",
+              "estrellas",
+              "comentario",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.usuarioId == request.auth.uid
+            && request.resource.data.cursoId == cursoId
+            && request.resource.data.nombreUsuario is string
+            && request.resource.data.nombreUsuario.size() > 0
+            && request.resource.data.nombreUsuario.size() <= 80
+            && request.resource.data.estrellas is int
+            && request.resource.data.estrellas >= 1
+            && request.resource.data.estrellas <= 5
+            && request.resource.data.comentario is string
+            && request.resource.data.comentario.size() <= 500
+            && request.resource.data.fechaCreacion is timestamp
+            && request.resource.data.fechaActualizacion is timestamp
+            && request.resource.data.nombreUsuario == "Usuario EDUY";
+        }
+
+        allow read: if cursoPublicado();
+
+        allow create: if cursoPublicado()
+                      && esEstudiante()
+                      && exists(
+                        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+                      )
+                      && usuarioId == request.auth.uid
+                      && comentarioValido()
+                      && request.resource.data.fechaCreacion == request.time
+                      && request.resource.data.fechaActualizacion == request.time;
+
+        allow update: if cursoPublicado()
+                      && esEstudiante()
+                      && exists(
+                        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+                      )
+                      && usuarioId == request.auth.uid
+                      && resource.data.usuarioId == request.auth.uid
+                      && comentarioValido()
+                      && request.resource.data
+                         .diff(resource.data)
+                         .affectedKeys()
+                         .hasOnly([
+                           "nombreUsuario",
+                           "estrellas",
+                           "comentario",
+                           "fechaActualizacion"
+                         ])
+                      && request.resource.data.fechaCreacion
+                         == resource.data.fechaCreacion
+                      && request.resource.data.fechaActualizacion == request.time;
+
+        allow delete: if esAdmin();
+      }
     }
 
     /*

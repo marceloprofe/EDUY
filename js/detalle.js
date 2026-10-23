@@ -321,6 +321,174 @@ async function prepararValoracionesDocente(cursoActual) {
   }
 }
 
+function formatoFechaComentario(fecha) {
+  const valor = fecha?.toDate?.();
+  return valor
+    ? new Intl.DateTimeFormat("es-UY", { dateStyle: "medium" }).format(valor)
+    : "Recién publicado";
+}
+
+function estrellasComentario(estrellas) {
+  const cantidad = Number(estrellas) || 0;
+  return `${"★".repeat(cantidad)}${"☆".repeat(5 - cantidad)}`;
+}
+
+async function prepararComentariosCurso(cursoActual) {
+  const raiz = document.querySelector("#comentariosCurso");
+  const lista = raiz.querySelector("#listaComentariosCurso");
+  const resumen = raiz.querySelector("#resumenComentariosCurso");
+  const areaAccion = raiz.querySelector("#accionComentarioCurso");
+
+  try {
+    const referenciaComentarios = collection(
+      db,
+      "cursos",
+      cursoActual.id,
+      "comentarios"
+    );
+    const resultado = await getDocsFromServer(referenciaComentarios);
+    const comentarios = resultado.docs
+      .map((documento) => ({ id: documento.id, ...documento.data() }))
+      .sort((a, b) => (b.fechaActualizacion?.seconds || 0) - (a.fechaActualizacion?.seconds || 0));
+    const promedio = comentarios.length
+      ? comentarios.reduce((total, item) => total + Number(item.estrellas || 0), 0) / comentarios.length
+      : 0;
+
+    resumen.textContent = comentarios.length
+      ? `${promedio.toFixed(1)} de 5 estrellas · ${comentarios.length} ${comentarios.length === 1 ? "valoración" : "valoraciones"}`
+      : "Este curso todavía no tiene comentarios.";
+
+    lista.innerHTML = comentarios.length
+      ? comentarios.map((item) => `
+          <article class="border-top pt-3 mt-3">
+            <div class="d-flex justify-content-between gap-3">
+              <strong>${escaparHTML(item.nombreUsuario || "Estudiante")}</strong>
+              <time class="small text-body-secondary">${formatoFechaComentario(item.fechaActualizacion || item.fechaCreacion)}</time>
+            </div>
+            <p class="text-warning mb-1" aria-label="${Number(item.estrellas)} de 5 estrellas">${estrellasComentario(item.estrellas)}</p>
+            <p class="mb-0 text-break">${escaparHTML(item.comentario || "") || "Sin comentario escrito."}</p>
+          </article>`).join("")
+      : "";
+
+    const usuario = await esperarUsuarioAutenticado();
+    if (!usuario) {
+      areaAccion.innerHTML = '<a href="./login.html" class="btn btn-outline-secondary btn-sm">Ingresar como estudiante para comentar</a>';
+      return;
+    }
+
+    const referenciaPerfil = doc(db, "usuarios", usuario.uid);
+    const documentoPerfil = await getDocFromServer(referenciaPerfil);
+    const perfil = documentoPerfil.exists() ? documentoPerfil.data() : null;
+    if (!perfil) {
+      areaAccion.textContent = "No se encontró tu perfil de usuario.";
+      return;
+    }
+    if (perfil.rol !== "estudiante") {
+      areaAccion.textContent = "Solo los estudiantes pueden publicar comentarios sobre este curso.";
+      return;
+    }
+
+    const referenciaPropia = doc(referenciaComentarios, usuario.uid);
+    const documentoPropio = await getDocFromServer(referenciaPropia);
+    const comentarioExistente = documentoPropio.exists() ? documentoPropio.data() : null;
+    areaAccion.innerHTML = `
+      <form id="formularioComentarioCurso" class="mt-3">
+        <fieldset class="mb-3">
+          <legend class="form-label fs-6 mb-2">Tu valoración</legend>
+          <div role="group" aria-label="Elegir de una a cinco estrellas">
+            ${[1, 2, 3, 4, 5].map((numero) => `
+              <button type="button" class="btn btn-link fs-3 p-0 me-1 text-secondary"
+                data-estrella-curso="${numero}" aria-label="${numero} ${numero === 1 ? "estrella" : "estrellas"}"
+                aria-pressed="false">☆</button>`).join("")}
+          </div>
+        </fieldset>
+        <label for="textoComentarioCurso" class="form-label">Comentario (opcional)</label>
+        <textarea id="textoComentarioCurso" class="form-control mb-3" rows="3" maxlength="500"
+          placeholder="Contanos tu experiencia con este curso"></textarea>
+        <p id="mensajeComentarioCurso" class="small" role="status" aria-live="polite"></p>
+        <button id="guardarComentarioCurso" type="submit" class="btn btn-oro">Guardar valoración</button>
+      </form>`;
+
+    const formulario = areaAccion.querySelector("#formularioComentarioCurso");
+    const campo = areaAccion.querySelector("#textoComentarioCurso");
+    const mensaje = areaAccion.querySelector("#mensajeComentarioCurso");
+    const botonGuardar = areaAccion.querySelector("#guardarComentarioCurso");
+    let estrellasSeleccionadas = Number(comentarioExistente?.estrellas || 0);
+    campo.value = comentarioExistente?.comentario || "";
+
+    const actualizarEstrellas = () => areaAccion.querySelectorAll("[data-estrella-curso]").forEach((boton) => {
+      const numero = Number(boton.dataset.estrellaCurso);
+      boton.textContent = numero <= estrellasSeleccionadas ? "★" : "☆";
+      boton.classList.toggle("text-warning", numero <= estrellasSeleccionadas);
+      boton.classList.toggle("text-secondary", numero > estrellasSeleccionadas);
+      boton.setAttribute("aria-pressed", String(numero === estrellasSeleccionadas));
+    });
+    actualizarEstrellas();
+
+    areaAccion.querySelectorAll("[data-estrella-curso]").forEach((boton) => {
+      boton.addEventListener("click", () => {
+        estrellasSeleccionadas = Number(boton.dataset.estrellaCurso);
+        actualizarEstrellas();
+        mensaje.textContent = "";
+      });
+    });
+
+    formulario.addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const comentario = campo.value.trim();
+      if (estrellasSeleccionadas < 1 || estrellasSeleccionadas > 5) {
+        mensaje.className = "small text-danger";
+        mensaje.textContent = "Seleccioná una cantidad de estrellas.";
+        return;
+      }
+
+      botonGuardar.disabled = true;
+      botonGuardar.textContent = "Guardando…";
+      try {
+        const usuarioActual = auth.currentUser;
+        if (!usuarioActual || usuarioActual.uid !== usuario.uid) throw new Error("sesion-finalizada");
+        await runTransaction(db, async (transaccion) => {
+          const actual = await transaccion.get(referenciaPropia);
+          const campos = {
+            estrellas: estrellasSeleccionadas,
+            comentario,
+            nombreUsuario: "Usuario EDUY",
+            fechaActualizacion: serverTimestamp()
+          };
+          if (actual.exists()) {
+            transaccion.update(referenciaPropia, campos);
+          } else {
+            transaccion.set(referenciaPropia, {
+              usuarioId: usuario.uid,
+              cursoId: cursoActual.id,
+              ...campos,
+              fechaCreacion: serverTimestamp()
+            });
+          }
+        });
+        mensaje.className = "small text-success";
+        mensaje.textContent = "Tu valoración quedó guardada.";
+        await prepararComentariosCurso(cursoActual);
+        const mensajeActualizado = raiz.querySelector("#mensajeComentarioCurso");
+        mensajeActualizado.className = "small text-success";
+        mensajeActualizado.textContent = "Tu valoración quedó guardada.";
+      } catch (error) {
+        console.error("No fue posible guardar el comentario del curso:", error);
+        mensaje.className = "small text-danger";
+        mensaje.textContent = error.message === "sesion-finalizada"
+          ? "Tu sesión terminó. Ingresá nuevamente para comentar."
+          : "No pudimos guardar tu valoración. Revisá tu conexión e intentá de nuevo.";
+      } finally {
+        botonGuardar.disabled = false;
+        botonGuardar.textContent = "Guardar valoración";
+      }
+    });
+  } catch (error) {
+    console.error("No fue posible cargar los comentarios del curso:", error);
+    resumen.textContent = "No pudimos cargar los comentarios. Revisá tu conexión e intentá nuevamente.";
+  }
+}
+
 if (cursoIdFirestore) {
   document.querySelector("#app").textContent = "Cargando curso…";
 
@@ -498,6 +666,13 @@ if (!curso) {
                 <div id="accionValoracionDocente"></div>
               </section>
 
+              <section id="comentariosCurso" class="border rounded-3 p-3 my-3" aria-labelledby="tituloComentariosCurso">
+                <h3 id="tituloComentariosCurso" class="h6 mb-2">Comentarios y valoraciones del curso</h3>
+                <p id="resumenComentariosCurso" class="small mb-2" aria-live="polite">Cargando comentarios…</p>
+                <div id="listaComentariosCurso" aria-live="polite"></div>
+                <div id="accionComentarioCurso"></div>
+              </section>
+
               ${botonPrincipal}
               <a href="./cursos.html" class="btn btn-outline-secondary w-100">Volver al catálogo</a>
             </div>
@@ -510,6 +685,7 @@ if (!curso) {
   prepararImagenes(document.querySelector("#app"));
   await import("./sesion.js");
   await prepararValoracionesDocente(curso);
+  await prepararComentariosCurso(curso);
 }
 
 document.querySelector("#app").setAttribute("aria-busy", "false");
