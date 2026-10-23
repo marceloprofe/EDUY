@@ -24,6 +24,32 @@
         <h1 class="h4 mb-0">Bienvenido a EDUY</h1>
       </a>
 
+      <!-- Control de zoom -->
+      <div class="dropdown ms-auto me-2">
+        <button class="btn btn-outline-light dropdown-toggle" type="button" id="botonZoom" data-bs-toggle="dropdown"
+          data-bs-auto-close="outside" aria-expanded="false">
+          Accesibilidad
+        </button>
+
+        <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="botonZoom" style="min-width: 230px;">
+          <label for="controlZoom" class="form-label">
+            Tamaño de la página: <output id="valorZoom">100 %</output>
+          </label>
+
+          <select class="form-select" id="controlZoom">
+            <option value="100">Normal (100 %)</option>
+            <option value="125">Aumentar 25 %</option>
+            <option value="150">Aumentar 50 %</option>
+            <option value="175">Aumentar 75 %</option>
+            <option value="200">Aumentar 200 % </option>
+          </select>
+
+          <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="restablecerZoom">
+            Restablecer al 100 %
+          </button>
+        </div>
+      </div>
+
       <!-- Botón del menú para celulares -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
         aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar navegación">

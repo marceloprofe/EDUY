@@ -1,65 +1,102 @@
-(() => {
-  const clave = "eduyZoom";
-  const control = document.createElement("div");
-  control.className = "zoom-control";
-  control.innerHTML = `
-    <label for="controlZoom">Zoom</label>
-    <span aria-hidden="true" style="font-size: .75em">A</span>
-    <input type="range" id="controlZoom" min="100" max="200" step="5" value="100" aria-label="Tamaño de la página">
-    <span aria-hidden="true" style="font-size: 1.2em">A</span>
-    <output id="valorZoom" for="controlZoom">100 %</output>
-    <button type="button" id="restablecerZoom" aria-label="Restablecer zoom al 100 por ciento" title="Restablecer zoom">↺</button>`;
-  const rango = control.querySelector("input");
-  const salida = control.querySelector("output");
-  let porcentaje = 100;
-  let barraProvisional;
+const controlZoom = document.getElementById("controlZoom");
 
-  function aplicar(valor, guardar = false) {
-    const numero = Number(valor);
-    porcentaje = Number.isFinite(numero) ? Math.min(200, Math.max(100, Math.round(numero / 5) * 5)) : 100;
-    document.documentElement.style.zoom = "";
+// Agregar Accesibilidad al encabezado si todavía no existe.
+if (!document.getElementById("controlZoom")) {
+  const encabezado = document.querySelector(".navbar .container");
 
-document.querySelectorAll("main, footer, .modal").forEach((elemento) => {
-  elemento.style.zoom = porcentaje / 100;
+  if (encabezado) {
+    const contenedor = document.createElement("div");
+    contenedor.className = "dropdown ms-auto me-2";
+
+    contenedor.innerHTML = `
+      <button
+        class="btn btn-outline-light dropdown-toggle"
+        type="button"
+        id="botonZoom"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false">
+        Accesibilidad
+      </button>
+
+      <div class="dropdown-menu dropdown-menu-end p-3"
+           aria-labelledby="botonZoom"
+           style="width: 250px; max-width: 90vw;">
+        <label for="controlZoom" class="form-label">
+          Tamaño de la página:
+          <output id="valorZoom">100 %</output>
+        </label>
+
+        <select class="form-select" id="controlZoom">
+          <option value="100">Normal (100 %)</option>
+          <option value="125">Aumentar 25 %</option>
+          <option value="150">Aumentar 50 %</option>
+          <option value="175">Aumentar 75 %</option>
+          <option value="200">Aumentar 100 % (doble)</option>
+        </select>
+
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm mt-2"
+                id="restablecerZoom">
+          Restablecer al 100 %
+        </button>
+      </div>
+    `;
+
+    const menu = encabezado.querySelector(".navbar-toggler, .navbar-collapse");
+    encabezado.insertBefore(contenedor, menu);
+  }
+}
+
+const valorZoom = document.getElementById("valorZoom");
+const restablecerZoom = document.getElementById("restablecerZoom");
+
+const claveZoom = "eduyZoom";
+
+function aplicarZoom(valor) {
+  const numero = Number(valor);
+  const porcentaje = Number.isFinite(numero)
+    ? Math.min(200, Math.max(100, Math.round(numero / 25) * 25))
+    : 100;
+
+  document.documentElement.style.zoom = porcentaje / 100;
+
+  if (controlZoom) {
+    controlZoom.value = porcentaje;
+    controlZoom.setAttribute("aria-valuetext", `${porcentaje} por ciento`);
+  }
+
+  if (valorZoom) {
+    valorZoom.textContent = `${porcentaje} %`;
+  }
+
+  return porcentaje;
+}
+
+let zoomGuardado = 100;
+
+try {
+  zoomGuardado = localStorage.getItem(claveZoom) ?? 100;
+} catch {
+  // El zoom funciona aunque el navegador bloquee el almacenamiento.
+}
+
+aplicarZoom(zoomGuardado);
+
+function cambiarZoom(valor) {
+  const porcentaje = aplicarZoom(valor);
+
+  try {
+    localStorage.setItem(claveZoom, String(porcentaje));
+  } catch {
+    // Se mantiene el zoom durante esta visita.
+  }
+}
+
+controlZoom?.addEventListener("change", () => {
+  cambiarZoom(controlZoom.value);
 });
-    rango.value = String(porcentaje);
-    rango.setAttribute("aria-valuetext", `${porcentaje} por ciento`);
-    salida.textContent = `${porcentaje} %`;
-    if (guardar) {
-      try { localStorage.setItem(clave, String(porcentaje)); } catch { /* Almacenamiento no disponible. */ }
-    }
-  }
-  try { porcentaje = localStorage.getItem(clave) ?? 100; } catch { /* Usar valor normal. */ }
-  aplicar(porcentaje);
-  rango.addEventListener("input", () => aplicar(rango.value, true));
-  control.querySelector("button").addEventListener("click", () => aplicar(100, true));
 
-  function colocarControl() {
-    document.querySelectorAll("main, footer, .modal").forEach((elemento) => {
-  elemento.style.zoom = porcentaje / 100;
+restablecerZoom?.addEventListener("click", () => {
+  cambiarZoom(100);
 });
-    const barra = document.querySelector(".barra-sesion-usuario:not([data-zoom-provisional])");
-    if (barra) {
-      const destino = barra.querySelector(".container");
-      if (destino && control.parentElement !== destino) destino.prepend(control);
-      barraProvisional?.remove();
-      barraProvisional = null;
-      return;
-    }
-    const nav = document.querySelector("nav.navbar");
-    if (!nav || control.isConnected) return;
-    barraProvisional = document.createElement("div");
-    barraProvisional.className = "barra-sesion-usuario";
-    barraProvisional.dataset.zoomProvisional = "true";
-    barraProvisional.innerHTML = '<div class="container d-flex flex-wrap align-items-center gap-2 py-2"></div>';
-    barraProvisional.firstElementChild.append(control);
-    nav.insertAdjacentElement("afterend", barraProvisional);
-  }
-  function iniciar() {
-    colocarControl();
-    // Detalle del curso genera la navegación después de consultar Firebase.
-    new MutationObserver(colocarControl).observe(document.body, {childList: true, subtree: true});
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciar, {once: true});
-  else iniciar();
-})();
