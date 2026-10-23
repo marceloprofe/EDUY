@@ -21,7 +21,7 @@ const barraSesion = document.createElement("div");
 barraSesion.className = "barra-sesion-usuario";
 barraSesion.setAttribute("role", "region");
 barraSesion.setAttribute("aria-label", "Información de la sesión");
-barraSesion.hidden = true;
+barraSesion.hidden = false;
 barraSesion.innerHTML = `
     <div class="container d-flex flex-wrap align-items-center justify-content-end gap-2 py-2">
         <span class="barra-sesion-nombre"></span>
@@ -147,7 +147,7 @@ function obtenerOpcionesComunes(rutas, incluirFavoritos = false) {
 }
 
 function mostrarMenuVisitante(rutas) {
-    barraSesion.hidden = true;
+    barraSesion.hidden = false;
     menu.replaceChildren(
         ...obtenerOpcionesComunes(rutas),
         crearOpcion("Ingresar", rutas.login),
