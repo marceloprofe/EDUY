@@ -21,6 +21,56 @@ function estadoTarjetas(texto) {
     }
 }
 
+const idsGraficas = ["graficaAdquisiciones", "graficaDocentes", "graficaAlumnos"];
+
+function estadoGraficas(texto) {
+    for (const id of idsGraficas) {
+        const mensaje = document.createElement("li");
+        mensaje.className = "grafica-vacia";
+        mensaje.textContent = texto;
+        panel.querySelector(`#${id}`).replaceChildren(mensaje);
+    }
+}
+
+function dibujarGrafica(id, registros, campo, unidad) {
+    const contenedor = panel.querySelector(`#${id}`);
+    contenedor.replaceChildren();
+    const destacados = registros.filter(r => r[campo] > 0)
+        .sort((a, b) => b[campo] - a[campo] || a.nombre.localeCompare(b.nombre, "es"))
+        .slice(0, 5);
+    if (!destacados.length) {
+        const mensaje = document.createElement("li");
+        mensaje.className = "grafica-vacia";
+        mensaje.textContent = "Sin datos todavía.";
+        contenedor.append(mensaje);
+        return;
+    }
+    const maximo = destacados[0][campo];
+    for (const registro of destacados) {
+        const fila = document.createElement("li");
+        const etiqueta = document.createElement("div");
+        etiqueta.className = "grafica-etiqueta";
+        const nombre = document.createElement("span");
+        nombre.textContent = registro.nombre;
+        const valor = document.createElement("strong");
+        valor.textContent = String(registro[campo]);
+        const pista = document.createElement("div");
+        pista.className = "grafica-pista";
+        pista.setAttribute("aria-hidden", "true");
+        const barra = document.createElement("div");
+        barra.className = "grafica-barra";
+        barra.style.width = `${registro[campo] / maximo * 100}%`;
+        const descripcion = document.createElement("span");
+        descripcion.className = "visually-hidden";
+        descripcion.textContent = ` ${unidad}`;
+        valor.append(descripcion);
+        etiqueta.append(nombre, valor);
+        pista.append(barra);
+        fila.append(etiqueta, pista);
+        contenedor.append(fila);
+    }
+}
+
 function mostrarDestacados() {
     const cursos = datos.cursos.map(curso => ({
         nombre: curso.titulo || "Curso sin título",
@@ -48,6 +98,9 @@ function mostrarDestacados() {
             ? `${maximo} ${unidad}${ganadores.length > 1 ? " · Empate" : ""}`
             : "";
     }
+    dibujarGrafica("graficaAdquisiciones", cursos, "adquisiciones", "adquisiciones confirmadas");
+    dibujarGrafica("graficaDocentes", [...docentes.values()], "cantidad", "cursos asignados");
+    dibujarGrafica("graficaAlumnos", cursos, "estudiantes", "alumnos únicos");
     destacar(cursos, "adquisiciones", "cursoMasAdquirido", "cantidadMasAdquirido", "adquisición(es)");
     destacar([...docentes.values()], "cantidad", "docenteMasAsignado", "cantidadMasAsignado", "curso(s) asignado(s)");
     destacar(cursos, "estudiantes", "cursoMasAlumnos", "cantidadMasAlumnos", "alumno(s)");
@@ -82,6 +135,7 @@ async function cargar() {
     actualizar.disabled = true;
     estado.textContent = "Cargando estadísticas…";
     estadoTarjetas("Cargando…");
+    estadoGraficas("Cargando…");
     lista.replaceChildren();
     try {
         const nombres = ["cursos", "usuarios", "adquisiciones", "visitasCursos"];
@@ -123,6 +177,7 @@ async function cargar() {
     } catch (error) {
         datos = null;
         estadoTarjetas("No disponible");
+        estadoGraficas("No disponible. Pulsá Actualizar para reintentar.");
         console.error("Estadísticas:", error);
         estado.textContent = `${error.message}. Verificá la conexión y los permisos de administrador y pulsá Actualizar.`;
     } finally { actualizar.disabled = false; }

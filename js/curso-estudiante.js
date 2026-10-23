@@ -86,12 +86,62 @@ const parametros =
 const cursoId =
     parametros.get("cursoId");
 
+const vistaSolicitada =
+    parametros.get("vista");
+
 let usuarioActual = null;
 let contenidosCurso = [];
 let contenidosCompletados = new Set();
 let progresoCreado = false;
 let guardandoProgreso = false;
 let esVistaPreviaAdmin = false;
+let esVistaPreviaDocente = false;
+
+function esModoVistaPrevia() {
+    return esVistaPreviaAdmin || esVistaPreviaDocente;
+}
+
+function obtenerUrlVideoYouTube(url) {
+    try {
+        const direccion = new URL(url);
+        let videoId = "";
+
+        if (direccion.hostname.includes("youtu.be")) {
+            videoId = direccion.pathname.slice(1);
+        } else if (direccion.pathname.includes("/shorts/")) {
+            videoId = direccion.pathname.split("/shorts/")[1];
+        } else {
+            videoId = direccion.searchParams.get("v");
+        }
+
+        if (!videoId) {
+            return "";
+        }
+
+        return `https://www.youtube-nocookie.com/embed/${videoId}`;
+    } catch {
+        return "";
+    }
+}
+
+function obtenerUrlVideoDrive(url) {
+    try {
+        const direccion = new URL(url);
+
+        if (!direccion.hostname.includes("drive.google.com")) {
+            return "";
+        }
+
+        const coincidencia =
+            direccion.pathname.match(/\/file\/d\/([^/]+)/);
+
+        return coincidencia
+            ? `https://drive.google.com/file/d/${coincidencia[1]}/preview`
+            : "";
+    } catch {
+        return "";
+    }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +180,26 @@ function configurarVistaPreviaAdmin() {
 
     enlaceBreadcrumbCurso.textContent =
         "Administración";
+}
+
+function configurarVistaPreviaDocente() {
+    estadoAccesoCurso.textContent =
+        "Vista previa del docente";
+
+    estadoAccesoCurso.className =
+        "badge text-bg-info mb-3";
+
+    enlaceVolverCurso.href =
+        "./mis-cursos.html";
+
+    enlaceVolverCurso.textContent =
+        "Volver a Mis cursos";
+
+    enlaceBreadcrumbCurso.href =
+        "./mis-cursos.html";
+
+    enlaceBreadcrumbCurso.textContent =
+        "Mis cursos";
 }
 
 /*
@@ -341,36 +411,99 @@ function crearTarjetaContenido(contenido) {
     acciones.className =
         "mt-auto pt-3";
 
-    const enlace =
-        document.createElement("a");
+    const urlVideo =
+        contenido.tipo === "video"
+            ? obtenerUrlVideoYouTube(contenido.url)
+            : "";
 
-    enlace.className =
-        "btn btn-outline-primary w-100 mb-3";
+    const urlVideoDrive =
+        contenido.tipo === "video"
+            ? obtenerUrlVideoDrive(contenido.url)
+            : "";
 
-    enlace.href =
-        contenido.url;
+    const esVideoSubido =
+        contenido.tipo === "video" &&
+        !urlVideo &&
+        !urlVideoDrive;
 
-    const esContenidoPropio =
-        contenido.url.startsWith("./");
+    let recurso;
 
-    if (!esContenidoPropio) {
-        enlace.target = "_blank";
-        enlace.rel = "noopener noreferrer";
+    if (urlVideo) {
+        recurso = document.createElement("div");
+        recurso.className = "ratio ratio-16x9 mb-3";
+
+        const reproductor =
+            document.createElement("iframe");
+
+        reproductor.src = urlVideo;
+        reproductor.title =
+            `Video: ${contenido.titulo || "Contenido del curso"}`;
+        reproductor.loading = "lazy";
+        reproductor.referrerPolicy =
+            "strict-origin-when-cross-origin";
+        reproductor.allow =
+            "accelerometer; autoplay; clipboard-write; " +
+            "encrypted-media; gyroscope; picture-in-picture; web-share";
+        reproductor.allowFullscreen = true;
+
+        recurso.appendChild(reproductor);
+    } else if (urlVideoDrive) {
+        recurso = document.createElement("div");
+        recurso.className = "ratio ratio-16x9 mb-3";
+
+        const reproductor =
+            document.createElement("iframe");
+
+        reproductor.src = urlVideoDrive;
+        reproductor.title =
+            `Video: ${contenido.titulo || "Contenido del curso"}`;
+        reproductor.loading = "lazy";
+        reproductor.allow = "autoplay; fullscreen";
+        reproductor.allowFullscreen = true;
+
+        recurso.appendChild(reproductor);
+    } else if (esVideoSubido) {
+        recurso = document.createElement("video");
+        recurso.className =
+            "w-100 rounded mb-3 bg-dark";
+        recurso.src = contenido.url;
+        recurso.controls = true;
+        recurso.preload = "metadata";
+        recurso.setAttribute(
+            "playsinline",
+            ""
+        );
+        recurso.setAttribute(
+            "aria-label",
+            `Video: ${contenido.titulo || "Contenido del curso"}`
+        );
+    } else {
+        recurso = document.createElement("a");
+        recurso.className =
+            "btn btn-outline-primary w-100 mb-3";
+        recurso.href = contenido.url;
+
+        const esContenidoPropio =
+            contenido.url.startsWith("./");
+
+        if (!esContenidoPropio) {
+            recurso.target = "_blank";
+            recurso.rel = "noopener noreferrer";
+        }
+
+        const textosBoton = {
+            pdf: "Abrir PDF",
+            video: "Abrir video",
+            leccion: "Comenzar lección",
+            practica: "Abrir práctica",
+            proyecto: "Abrir laboratorio",
+            evaluacion: "Realizar evaluación"
+        };
+
+        recurso.textContent =
+            textosBoton[contenido.tipo] ||
+            "Abrir contenido";
     }
-
-    const textosBoton = {
-        pdf: "Abrir PDF",
-        video: "Abrir video",
-        leccion: "Comenzar lección",
-        practica: "Abrir práctica",
-        proyecto: "Abrir laboratorio",
-        evaluacion: "Realizar evaluación"
-    };
-
-    enlace.textContent =
-        textosBoton[contenido.tipo] ||
-        "Abrir contenido";
-
     const contenedorMarcado =
         document.createElement("div");
 
@@ -420,7 +553,7 @@ function crearTarjetaContenido(contenido) {
     );
 
     acciones.append(
-        enlace,
+        recurso,
         contenedorMarcado
     );
 
@@ -503,7 +636,7 @@ function bloquearCasillas(bloquear) {
 */
 
 async function guardarProgreso() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         return;
     }
 
@@ -592,7 +725,7 @@ async function cambiarEstadoContenido(evento) {
                 : "Marcar como completado";
     }
 
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         guardandoProgreso = false;
         bloquearCasillas(false);
 
@@ -661,7 +794,7 @@ async function cambiarEstadoContenido(evento) {
 */
 
 async function cargarProgreso() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         contenidosCompletados = new Set();
         progresoCreado = true;
         return;
@@ -782,7 +915,7 @@ async function cargarContenidos() {
 */
 
 async function verificarAdquisicion() {
-    if (esVistaPreviaAdmin) {
+    if (esModoVistaPrevia()) {
         return true;
     }
 
@@ -863,6 +996,16 @@ async function iniciarPagina() {
     const curso =
         await cargarCurso();
 
+    if (
+        esVistaPreviaDocente &&
+        curso.docenteId !== usuarioActual.uid
+    ) {
+        window.location.replace(
+            "./acceso-denegado.html"
+        );
+        return;
+    }
+
     mostrarInformacionCurso(curso);
 
     await cargarContenidos();
@@ -880,6 +1023,13 @@ async function iniciarPagina() {
         mostrarMensaje(
             "Estás viendo el curso como estudiante. No se creó una compra y el avance de esta vista no se guardará.",
             "warning"
+        );
+    } else if (esVistaPreviaDocente) {
+        configurarVistaPreviaDocente();
+
+        mostrarMensaje(
+            "Estás viendo tu curso como estudiante. El avance de esta vista no se guardará.",
+            "info"
         );
     } else {
         ocultarMensaje();
@@ -919,7 +1069,11 @@ onAuthStateChanged(
 
             if (
                 rol !== "estudiante" &&
-                rol !== "admin"
+                rol !== "admin" &&
+                !(
+                    rol === "docente" &&
+                    vistaSolicitada === "docente"
+                )
             ) {
                 window.location.replace(
                     "./acceso-denegado.html"
@@ -931,6 +1085,10 @@ onAuthStateChanged(
             usuarioActual = usuario;
             esVistaPreviaAdmin =
                 rol === "admin";
+
+            esVistaPreviaDocente =
+                rol === "docente" &&
+                vistaSolicitada === "docente";
 
             await iniciarPagina();
         } catch (error) {

@@ -1,4 +1,13 @@
-import { auth, db } from "./firebase-config.js";
+import {
+    auth,
+    db
+} from "./firebase-config.js";
+
+import {
+    CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_UPLOAD_PRESET,
+    cloudinaryConfigurado
+} from "./cloudinary-config.js";
 
 import {
     onAuthStateChanged
@@ -7,6 +16,7 @@ import {
 import {
     addDoc,
     collection,
+    deleteField,
     deleteDoc,
     doc,
     getDoc,
@@ -14,7 +24,6 @@ import {
     serverTimestamp,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +58,18 @@ const campoTipo =
 const campoUrl =
     document.querySelector("#url");
 
+const grupoArchivoVideo =
+    document.querySelector("#grupoArchivoVideo");
+
+const campoArchivoVideo =
+    document.querySelector("#archivoVideo");
+
+const contenedorProgresoVideo =
+    document.querySelector("#contenedorProgresoVideo");
+
+const progresoVideo =
+    document.querySelector("#progresoVideo");
+
 const campoOrden =
     document.querySelector("#orden");
 
@@ -70,6 +91,24 @@ const mensajeSinContenidos =
 const cantidadContenidos =
     document.querySelector("#cantidadContenidos");
 
+const panelEdicionContenido =
+    document.querySelector("#panelEdicionContenido");
+
+const columnaListaContenidos =
+    document.querySelector("#columnaListaContenidos");
+
+const avisoVistaPreviaAdmin =
+    document.querySelector("#avisoVistaPreviaAdmin");
+
+const enlaceVolverContenidos =
+    document.querySelector("#enlaceVolverContenidos");
+
+const enlaceBreadcrumbContenidos =
+    document.querySelector("#enlaceBreadcrumbContenidos");
+
+const descripcionPaginaContenidos =
+    document.querySelector("#descripcionPaginaContenidos");
+
 
 /*
 |--------------------------------------------------------------------------
@@ -83,9 +122,21 @@ const parametros =
 const cursoId =
     parametros.get("cursoId");
 
+const vistaSolicitada =
+    parametros.get("vista");
+
 let usuarioActual = null;
 let cursoActual = null;
 let contenidosActuales = [];
+let esVistaPreviaAdmin = false;
+
+const TAMANO_MAXIMO_VIDEO =
+    100 * 1024 * 1024;
+
+const TIPOS_VIDEO_PERMITIDOS = [
+    "video/mp4",
+    "video/webm"
+];
 
 
 /*
@@ -124,6 +175,18 @@ function habilitarFormulario(habilitado) {
         });
 }
 
+function configurarVistaPreviaAdmin() {
+    avisoVistaPreviaAdmin.classList.remove("d-none");
+    panelEdicionContenido.classList.add("d-none");
+    columnaListaContenidos.className = "col-12";
+    enlaceVolverContenidos.href = "./panel-admin.html";
+    enlaceVolverContenidos.textContent = "Volver al panel administrativo";
+    enlaceBreadcrumbContenidos.href = "./panel-admin.html";
+    enlaceBreadcrumbContenidos.textContent = "Administración";
+    descripcionPaginaContenidos.textContent =
+        "Vista de los materiales disponibles para el docente.";
+}
+
 function obtenerSiguienteOrden() {
     if (contenidosActuales.length === 0) {
         return 1;
@@ -152,7 +215,124 @@ function reiniciarFormulario() {
 
     botonCancelarEdicion.classList.add("d-none");
 
+    actualizarCamposVideo();
+    actualizarProgresoVideo(0, false);
+
     ocultarMensaje();
+}
+
+function actualizarCamposVideo() {
+    const esVideo = campoTipo.value === "video";
+
+    grupoArchivoVideo.classList.toggle(
+        "d-none",
+        !esVideo
+    );
+
+    campoArchivoVideo.disabled = !esVideo;
+
+    if (!esVideo) {
+        campoArchivoVideo.value = "";
+        actualizarProgresoVideo(0, false);
+    }
+}
+
+function actualizarProgresoVideo(
+    porcentaje,
+    visible = true
+) {
+    const valor = Math.round(porcentaje);
+
+    contenedorProgresoVideo.classList.toggle(
+        "d-none",
+        !visible
+    );
+
+    contenedorProgresoVideo.setAttribute(
+        "aria-valuenow",
+        String(valor)
+    );
+
+    progresoVideo.style.width = `${valor}%`;
+    progresoVideo.textContent = `${valor}%`;
+}
+
+function validarArchivoVideo(archivo) {
+    return TIPOS_VIDEO_PERMITIDOS.includes(
+        archivo.type
+    ) && archivo.size <= TAMANO_MAXIMO_VIDEO;
+}
+
+function subirVideo(archivo) {
+    if (!cloudinaryConfigurado()) {
+        throw new Error("cloudinary-no-configurado");
+    }
+
+    const datos = new FormData();
+    datos.append("file", archivo);
+    datos.append(
+        "upload_preset",
+        CLOUDINARY_UPLOAD_PRESET
+    );
+
+    const endpoint =
+        "https://api.cloudinary.com/v1_1/" +
+        `${CLOUDINARY_CLOUD_NAME}/video/upload`;
+
+    return new Promise((resolve, reject) => {
+        const solicitud = new XMLHttpRequest();
+
+        solicitud.upload.addEventListener(
+            "progress",
+            (evento) => {
+                if (evento.lengthComputable) {
+                    actualizarProgresoVideo(
+                        evento.loaded / evento.total * 100
+                    );
+                }
+            }
+        );
+
+        solicitud.addEventListener("load", () => {
+            let respuesta = null;
+
+            try {
+                respuesta = JSON.parse(
+                    solicitud.responseText
+                );
+            } catch {
+                // La respuesta inválida se trata como un error de subida.
+            }
+
+            if (
+                solicitud.status >= 200 &&
+                solicitud.status < 300 &&
+                respuesta?.secure_url &&
+                respuesta?.public_id
+            ) {
+                resolve({
+                    url: respuesta.secure_url,
+                    publicId: respuesta.public_id
+                });
+                return;
+            }
+
+            reject(new Error(
+                respuesta?.error?.message ||
+                "cloudinary-error-subida"
+            ));
+        });
+
+        solicitud.addEventListener(
+            "error",
+            () => reject(
+                new Error("cloudinary-error-red")
+            )
+        );
+
+        solicitud.open("POST", endpoint);
+        solicitud.send(datos);
+    });
 }
 
 function validarUrlHttps(valor) {
@@ -172,7 +352,7 @@ function validarUrlHttps(valor) {
 |--------------------------------------------------------------------------
 */
 
-async function obtenerPerfilDocente(usuario) {
+async function obtenerPerfilUsuario(usuario) {
     const referenciaUsuario =
         doc(db, "usuarios", usuario.uid);
 
@@ -186,7 +366,10 @@ async function obtenerPerfilDocente(usuario) {
     const datosUsuario =
         documentoUsuario.data();
 
-    if (datosUsuario.rol !== "docente") {
+    if (
+        datosUsuario.rol !== "docente" &&
+        datosUsuario.rol !== "admin"
+    ) {
         return null;
     }
 
@@ -211,7 +394,10 @@ async function obtenerCursoDocente(usuario) {
     const datosCurso =
         documentoCurso.data();
 
-    if (datosCurso.docenteId !== usuario.uid) {
+    if (
+        !esVistaPreviaAdmin &&
+        datosCurso.docenteId !== usuario.uid
+    ) {
         throw new Error("curso-no-pertenece");
     }
 
@@ -346,11 +532,14 @@ function crearTarjetaContenido(contenido) {
         () => eliminarContenido(contenido.id)
     );
 
-    acciones.append(
-        enlace,
-        botonEditar,
-        botonEliminar
-    );
+    acciones.append(enlace);
+
+    if (!esVistaPreviaAdmin) {
+        acciones.append(
+            botonEditar,
+            botonEliminar
+        );
+    }
 
     cuerpo.append(
         encabezado,
@@ -479,6 +668,10 @@ async function cargarContenidos() {
 */
 
 function iniciarEdicion(contenidoId) {
+    if (esVistaPreviaAdmin) {
+        return;
+    }
+
     const contenido =
         contenidosActuales.find(
             (elemento) =>
@@ -509,6 +702,10 @@ function iniciarEdicion(contenidoId) {
     campoUrl.value =
         contenido.url || "";
 
+    campoArchivoVideo.value = "";
+    actualizarCamposVideo();
+    actualizarProgresoVideo(0, false);
+
     campoOrden.value =
         contenido.orden || 1;
 
@@ -538,6 +735,10 @@ function iniciarEdicion(contenidoId) {
 */
 
 async function eliminarContenido(contenidoId) {
+    if (esVistaPreviaAdmin) {
+        return;
+    }
+
     const contenido =
         contenidosActuales.find(
             (elemento) =>
@@ -602,6 +803,14 @@ formulario.addEventListener(
     async (evento) => {
         evento.preventDefault();
 
+        if (esVistaPreviaAdmin) {
+            mostrarMensaje(
+                "La vista previa del administrador es de solo lectura.",
+                "warning"
+            );
+            return;
+        }
+
         if (!usuarioActual || !cursoActual) {
             mostrarMensaje(
                 "Esperá a que se verifique el curso.",
@@ -623,8 +832,13 @@ formulario.addEventListener(
         const tipo =
             campoTipo.value;
 
-        const url =
+        let url =
             campoUrl.value.trim();
+
+        const archivoVideo =
+            tipo === "video"
+                ? campoArchivoVideo.files[0] || null
+                : null;
 
         const orden =
             Number(campoOrden.value);
@@ -647,9 +861,24 @@ formulario.addEventListener(
             return;
         }
 
-        if (!validarUrlHttps(url)) {
+        if (
+            tipo === "video" &&
+            archivoVideo &&
+            !validarArchivoVideo(archivoVideo)
+        ) {
             mostrarMensaje(
-                "El enlace debe comenzar con https://",
+                "Seleccioná un video MP4 o WebM de hasta 100 MB.",
+                "warning"
+            );
+
+            return;
+        }
+
+        if (!archivoVideo && !validarUrlHttps(url)) {
+            mostrarMensaje(
+                tipo === "video"
+                    ? "Pegá un enlace HTTPS o seleccioná un video."
+                    : "El enlace debe comenzar con https://",
                 "warning"
             );
 
@@ -671,9 +900,29 @@ formulario.addEventListener(
 
         botonGuardar.disabled = true;
         botonGuardar.textContent =
-            "Guardando...";
+            archivoVideo
+                ? "Subiendo video..."
+                : "Guardando...";
+
+        const contenidoAnterior = contenidoId
+            ? contenidosActuales.find(
+                (contenido) =>
+                    contenido.id === contenidoId
+            )
+            : null;
+
+        let nuevoPublicId = "";
 
         try {
+            if (archivoVideo) {
+                const videoSubido =
+                    await subirVideo(archivoVideo);
+
+                url = videoSubido.url;
+                nuevoPublicId = videoSubido.publicId;
+                botonGuardar.textContent = "Guardando...";
+            }
+
             const datosContenido = {
                 titulo,
                 descripcion,
@@ -683,6 +932,20 @@ formulario.addEventListener(
                 fechaActualizacion:
                     serverTimestamp()
             };
+
+            if (nuevoPublicId) {
+                datosContenido.cloudinaryPublicId =
+                    nuevoPublicId;
+            } else if (
+                contenidoAnterior?.cloudinaryPublicId &&
+                (
+                    tipo !== "video" ||
+                    url !== contenidoAnterior.url
+                )
+            ) {
+                datosContenido.cloudinaryPublicId =
+                    deleteField();
+            }
 
             if (contenidoId) {
                 await updateDoc(
@@ -727,11 +990,13 @@ formulario.addEventListener(
             console.error(error);
 
             mostrarMensaje(
-                "No fue posible guardar el contenido. " +
-                "Verificá las reglas de Firestore.",
+                error.message === "cloudinary-no-configurado"
+                    ? "Configurá Cloudinary o usá un enlace de YouTube o Google Drive."
+                    : "No fue posible guardar el contenido. Verificá Cloudinary y las reglas de Firestore.",
                 "danger"
             );
         } finally {
+            actualizarProgresoVideo(0, false);
             botonGuardar.disabled = false;
 
             botonGuardar.textContent =
@@ -741,6 +1006,13 @@ formulario.addEventListener(
         }
     }
 );
+
+campoTipo.addEventListener(
+    "change",
+    actualizarCamposVideo
+);
+
+actualizarCamposVideo();
 
 
 /*
@@ -778,13 +1050,27 @@ onAuthStateChanged(
 
         try {
             const perfil =
-                await obtenerPerfilDocente(usuario);
+                await obtenerPerfilUsuario(usuario);
 
             if (!perfil) {
                 window.location.replace(
                     "./acceso-denegado.html"
                 );
 
+                return;
+            }
+
+            esVistaPreviaAdmin =
+                perfil.rol === "admin" &&
+                vistaSolicitada === "docente";
+
+            if (
+                perfil.rol === "admin" &&
+                !esVistaPreviaAdmin
+            ) {
+                window.location.replace(
+                    "./acceso-denegado.html"
+                );
                 return;
             }
 
@@ -809,7 +1095,12 @@ onAuthStateChanged(
                     : "secondary"
             );
 
-            habilitarFormulario(true);
+            if (esVistaPreviaAdmin) {
+                configurarVistaPreviaAdmin();
+                habilitarFormulario(false);
+            } else {
+                habilitarFormulario(true);
+            }
 
             await cargarContenidos();
         } catch (error) {

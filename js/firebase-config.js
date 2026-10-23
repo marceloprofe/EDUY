@@ -29,4 +29,9 @@ const functions = getFunctions(app, "southamerica-east1");
 const appAltaUsuario = initializeApp(firebaseConfig, "alta-usuario-admin");
 const authAltaUsuario = getAuth(appAltaUsuario);
 
-export { auth, authAltaUsuario, db, functions };
+export {
+    auth,
+    authAltaUsuario,
+    db,
+    functions
+};

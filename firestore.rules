@@ -41,6 +41,16 @@ service cloud.firestore {
         ).data.rol == "admin";
     }
 
+    function esDocenteDelCurso(cursoId) {
+      return esDocente()
+        && exists(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        )
+        && get(
+          /databases/$(database)/documents/cursos/$(cursoId)
+        ).data.docenteId == request.auth.uid;
+    }
+
     function tieneAdquisicionConfirmada(cursoId) {
       return esEstudiante()
         && exists(
@@ -49,6 +59,25 @@ service cloud.firestore {
         && get(
           /databases/$(database)/documents/adquisiciones/$(request.auth.uid + "_" + cursoId)
         ).data.estado == "confirmada";
+    }
+
+    function precioPredeterminado(nivel) {
+      return nivel == "intermedio"
+        ? 1800
+        : nivel == "avanzado"
+          ? 2400
+          : 1200;
+    }
+
+    function importeCoincideConCurso(cursoId, importe) {
+      let curso = get(
+        /databases/$(database)/documents/cursos/$(cursoId)
+      ).data;
+
+      return importe == curso.get(
+        "precio",
+        precioPredeterminado(curso.nivel)
+      );
     }
 
     /*
@@ -105,7 +134,31 @@ service cloud.firestore {
       allow update: if estaAutenticado()
                     && request.auth.uid == userId
                     && request.resource.data.rol
-                       == resource.data.rol;
+                       == resource.data.rol
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() > 0
+                    && request.resource.data.nombre.size() <= 80
+                    && request.resource.data.correo is string
+                    && request.resource.data.correo.size() > 0
+                    && request.resource.data.correo.size() <= 254
+                    && request.resource.data.fechaActualizacion
+                       == request.time
+                    && request.resource.data
+                       .diff(resource.data)
+                       .affectedKeys()
+                       .hasOnly([
+                         "nombre",
+                         "correo",
+                         "fechaActualizacion"
+                       ])
+                    && (
+                      !request.resource.data
+                        .diff(resource.data)
+                        .affectedKeys()
+                        .hasAny(["correo"])
+                      || request.resource.data.correo
+                         == request.auth.token.email
+                    );
 
       // Admin puede actualizar el nombre y los tres roles en otros perfiles,
       // sin modificar cuentas que ya tengan rol administrador.
@@ -137,6 +190,16 @@ service cloud.firestore {
     */
 
     match /cursos/{cursoId} {
+      function videoPresentacionValido(video) {
+  return video is string
+    && video.size() <= 2048
+    && (
+      video == ""
+      || video.matches(
+        "https://(www[.])?(youtube[.]com|youtu[.]be)/.*"
+      )
+    );
+}
 
       allow get: if esAdmin()
                  || resource.data.habilitado == true
@@ -159,6 +222,9 @@ service cloud.firestore {
       allow create: if esDocente()
                     && request.resource.data.docenteId
                        == request.auth.uid
+                    && request.resource.data.precio is number
+                    && request.resource.data.precio > 0
+                    && request.resource.data.precio <= 1000000
                     && request.resource.data.habilitado
                        == false
                     && request.resource.data.estado
@@ -171,6 +237,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -187,6 +254,7 @@ service cloud.firestore {
                       "descripcion",
                       "nivel",
                       "imagen",
+                      "videoPresentacion",
                       "duracion",
                       "precio",
                       "docenteNombre",
@@ -207,6 +275,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
@@ -242,6 +313,7 @@ service cloud.firestore {
                          "descripcion",
                          "nivel",
                          "imagen",
+                         "videoPresentacion",
                          "duracion",
                          "precio",
                          "habilitado",
@@ -260,6 +332,9 @@ service cloud.firestore {
                     && request.resource.data.nivel
                        in ["basico", "intermedio", "avanzado"]
                     && request.resource.data.imagen is string
+                    && videoPresentacionValido(
+  request.resource.data.videoPresentacion
+)
                     && request.resource.data.duracion is string
                     && request.resource.data.precio is number
                     && request.resource.data.precio > 0
@@ -327,6 +402,7 @@ service cloud.firestore {
               "descripcion",
               "tipo",
               "url",
+              "cloudinaryPublicId",
               "orden",
               "fechaCreacion",
               "fechaActualizacion"
@@ -342,6 +418,16 @@ service cloud.firestore {
             && request.resource.data.url.size() > 8
             && request.resource.data.url.size() <= 2048
             && request.resource.data.url.matches("https://.*")
+            && (
+              !request.resource.data.keys().hasAny([
+                "cloudinaryPublicId"
+              ])
+              || (
+                request.resource.data.cloudinaryPublicId is string
+                && request.resource.data.cloudinaryPublicId.size() > 0
+                && request.resource.data.cloudinaryPublicId.size() <= 512
+              )
+            )
             && request.resource.data.orden is int
             && request.resource.data.orden >= 1
             && request.resource.data.orden <= 100
@@ -376,6 +462,7 @@ service cloud.firestore {
                            "descripcion",
                            "tipo",
                            "url",
+                           "cloudinaryPublicId",
                            "orden",
                            "fechaActualizacion"
                          ])
@@ -384,6 +471,87 @@ service cloud.firestore {
 
         // El docente propietario puede eliminar sus contenidos.
         allow delete: if esDocentePropietario();
+      }
+
+      // Los comentarios identificados por UID permiten una valoración por usuario y curso.
+      match /comentarios/{usuarioId} {
+        function cursoPublicado() {
+          return exists(
+            /databases/$(database)/documents/cursos/$(cursoId)
+          )
+          && get(
+            /databases/$(database)/documents/cursos/$(cursoId)
+          ).data.habilitado == true;
+        }
+
+        function comentarioValido() {
+          return request.resource.data.keys().hasAll([
+              "usuarioId",
+              "cursoId",
+              "nombreUsuario",
+              "estrellas",
+              "comentario",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.keys().hasOnly([
+              "usuarioId",
+              "cursoId",
+              "nombreUsuario",
+              "estrellas",
+              "comentario",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.usuarioId == request.auth.uid
+            && request.resource.data.cursoId == cursoId
+            && request.resource.data.nombreUsuario is string
+            && request.resource.data.nombreUsuario.size() > 0
+            && request.resource.data.nombreUsuario.size() <= 80
+            && request.resource.data.estrellas is int
+            && request.resource.data.estrellas >= 1
+            && request.resource.data.estrellas <= 5
+            && request.resource.data.comentario is string
+            && request.resource.data.comentario.size() <= 500
+            && request.resource.data.fechaCreacion is timestamp
+            && request.resource.data.fechaActualizacion is timestamp
+            && request.resource.data.nombreUsuario == "Usuario EDUY";
+        }
+
+        allow read: if cursoPublicado();
+
+        allow create: if cursoPublicado()
+                      && esEstudiante()
+                      && exists(
+                        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+                      )
+                      && usuarioId == request.auth.uid
+                      && comentarioValido()
+                      && request.resource.data.fechaCreacion == request.time
+                      && request.resource.data.fechaActualizacion == request.time;
+
+        allow update: if cursoPublicado()
+                      && esEstudiante()
+                      && exists(
+                        /databases/$(database)/documents/usuarios/$(request.auth.uid)
+                      )
+                      && usuarioId == request.auth.uid
+                      && resource.data.usuarioId == request.auth.uid
+                      && comentarioValido()
+                      && request.resource.data
+                         .diff(resource.data)
+                         .affectedKeys()
+                         .hasOnly([
+                           "nombreUsuario",
+                           "estrellas",
+                           "comentario",
+                           "fechaActualizacion"
+                         ])
+                      && request.resource.data.fechaCreacion
+                         == resource.data.fechaCreacion
+                      && request.resource.data.fechaActualizacion == request.time;
+
+        allow delete: if esAdmin();
       }
     }
 
@@ -401,6 +569,9 @@ service cloud.firestore {
                    || adquisicionId.matches(
                      request.auth.uid + "_.*"
                    )
+                   || esDocenteDelCurso(
+                     resource.data.cursoId
+                   )
                  );
 
       allow list: if estaAutenticado()
@@ -408,6 +579,9 @@ service cloud.firestore {
                     esAdmin()
                     || resource.data.usuarioId
                        == request.auth.uid
+                    || esDocenteDelCurso(
+                      resource.data.cursoId
+                    )
                   );
 
       // El estudiante registra una compra con un método simulado.
@@ -456,8 +630,11 @@ service cloud.firestore {
                        ]
                     && request.resource.data.estadoPago
                        == "aprobado_simulado"
-                    && request.resource.data.importe
-                       in [1200, 1800, 2400]
+                    && request.resource.data.importe is number
+                    && importeCoincideConCurso(
+                         request.resource.data.cursoId,
+                         request.resource.data.importe
+                       )
                     && request.resource.data.fechaAdquisicion
                        == request.time
                     && get(
@@ -538,7 +715,7 @@ service cloud.firestore {
                       || request.resource.data.estadoPago
                          == "aprobado_simulado"
                     );
-    
+
        allow update: if esAdmin()
                     && request.resource.data
                        .diff(resource.data)
@@ -705,6 +882,9 @@ match /progresos/{progresoId} {
                && progresoId.matches(
                  request.auth.uid + "_.*"
                )
+             )
+             || esDocenteDelCurso(
+               resource.data.cursoId
              );
 
   allow list: if esAdmin()
@@ -712,6 +892,9 @@ match /progresos/{progresoId} {
                 esEstudiante()
                 && resource.data.usuarioId
                    == request.auth.uid
+              )
+              || esDocenteDelCurso(
+                resource.data.cursoId
               );
 
   allow create: if esEstudiante()

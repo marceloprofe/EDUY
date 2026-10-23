@@ -99,7 +99,7 @@
                 id="menuPrincipal"
             >
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto" data-menu-sesion hidden>
 
 
                     <li class="nav-item">
@@ -401,6 +401,10 @@
                                align-middle"
                     >
 
+                        <caption class="visually-hidden">
+                            Usuarios registrados en EDUY
+                        </caption>
+
 
                         <thead class="table-dark">
 
@@ -452,6 +456,8 @@
                 <p
                     id="estadoUsuarios"
                     class="text-body-secondary"
+                    role="status"
+                    aria-live="polite"
                 >
 
                     Cargando usuarios...
@@ -526,6 +532,7 @@
 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
+                        <caption class="visually-hidden">Cursos disponibles para administración</caption>
                         <thead class="table-dark">
                             <tr>
                                 <th scope="col">Curso</th>
@@ -540,7 +547,7 @@
                     </table>
                 </div>
 
-                <p id="estadoCursosAdmin" class="text-body-secondary">Cargando cursos...</p>
+                <p id="estadoCursosAdmin" class="text-body-secondary" role="status" aria-live="polite">Cargando cursos...</p>
 
 
             </section>
@@ -610,6 +617,7 @@
 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
+                        <caption class="visually-hidden">Adquisiciones registradas en EDUY</caption>
                         <thead class="table-dark">
                             <tr>
                                 <th scope="col">Estudiante</th>
@@ -624,7 +632,7 @@
                     </table>
                 </div>
 
-                <p id="estadoAdquisicionesAdmin" class="text-body-secondary">Cargando adquisiciones...</p>
+                <p id="estadoAdquisicionesAdmin" class="text-body-secondary" role="status" aria-live="polite">Cargando adquisiciones...</p>
 
 
             </section>
@@ -664,10 +672,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="graficas-admin mb-4" aria-label="Gráficas de estadísticas">
+                    <figure class="grafica-admin" aria-labelledby="tituloGraficaAdquisiciones">
+                        <figcaption id="tituloGraficaAdquisiciones">Cursos adquiridos</figcaption>
+                        <p>Los 5 cursos con más adquisiciones confirmadas.</p>
+                        <ol id="graficaAdquisiciones" class="grafica-barras"><li>Abrí esta pestaña para cargar los datos.</li></ol>
+                    </figure>
+                    <figure class="grafica-admin grafica-admin-docentes" aria-labelledby="tituloGraficaDocentes">
+                        <figcaption id="tituloGraficaDocentes">Cursos por docente</figcaption>
+                        <p>Los 5 docentes con más cursos asignados.</p>
+                        <ol id="graficaDocentes" class="grafica-barras"><li>Abrí esta pestaña para cargar los datos.</li></ol>
+                    </figure>
+                    <figure class="grafica-admin grafica-admin-alumnos" aria-labelledby="tituloGraficaAlumnos">
+                        <figcaption id="tituloGraficaAlumnos">Cursos con más alumnos</figcaption>
+                        <p>Los 5 cursos con más alumnos únicos con adquisición confirmada.</p>
+                        <ol id="graficaAlumnos" class="grafica-barras"><li>Abrí esta pestaña para cargar los datos.</li></ol>
+                    </figure>
+                </div>
                 <label for="buscarEstadisticas" class="form-label">Buscar curso o docente</label>
                 <input id="buscarEstadisticas" type="search" class="form-control mb-3" placeholder="Curso o docente">
                 <div class="table-responsive">
                     <table class="table table-striped align-middle">
+                        <caption class="visually-hidden">Estadísticas de cursos, adquisiciones y estudiantes</caption>
                         <thead class="table-dark"><tr><th scope="col">Curso</th><th scope="col">Cursos visitados (visitas)</th><th scope="col">Cursos adquiridos</th><th scope="col">Ganancias por curso</th><th scope="col">Docentes asignados</th><th scope="col">Cantidad de estudiantes</th></tr></thead>
                         <tbody id="listaEstadisticas"></tbody>
                     </table>
@@ -971,6 +997,11 @@
                             <label for="cursoAdminImagen" class="form-label">Imagen (URL HTTPS o ruta img/...)</label>
                             <input type="text" id="cursoAdminImagen" class="form-control" maxlength="500" />
                         </div>
+                        <div class="col-12">
+                            <label for="cursoAdminVideoPresentacion" class="form-label">Video de presentación (opcional)</label>
+                            <input type="url" id="cursoAdminVideoPresentacion" class="form-control" maxlength="2048" placeholder="https://www.youtube.com/watch?v=..." />
+                            <div class="form-text">Enlace HTTPS opcional. El video no se reproduce automáticamente.</div>
+                        </div>
                         <div class="col-md-6">
                             <label for="cursoAdminEstado" class="form-label">Estado del catálogo</label>
                             <select id="cursoAdminEstado" class="form-select" required>
@@ -1032,6 +1063,10 @@
     ></script>
 
 
-<script type="module" src="../js/panel-estadisticas.js"></script></body>
+<script type="module" src="../js/panel-estadisticas.js"></script>
+
+<script src="../js/zoom.js"></script>
+
+</body>
 
 </html>

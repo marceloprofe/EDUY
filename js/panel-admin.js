@@ -67,6 +67,7 @@ const campoCursoDocente = document.querySelector("#cursoAdminDocente");
 const campoCursoPrecio = document.querySelector("#cursoAdminPrecio");
 const campoCursoDuracion = document.querySelector("#cursoAdminDuracion");
 const campoCursoImagen = document.querySelector("#cursoAdminImagen");
+const campoCursoVideoPresentacion = document.querySelector("#cursoAdminVideoPresentacion");
 const campoCursoEstado = document.querySelector("#cursoAdminEstado");
 const listaAdquisicionesAdmin = document.querySelector("#listaAdquisicionesAdmin");
 const estadoAdquisicionesAdmin = document.querySelector("#estadoAdquisicionesAdmin");
@@ -447,6 +448,8 @@ function mostrarCursosAdmin(lista) {
                 <td><span class="badge ${publicado ? "text-bg-success" : "text-bg-secondary"}">${estado}</span></td>
                 <td>
                     <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-sm btn-outline-success" href="./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)}&vista=estudiante">Vista estudiante</a>
+                        <a class="btn btn-sm btn-outline-info" href="./contenidos-curso.html?cursoId=${encodeURIComponent(curso.id)}&vista=docente">Vista docente</a>
                         <button type="button" class="btn btn-sm btn-outline-primary btn-editar-curso" data-id="${escaparHTML(curso.id)}">Editar</button>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-eliminar-curso" data-id="${escaparHTML(curso.id)}">Eliminar</button>
                     </div>
@@ -498,6 +501,7 @@ function abrirEdicionCurso(evento) {
     campoCursoPrecio.value = curso.precio ?? preciosPorNivel[curso.nivel] ?? 1200;
     campoCursoDuracion.value = curso.duracion || "";
     campoCursoImagen.value = curso.imagen || "";
+    campoCursoVideoPresentacion.value = curso.videoPresentacion || "";
     campoCursoEstado.value = curso.habilitado === true ? "habilitado" : "borrador";
     tituloModalCurso.textContent = "Modificar curso";
     btnGuardarCursoAdmin.textContent = "Guardar cambios";
@@ -529,7 +533,11 @@ function cargarOpcionesDocentesCurso(curso) {
 }
 
 function validarImagenCurso(imagen) {
-    return !imagen || /^https:\/\//i.test(imagen) || /^img\/[a-zA-Z0-9_./-]+$/.test(imagen);
+    return (
+        !imagen ||
+        /^https:\/\//i.test(imagen) ||
+        /^img\/[a-zA-Z0-9_./-]+$/.test(imagen)
+    );
 }
 
 async function guardarCursoAdmin(evento) {
@@ -557,6 +565,19 @@ async function guardarCursoAdmin(evento) {
     const precio = Number(campoCursoPrecio.value);
     const duracion = campoCursoDuracion.value.trim();
     const imagen = campoCursoImagen.value.trim();
+    const videoPresentacion = campoCursoVideoPresentacion.value.trim();
+    if (
+        videoPresentacion &&
+        !/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(
+            videoPresentacion
+        )
+    ) {
+        mostrarMensaje(
+            "Ingresá un enlace HTTPS válido de YouTube.",
+            "warning"
+        );
+        return;
+    }
     const habilitado = campoCursoEstado.value === "habilitado";
 
     if (!validarImagenCurso(imagen)) {
@@ -575,6 +596,7 @@ async function guardarCursoAdmin(evento) {
         descripcion,
         nivel,
         imagen,
+        videoPresentacion,
         duracion,
         precio,
         habilitado,

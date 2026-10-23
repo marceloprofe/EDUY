@@ -40,6 +40,24 @@ const listaCursos =
 const mensajeCurso =
     document.querySelector("#mensajeCurso");
 
+const elementoModalAvance =
+    document.querySelector("#modalAvanceCurso");
+
+const modalAvance =
+    new bootstrap.Modal(elementoModalAvance);
+
+const tituloAvanceCurso =
+    document.querySelector("#tituloAvanceCurso");
+
+const estadoAvanceCurso =
+    document.querySelector("#estadoAvanceCurso");
+
+const resumenAvanceCurso =
+    document.querySelector("#resumenAvanceCurso");
+
+const listaAvanceCurso =
+    document.querySelector("#listaAvanceCurso");
+
 let usuarioActual = null;
 let perfilActual = null;
 
@@ -67,6 +85,188 @@ function escaparHTML(texto) {
     return elemento.innerHTML
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
+}
+
+function tarjetaResumen(titulo, valor) {
+    return `
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100 border-0 bg-body-tertiary">
+                <div class="card-body">
+                    <p class="small text-body-secondary mb-1">
+                        ${escaparHTML(titulo)}
+                    </p>
+                    <p class="h4 fw-bold mb-0">
+                        ${escaparHTML(valor)}
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function mostrarAvanceCurso(curso) {
+    tituloAvanceCurso.textContent =
+        `Avance: ${curso.titulo}`;
+
+    estadoAvanceCurso.className =
+        "alert alert-info";
+    estadoAvanceCurso.textContent =
+        "Cargando inscripciones, progreso y valoraciones...";
+    resumenAvanceCurso.innerHTML = "";
+    listaAvanceCurso.innerHTML = "";
+    modalAvance.show();
+
+    try {
+        const [resultadoAdquisiciones, resultadoProgresos, resultadoValoraciones] =
+            await Promise.all([
+                getDocsFromServer(
+                    query(
+                        collection(db, "adquisiciones"),
+                        where("cursoId", "==", curso.id)
+                    )
+                ),
+                getDocsFromServer(
+                    query(
+                        collection(db, "progresos"),
+                        where("cursoId", "==", curso.id)
+                    )
+                ),
+                getDocsFromServer(
+                    query(
+                        collection(db, "valoracionesDocentes"),
+                        where("cursoId", "==", curso.id)
+                    )
+                )
+            ]);
+
+        const adquisiciones = resultadoAdquisiciones.docs
+            .map((documento) => documento.data())
+            .filter((adquisicion) => adquisicion.estado === "confirmada");
+
+        const progresos = new Map(
+            resultadoProgresos.docs.map((documento) => {
+                const progreso = documento.data();
+                return [progreso.usuarioId, progreso];
+            })
+        );
+
+        const valoraciones = resultadoValoraciones.docs
+            .map((documento) => documento.data());
+
+        const estudiantes = adquisiciones.map((adquisicion) => {
+            const progreso = progresos.get(adquisicion.usuarioId);
+            const porcentaje = Math.max(
+                0,
+                Math.min(100, Number(progreso?.porcentaje) || 0)
+            );
+
+            return {
+                correo: adquisicion.usuarioCorreo || "Correo no disponible",
+                porcentaje,
+                completados: Array.isArray(progreso?.contenidosCompletados)
+                    ? progreso.contenidosCompletados.length
+                    : 0
+            };
+        });
+
+        const promedioProgreso = estudiantes.length > 0
+            ? Math.round(
+                estudiantes.reduce(
+                    (total, estudiante) => total + estudiante.porcentaje,
+                    0
+                ) / estudiantes.length
+            )
+            : 0;
+
+        const promedioValoracion = valoraciones.length > 0
+            ? (
+                valoraciones.reduce(
+                    (total, valoracion) =>
+                        total + Number(valoracion.estrellas || 0),
+                    0
+                ) / valoraciones.length
+            ).toFixed(1)
+            : "Sin datos";
+
+        resumenAvanceCurso.innerHTML = [
+            tarjetaResumen("Estudiantes", estudiantes.length),
+            tarjetaResumen("Progreso promedio", `${promedioProgreso}%`),
+            tarjetaResumen(
+                "Cursos completados",
+                estudiantes.filter(
+                    (estudiante) => estudiante.porcentaje === 100
+                ).length
+            ),
+            tarjetaResumen(
+                "Valoración promedio",
+                promedioValoracion === "Sin datos"
+                    ? promedioValoracion
+                    : `${promedioValoracion} / 5`
+            )
+        ].join("");
+
+        estadoAvanceCurso.classList.add("d-none");
+
+        if (estudiantes.length === 0) {
+            listaAvanceCurso.innerHTML = `
+                <div class="alert alert-secondary mb-0">
+                    Este curso todavía no tiene estudiantes inscriptos.
+                </div>
+            `;
+            return;
+        }
+
+        listaAvanceCurso.innerHTML = `
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Estudiante</th>
+                            <th scope="col">Contenidos completados</th>
+                            <th scope="col">Progreso</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${estudiantes.map((estudiante) => `
+                            <tr>
+                                <td>${escaparHTML(estudiante.correo)}</td>
+                                <td>${estudiante.completados}</td>
+                                <td style="min-width: 12rem">
+                                    <div
+                                        class="progress"
+                                        role="progressbar"
+                                        aria-label="Progreso de ${escaparHTML(estudiante.correo)}"
+                                        aria-valuenow="${estudiante.porcentaje}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                    >
+                                        <div
+                                            class="progress-bar"
+                                            style="width: ${estudiante.porcentaje}%"
+                                        >
+                                            ${estudiante.porcentaje}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    ${estudiante.porcentaje === 100
+                                        ? '<span class="badge text-bg-success">Completado</span>'
+                                        : '<span class="badge text-bg-warning">En curso</span>'}
+                                </td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } catch (error) {
+        console.error(error);
+        estadoAvanceCurso.className =
+            "alert alert-danger";
+        estadoAvanceCurso.textContent =
+            "No fue posible consultar el avance. Verificá que las reglas de Firestore estén publicadas.";
+    }
 }
 
 
@@ -111,6 +311,8 @@ async function comprobarDocente(usuario) {
 */
 
 async function cargarCursos() {
+    listaCursos.setAttribute("aria-busy", "true");
+
     listaCursos.innerHTML = `
         <p class="text-body-secondary">
             Cargando cursos...
@@ -166,6 +368,8 @@ async function cargarCursos() {
                 </div>
             </div>
         `;
+    } finally {
+        listaCursos.setAttribute("aria-busy", "false");
     }
 }
 
@@ -218,6 +422,10 @@ function mostrarCursos(cursos) {
                 const enlaceContenidos =
                     `./contenidos-curso.html?cursoId=${encodeURIComponent(curso.id)
                     }`;
+
+                const enlaceVistaPrevia =
+                    `./curso-estudiante.html?cursoId=${encodeURIComponent(curso.id)
+                    }&vista=docente`;
 
                 return `
                     <div class="col-12 col-md-6 col-lg-4">
@@ -278,6 +486,21 @@ function mostrarCursos(cursos) {
                                         Gestionar contenidos
                                     </a>
 
+                                    <a
+                                        href="${enlaceVistaPrevia}"
+                                        class="btn btn-outline-primary"
+                                    >
+                                        Vista previa como estudiante
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-ver-avance"
+                                        data-id="${escaparHTML(curso.id)}"
+                                    >
+                                        Ver avance y estadísticas
+                                    </button>
+
                                     <button
                                         type="button"
                                         class="btn ${claseBoton}
@@ -311,6 +534,20 @@ function mostrarCursos(cursos) {
                 "click",
                 cambiarEstadoCurso
             );
+        });
+
+    document
+        .querySelectorAll(".btn-ver-avance")
+        .forEach((boton) => {
+            boton.addEventListener("click", () => {
+                const curso = cursos.find(
+                    (item) => item.id === boton.dataset.id
+                );
+
+                if (curso) {
+                    mostrarAvanceCurso(curso);
+                }
+            });
         });
 }
 
@@ -465,6 +702,17 @@ formulario.addEventListener(
         const nivel =
             formulario.nivel.value;
 
+        const precio =
+            Number(formulario.precio.value);
+
+        if (!Number.isFinite(precio) || precio <= 0) {
+            mostrarMensaje(
+                "El precio debe ser un número mayor que cero.",
+                "warning"
+            );
+            return;
+        }
+
         if (
             !usuarioActual ||
             !perfilActual
@@ -481,6 +729,22 @@ formulario.addEventListener(
             formulario.imagen
                 .value
                 .trim();
+        const videoPresentacion =
+            formulario.videoPresentacion.value.trim();
+
+        const videoValido =
+            !videoPresentacion ||
+            /^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(
+                videoPresentacion
+            );
+
+        if (!videoValido) {
+            mostrarMensaje(
+                "Ingresá un enlace HTTPS válido de YouTube.",
+                "warning"
+            );
+            return;
+        }
 
         const imagenValida =
             !imagen ||
@@ -513,7 +777,9 @@ formulario.addEventListener(
                     titulo,
                     descripcion,
                     nivel,
+                    precio,
                     imagen,
+                    videoPresentacion,
 
                     docenteId:
                         usuarioActual.uid,
