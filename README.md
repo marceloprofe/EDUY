@@ -77,6 +77,10 @@ Durante el registro público, todas las cuentas se crean automáticamente con el
 
 Esta medida impide que un usuario pueda asignarse privilegios de docente o administrador desde el formulario de registro.
 
+### Edición del perfil
+
+Desde “Mi perfil”, cada usuario puede actualizar su nombre, correo electrónico y contraseña. El cambio de correo se aplica después de confirmar el enlace que Firebase envía a la nueva dirección. Para cambiar el correo o la contraseña se vuelve a confirmar la identidad: con la contraseña actual en cuentas de correo y contraseña, o con una cuenta de Google en cuentas Google. Una cuenta Google también puede vincular una contraseña. Otros proveedores pueden limitar estos cambios. El rol se administra por separado y no se modifica desde el perfil.
+
 ## 5. Roles de usuario
 
 La plataforma diferencia tres roles.
@@ -91,6 +95,7 @@ El estudiante:
 - Solo puede visualizar cursos habilitados.
 - Puede acceder a la página de adquisición.
 - Puede realizar una adquisición mediante un pago simulado.
+- En el detalle de un curso publicado, puede dejar una valoración de una a cinco estrellas y un comentario opcional de hasta 500 caracteres. Cada estudiante tiene una valoración editable por curso y no necesita haberlo adquirido.
 - No puede adquirir dos veces el mismo curso.
 - No puede acceder al panel docente ni al panel administrativo.
 
@@ -213,9 +218,9 @@ La operación es completamente simulada:
 
 Los importes utilizados actualmente según el nivel son:
 
-- Básico: `$ 1.200`.
-- Intermedio: `$ 1.800`.
-- Avanzado: `$ 2.400`.
+- Básico: `UYU 1.200`.
+- Intermedio: `UYU 1.800`.
+- Avanzado: `UYU 2.400`.
 
 Si el curso ya tiene un campo numérico `precio`, la plataforma utiliza ese valor.
 
@@ -293,7 +298,8 @@ El campo `estado` se guarda con el valor `confirmada` y `pagoSimulado` se guarda
 - `cursos/{cursoId}/evaluacion/final`: título, preguntas, respuestas correctas y nota mínima de la evaluación configurada por el docente.
 - `progresos`: contenidos completados y porcentaje de avance del estudiante.
 - `resultadosEvaluaciones`: mejor calificación, estado de aprobación, habilitación del certificado y cantidad de intentos de cada estudiante por curso.
-- `valoracionesDocentes`: puntuación y comentario del estudiante.
+- `cursos/{cursoId}/comentarios`: valoración de un curso publicado (una a cinco estrellas y comentario opcional) identificada por el UID del estudiante. El estudiante puede editar su propia valoración; no se exige una adquisición.
+- `valoracionesDocentes`: puntuación y comentario del estudiante sobre el docente del curso. Esta función es distinta de los comentarios del curso y requiere una adquisición confirmada.
 - `visitasCursos`: aperturas de cursos habilitados utilizadas en las estadísticas.
 
 ## 10. Seguridad
@@ -349,17 +355,18 @@ La pestaña Usuarios consulta `usuarios/{uid}`. El alta crea la cuenta con una i
 
 ## 12. Organización de carpetas
 
-```text
+~~~text
 EDUY/
 ├── index.html
 ├── pages/
 │   ├── acceso-denegado.html
 │   ├── adquisicion.html
-│   ├── cursos.html
-│   ├── favoritos.html
+│   ├── aula-html-css.html
 │   ├── contenidos-curso.html
 │   ├── curso-estudiante.html
+│   ├── cursos.html
 │   ├── detalle.html
+│   ├── favoritos.html
 │   ├── login.html
 │   ├── mis-adquisiciones.html
 │   ├── mis-cursos.html
@@ -370,16 +377,23 @@ EDUY/
 │   └── estilo.css
 ├── js/
 │   ├── adquisicion.js
-│   ├── favoritos.js
-│   ├── favoritos-store.js
+│   ├── aula-html-css.js
 │   ├── cloudinary-config.js
 │   ├── contenidos-curso.js
+│   ├── curso-arduino-contenidos.js
 │   ├── curso-estudiante.js
+│   ├── curso-html-css-contenidos.js
+│   ├── curso-utils.js
+│   ├── cursos-datos.js
 │   ├── cursos-firestore.js
 │   ├── detalle.js
+│   ├── estadisticas-calculos.js
+│   ├── favoritos-store.js
+│   ├── favoritos.js
 │   ├── filtros.js
 │   ├── firebase-config.js
 │   ├── footer.js
+│   ├── inicio-cursos.js
 │   ├── login.js
 │   ├── mis-adquisiciones.js
 │   ├── mis-cursos.js
@@ -388,24 +402,31 @@ EDUY/
 │   ├── perfil.js
 │   ├── registro.js
 │   └── sesion.js
+├── datos/
+│   └── cursos-iniciales.json
+├── scripts/
+│   └── importar-cursos.py
 ├── functions/
 │   ├── index.js
 │   └── package.json
 ├── docs/
 │   ├── accesibilidad.md
+│   ├── auditoria-entrega-3.md
 │   └── entrega-3-checklist.md
 ├── firebase.json
 ├── .firebaserc
-├── img/
 ├── firestore.rules
+├── img/
 └── README.md
-```
+~~~
 
 ## 13. Estado actual
 
 Actualmente se encuentran implementadas las siguientes funcionalidades:
 
 - Catálogo y detalle de cursos.
+- Comentarios y valoraciones editables de estudiantes en los cursos publicados.
+- Edición del nombre, correo y contraseña desde el perfil, con confirmación de identidad para cambios sensibles.
 - Búsqueda y filtrado por nivel.
 - Registro e inicio de sesión con Firebase.
 - Inicio de sesión con Google.
