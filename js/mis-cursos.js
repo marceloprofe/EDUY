@@ -827,13 +827,6 @@ formulario.addEventListener(
             return;
         }
 
-        if (!imagen && !archivoImagen) {
-            mostrarMensaje(
-                "Ingresá un enlace o seleccioná una imagen para el curso.",
-                "warning"
-            );
-            return;
-        }
 
         botonGuardar.disabled = true;
 
