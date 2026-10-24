@@ -179,6 +179,31 @@
             <!-- Los contenidos se cargan desde Firestore. -->
           </div>
         </section>
+
+        <section id="seccionEvaluacion" class="card shadow-sm mt-5 d-none" aria-labelledby="tituloEvaluacionFinal">
+          <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+              <div>
+                <span class="badge text-bg-warning mb-2">Evaluación final</span>
+                <h2 id="tituloEvaluacionFinal" class="h3 fw-bold mb-2">Evaluación final</h2>
+                <p class="text-body-secondary mb-0">Completá todos los contenidos, obtené más de 60 % para aprobar y superá 70 % para recibir el certificado.</p>
+              </div>
+              <span id="estadoEvaluacion" class="badge text-bg-secondary">Pendiente</span>
+            </div>
+
+            <div id="mensajeEvaluacion" class="alert alert-info" role="status" aria-live="polite">
+              Cargando evaluación...
+            </div>
+
+            <form id="formEvaluacion" class="d-grid gap-4 d-none"></form>
+
+            <div id="resultadoEvaluacion" class="d-none mt-4" role="status" aria-live="polite"></div>
+
+            <button id="verCertificado" type="button" class="btn btn-oro mt-3 d-none">
+              Ver certificado
+            </button>
+          </div>
+        </section>
       </section>
     </main>
 
@@ -190,6 +215,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script type="module" src="../js/curso-estudiante.js"></script>
+
+    <script type="module" src="../js/evaluacion-estudiante.js"></script>
 
     <script type="module" src="../js/sesion.js"></script>
   </body>

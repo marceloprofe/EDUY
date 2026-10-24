@@ -291,6 +291,74 @@
           </section>
         </div>
       </div>
+
+      <section id="panelEvaluacionDocente" class="card shadow-sm mt-4" aria-labelledby="tituloEvaluacionDocente">
+        <div class="card-body p-4">
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <div>
+              <h2 id="tituloEvaluacionDocente" class="h4 fw-bold mb-2">Evaluación final</h2>
+              <p class="text-body-secondary mb-0">
+                Prepará preguntas de verdadero o falso y opción múltiple. El estudiante aprueba con más de 60 %.
+              </p>
+            </div>
+            <span id="cantidadPreguntasEvaluacion" class="badge text-bg-secondary">0 preguntas</span>
+          </div>
+
+          <div id="mensajeEvaluacionDocente" class="d-none" role="alert" aria-live="polite"></div>
+
+          <div id="editorEvaluacionDocente">
+            <div class="mb-4">
+              <label for="tituloEvaluacion" class="form-label">Título de la evaluación</label>
+              <input id="tituloEvaluacion" class="form-control" type="text" maxlength="120" value="Evaluación final" />
+            </div>
+
+            <form id="formPreguntaEvaluacion" class="border rounded p-3 mb-4">
+              <h3 class="h5 fw-bold mb-3">Agregar pregunta</h3>
+
+              <div class="mb-3">
+                <label for="enunciadoPregunta" class="form-label">Enunciado</label>
+                <textarea id="enunciadoPregunta" class="form-control" rows="3" maxlength="500" required></textarea>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-12 col-md-5">
+                  <label for="tipoPregunta" class="form-label">Tipo</label>
+                  <select id="tipoPregunta" class="form-select" required>
+                    <option value="verdadero_falso">Verdadero o falso</option>
+                    <option value="multiple">Opción múltiple</option>
+                  </select>
+                </div>
+
+                <div id="grupoRespuestaVerdaderoFalso" class="col-12 col-md-7">
+                  <label for="respuestaVerdaderoFalso" class="form-label">Respuesta correcta</label>
+                  <select id="respuestaVerdaderoFalso" class="form-select">
+                    <option value="0">Verdadero</option>
+                    <option value="1">Falso</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="grupoOpcionesMultiples" class="d-none mt-3">
+                <label for="opcionesPregunta" class="form-label">Opciones, una por línea</label>
+                <textarea id="opcionesPregunta" class="form-control" rows="4" maxlength="1000" placeholder="Primera opción&#10;Segunda opción&#10;Tercera opción"></textarea>
+                <div class="form-text">Ingresá entre 2 y 6 opciones.</div>
+
+                <label for="respuestaMultiple" class="form-label mt-3">Número de la respuesta correcta</label>
+                <input id="respuestaMultiple" class="form-control" type="number" min="1" max="6" value="1" />
+              </div>
+
+              <button type="submit" class="btn btn-outline-primary mt-3">Agregar pregunta</button>
+            </form>
+
+            <div id="listaPreguntasEvaluacion" class="d-grid gap-3 mb-4" aria-live="polite"></div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button id="guardarEvaluacion" type="button" class="btn btn-oro">Guardar evaluación</button>
+              <button id="eliminarEvaluacion" type="button" class="btn btn-outline-danger d-none">Eliminar evaluación</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Pie de página -->
@@ -303,5 +371,7 @@
     <script type="module" src="../js/sesion.js"></script>
 
     <script type="module" src="../js/contenidos-curso.js"></script>
+
+    <script type="module" src="../js/evaluacion-docente.js"></script>
   </body>
 </html>
