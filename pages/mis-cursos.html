@@ -149,9 +149,16 @@
               </div>
 
               <div class="mb-3">
-                <label for="imagen" class="form-label">Imagen del curso</label>
-                <input type="text" class="form-control" id="imagen" name="imagen" maxlength="2048" required aria-describedby="ayudaImagen" placeholder="https://… o img/cursos/imagen.jpg" />
-                <div id="ayudaImagen" class="form-text">Ingresá el enlace HTTPS de la imagen o su ruta dentro del sitio, por ejemplo img/cursos/curso-python-eduy.jpg.</div>
+                <label for="imagen" class="form-label">Imagen del curso mediante enlace</label>
+                <input type="text" class="form-control" id="imagen" name="imagen" maxlength="2048" aria-describedby="ayudaImagen" placeholder="https://… o img/cursos/imagen.jpg" />
+                <div id="ayudaImagen" class="form-text">Ingresá un enlace HTTPS o una ruta del sitio. También podés elegir un archivo debajo.</div>
+              </div>
+              <div class="mb-3">
+                <label for="archivoImagen" class="form-label">O subir imagen desde este dispositivo</label>
+                <input type="file" class="form-control" id="archivoImagen" name="archivoImagen" accept="image/jpeg,image/png,image/webp" aria-describedby="ayudaArchivoImagen" />
+                <div id="ayudaArchivoImagen" class="form-text">JPG, PNG o WebP, hasta 5 MB. Si seleccionás un archivo, tendrá prioridad sobre el enlace.</div>
+                <div id="estadoImagen" class="form-text" role="status" aria-live="polite"></div>
+                <img id="vistaPreviaImagen" class="img-fluid rounded border mt-3 d-none" style="max-height: 220px" alt="Vista previa de la imagen del curso" />
               </div>
               <div class="mb-3">
                 <label for="videoPresentacion" class="form-label">Video de presentación (opcional)</label>

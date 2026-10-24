@@ -1,4 +1,4 @@
-EDUY – Plataforma Educativa
+# EDUY – Plataforma Educativa
 
 EDUY es el proyecto integrador desarrollado para Taller Integrador de Sistemas.
 
@@ -155,7 +155,24 @@ Cuando el docente habilita el curso, este aparece en el catálogo.
 
 Si el docente vuelve a convertirlo en borrador, deja de mostrarse públicamente, aunque permanece guardado en Firestore.
 
-Los docentes también pueden organizar contenidos de tipo video o PDF. Los videos pueden incorporarse mediante enlaces de YouTube o Google Drive, o cargarse a Cloudinary. El docente propietario puede previsualizar el curso con la experiencia del estudiante antes de publicarlo.
+Los docentes también pueden organizar contenidos de tipo video o PDF. Los videos pueden incorporarse mediante enlaces de YouTube o Google Drive, o cargarse a Cloudinary. Al crear un curso, tanto docentes como administradores pueden indicar una imagen mediante un enlace HTTPS o seleccionar un archivo JPG, PNG o WebP de hasta 5 MB; el archivo se carga a Cloudinary y su URL segura se guarda en Firestore. El docente propietario puede previsualizar el curso con la experiencia del estudiante antes de publicarlo.
+
+### Evaluación final y certificado
+
+Cada docente puede crear una evaluación final para sus propios cursos desde la pantalla de gestión de contenidos. La evaluación admite:
+
+- Preguntas de verdadero o falso.
+- Preguntas de opción múltiple, con entre 2 y 6 respuestas.
+- Una respuesta correcta por pregunta.
+- Edición y eliminación de la evaluación antes de su aplicación.
+
+El estudiante visualiza la prueba dentro del curso, pero solo puede responderla después de completar el 100 % de los contenidos. La corrección es automática y se registra cada intento en Firestore. Para aprobar debe obtener **más de 60 %**; una calificación exactamente igual a 60 % no alcanza el mínimo.
+
+La plataforma conserva el mejor resultado alcanzado. Aprobar y obtener el certificado son condiciones diferentes: el curso se aprueba con más de 60 %, mientras que el certificado se habilita únicamente al superar el 70 %. El certificado incluye el nombre del estudiante, el curso, la calificación y la fecha, y se abre en una vista preparada para imprimir o guardar como PDF desde el navegador.
+
+Las vistas previas de docentes y administradores permiten revisar y responder la evaluación sin crear resultados ni alterar el progreso real.
+
+El funcionamiento es el mismo para todos los cursos porque la evaluación y sus resultados se relacionan mediante `cursoId` y se muestran en la vista común del estudiante. Para que un docente pueda configurarla, el curso debe tener asignado su `docenteId`; por eso los cursos institucionales deben adjudicarse primero a un docente desde la administración.
 
 ## 7. Búsqueda y filtros de cursos
 
@@ -222,7 +239,7 @@ El proyecto utiliza Firebase para:
 - Administración de permisos.
 - Almacenamiento y publicación de cursos.
 - Persistencia de adquisiciones.
-- Contenidos, progreso y valoraciones.
+- Contenidos, progreso, evaluaciones, resultados y valoraciones.
 - Estadísticas administrativas.
 
 ### Colección `usuarios`
@@ -278,7 +295,9 @@ El campo `estado` se guarda con el valor `confirmada` y `pagoSimulado` se guarda
 ### Otras colecciones
 
 - `cursos/{cursoId}/contenidos`: videos y documentos administrados por el docente propietario.
+- `cursos/{cursoId}/evaluacion/final`: título, preguntas, respuestas correctas y nota mínima de la evaluación configurada por el docente.
 - `progresos`: contenidos completados y porcentaje de avance del estudiante.
+- `resultadosEvaluaciones`: mejor calificación, estado de aprobación, habilitación del certificado y cantidad de intentos de cada estudiante por curso.
 - `cursos/{cursoId}/comentarios`: valoración de un curso publicado (una a cinco estrellas y comentario opcional) identificada por el UID del estudiante. El estudiante puede editar su propia valoración; no se exige una adquisición.
 - `valoracionesDocentes`: puntuación y comentario del estudiante sobre el docente del curso. Esta función es distinta de los comentarios del curso y requiere una adquisición confirmada.
 - `visitasCursos`: aperturas de cursos habilitados utilizadas en las estadísticas.
@@ -295,6 +314,10 @@ Las reglas de Firestore controlan que:
 - El registro público cree perfiles únicamente con el rol estudiante.
 - Solo los docentes puedan crear y administrar cursos.
 - Cada docente pueda administrar solamente sus propios cursos.
+- Solo el docente propietario pueda crear, modificar o eliminar la evaluación de su curso.
+- Solo quienes adquirieron un curso puedan consultar y responder su evaluación.
+- Cada estudiante pueda guardar únicamente sus propios resultados de evaluación y solo después de alcanzar el 100 % de progreso.
+- Los docentes puedan consultar los resultados asociados a sus cursos y los administradores puedan auditarlos.
 - Los cursos nuevos se creen como borradores.
 - Los estudiantes y visitantes solo puedan consultar cursos habilitados.
 - Solo un estudiante autenticado pueda registrar una adquisición.
@@ -323,7 +346,7 @@ La pestaña Usuarios consulta `usuarios/{uid}`. El alta crea la cuenta con una i
 - Firebase Authentication.
 - Cloud Firestore.
 - Cloud Functions.
-- Cloudinary para la carga opcional de videos.
+- Cloudinary para la carga opcional de videos e imágenes de portada.
 - Google Drive y YouTube para contenidos externos.
 - Git.
 - GitHub.
@@ -431,6 +454,9 @@ Actualmente se encuentran implementadas las siguientes funcionalidades:
 - Estadísticas administrativas.
 - Gestión de contenidos con YouTube, Google Drive y Cloudinary.
 - Vista previa de cursos para docentes y administradores.
+- Evaluaciones finales de verdadero o falso y opción múltiple cargadas por el docente.
+- Corrección automática, aprobación con más de 60 % y conservación de la mejor nota.
+- Certificado imprimible para estudiantes que superan el 70 % en la evaluación final.
 
 ## 14. Funcionalidades pendientes
 
@@ -476,7 +502,7 @@ El archivo `.firebaserc` también define `eduy-d6421` como proyecto predetermina
 
 El inicio, el catálogo, el detalle y la adquisición consultan la colección `cursos` de `eduy-d6421`. Las lecturas de cursos usan `getDocsFromServer` / `getDocFromServer`: un error de conexión se muestra al usuario y no activa un catálogo local. Los enlaces antiguos `detalle.html?id=...` siguen funcionando mediante el ID del documento.
 
-Cada curso puede guardar `imagen` (string): URL HTTPS o ruta relativa a la raíz del sitio, por ejemplo `img/cursos/curso-python-eduy.jpg`. El formulario Mis cursos incluye este campo. La imagen se presenta en inicio, catálogo, detalle y Mis cursos; si falta o falla, se usa el logo de EDUY. Firestore almacena la referencia de la imagen; los archivos locales continúan en `img/`.
+Cada curso puede guardar `imagen` (string): URL HTTPS o ruta relativa a la raíz del sitio, por ejemplo `img/cursos/curso-python-eduy.jpg`. Los formularios del docente y del administrador también aceptan un archivo JPG, PNG o WebP de hasta 5 MB, muestran una vista previa y lo cargan a Cloudinary antes de guardar el curso. La imagen se presenta en inicio, catálogo, detalle y Mis cursos; si falta o falla, se usa el logo de EDUY. Firestore almacena únicamente la URL de la imagen; los archivos locales del repositorio continúan en `img/`.
 
 Otros campos del catálogo: `titulo`, `descripcion`, `nivel` (basico/intermedio/avanzado), `duracion`, `precio`, `habilitado`, `estado`, `docenteNombre`, `orden`, `destacado` y `modulos` (array de mapas con titulo/descripcion). Se conserva `docenteId` en los cursos creados por docentes. Los 15 cursos institucionales importados figuran como Equipo EDUY y se administran desde la consola, sin asignarlos a un docente individual.
 
@@ -489,4 +515,3 @@ python3 importar-cursos.py cursos-iniciales.json
 ```
 
 El script crea únicamente IDs ausentes y agrega la imagen faltante a documentos existentes sin cambiar sus otros campos. Utiliza una escritura atómica con precondiciones; si un documento cambió durante la importación, falla para evitar sobrescribirlo. Al finalizar comprueba los 15 cursos con imagen y módulos. No cambia las reglas de seguridad.
-

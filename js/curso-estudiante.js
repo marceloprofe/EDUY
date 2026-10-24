@@ -237,6 +237,13 @@ function actualizarProgreso() {
     const total = contenidosCurso.length;
     const porcentaje = calcularPorcentaje();
 
+    document.dispatchEvent(
+        new CustomEvent(
+            "eduy:progreso-actualizado",
+            { detail: { porcentaje } }
+        )
+    );
+
     textoProgreso.textContent =
         `${porcentaje}%`;
 
