@@ -473,6 +473,70 @@ service cloud.firestore {
         allow delete: if esDocentePropietario();
       }
 
+      /*
+      |--------------------------------------------------------------------------
+      | EVALUACIÓN FINAL DEL CURSO
+      |--------------------------------------------------------------------------
+      */
+
+      match /evaluacion/{evaluacionId} {
+
+        function esDocentePropietarioEvaluacion() {
+          return esDocenteDelCurso(cursoId);
+        }
+
+        function evaluacionValida() {
+          return evaluacionId == "final"
+            && request.resource.data.keys().hasAll([
+              "titulo",
+              "preguntas",
+              "notaAprobacion",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.keys().hasOnly([
+              "titulo",
+              "preguntas",
+              "notaAprobacion",
+              "fechaCreacion",
+              "fechaActualizacion"
+            ])
+            && request.resource.data.titulo is string
+            && request.resource.data.titulo.size() > 0
+            && request.resource.data.titulo.size() <= 120
+            && request.resource.data.preguntas is list
+            && request.resource.data.preguntas.size() > 0
+            && request.resource.data.preguntas.size() <= 50
+            && request.resource.data.notaAprobacion == 60
+            && request.resource.data.fechaCreacion is timestamp
+            && request.resource.data.fechaActualizacion is timestamp;
+        }
+
+        allow read: if esAdmin()
+                    || esDocentePropietarioEvaluacion()
+                    || tieneAdquisicionConfirmada(cursoId);
+
+        allow create: if esDocentePropietarioEvaluacion()
+                      && evaluacionValida()
+                      && request.resource.data.fechaCreacion == request.time
+                      && request.resource.data.fechaActualizacion == request.time;
+
+        allow update: if esDocentePropietarioEvaluacion()
+                      && evaluacionValida()
+                      && request.resource.data.fechaCreacion == resource.data.fechaCreacion
+                      && request.resource.data.fechaActualizacion == request.time
+                      && request.resource.data
+                         .diff(resource.data)
+                         .affectedKeys()
+                         .hasOnly([
+                           "titulo",
+                           "preguntas",
+                           "fechaActualizacion"
+                         ]);
+
+        allow delete: if esDocentePropietarioEvaluacion();
+      }
+
       // Los comentarios identificados por UID permiten una valoración por usuario y curso.
       match /comentarios/{usuarioId} {
         function cursoPublicado() {
@@ -934,6 +998,140 @@ match /progresos/{progresoId} {
                    ])
                 && request.resource.data.fechaActualizacion
                    == request.time;
+
+  allow delete: if esAdmin();
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESULTADOS DE LAS EVALUACIONES
+|--------------------------------------------------------------------------
+*/
+
+match /resultadosEvaluaciones/{resultadoId} {
+
+  function cursoFinalizado(cursoId) {
+    return exists(
+      /databases/$(database)/documents/progresos/$(request.auth.uid + "_" + cursoId)
+    )
+    && get(
+      /databases/$(database)/documents/progresos/$(request.auth.uid + "_" + cursoId)
+    ).data.porcentaje == 100
+    && exists(
+      /databases/$(database)/documents/cursos/$(cursoId)/evaluacion/final
+    );
+  }
+
+  function resultadoValido() {
+    return request.resource.data.keys().hasAll([
+        "usuarioId",
+        "cursoId",
+        "correctas",
+        "total",
+        "porcentaje",
+        "mejorPorcentaje",
+        "aprobado",
+        "certificadoHabilitado",
+        "intentos",
+        "fechaCreacion",
+        "fechaActualizacion"
+      ])
+      && request.resource.data.keys().hasOnly([
+        "usuarioId",
+        "cursoId",
+        "correctas",
+        "total",
+        "porcentaje",
+        "mejorPorcentaje",
+        "aprobado",
+        "certificadoHabilitado",
+        "intentos",
+        "fechaCreacion",
+        "fechaActualizacion"
+      ])
+      && request.resource.data.usuarioId is string
+      && request.resource.data.cursoId is string
+      && request.resource.data.correctas is int
+      && request.resource.data.correctas >= 0
+      && request.resource.data.total is int
+      && request.resource.data.total > 0
+      && request.resource.data.correctas <= request.resource.data.total
+      && request.resource.data.porcentaje is int
+      && request.resource.data.porcentaje >= 0
+      && request.resource.data.porcentaje <= 100
+      && request.resource.data.mejorPorcentaje is int
+      && request.resource.data.mejorPorcentaje >= 0
+      && request.resource.data.mejorPorcentaje <= 100
+      && request.resource.data.porcentaje
+         == request.resource.data.mejorPorcentaje
+      // El porcentaje debe ser el redondeo real de correctas / total.
+      && (2 * request.resource.data.porcentaje - 1)
+         * request.resource.data.total
+         <= 200 * request.resource.data.correctas
+      && 200 * request.resource.data.correctas
+         < (2 * request.resource.data.porcentaje + 1)
+           * request.resource.data.total
+      && request.resource.data.aprobado is bool
+      && request.resource.data.aprobado
+         == (request.resource.data.mejorPorcentaje > 60)
+      && request.resource.data.certificadoHabilitado is bool
+      && request.resource.data.certificadoHabilitado
+         == (request.resource.data.mejorPorcentaje > 70)
+      && request.resource.data.intentos is int
+      && request.resource.data.intentos > 0
+      && request.resource.data.fechaCreacion is timestamp
+      && request.resource.data.fechaActualizacion is timestamp;
+  }
+
+  allow get: if esAdmin()
+             || (
+               esEstudiante()
+               && resultadoId.matches(request.auth.uid + "_.*")
+             )
+             || esDocenteDelCurso(resource.data.cursoId);
+
+  allow list: if esAdmin()
+              || (
+                esEstudiante()
+                && resource.data.usuarioId == request.auth.uid
+              )
+              || esDocenteDelCurso(resource.data.cursoId);
+
+  allow create: if esEstudiante()
+                && resultadoValido()
+                && request.resource.data.usuarioId == request.auth.uid
+                && resultadoId == request.auth.uid + "_" + request.resource.data.cursoId
+                && tieneAdquisicionConfirmada(request.resource.data.cursoId)
+                && cursoFinalizado(request.resource.data.cursoId)
+                && request.resource.data.intentos == 1
+                && request.resource.data.fechaCreacion == request.time
+                && request.resource.data.fechaActualizacion == request.time;
+
+  allow update: if esEstudiante()
+                && resource.data.usuarioId == request.auth.uid
+                && resultadoId == request.auth.uid + "_" + resource.data.cursoId
+                && request.resource.data.usuarioId == resource.data.usuarioId
+                && request.resource.data.cursoId == resource.data.cursoId
+                && resultadoValido()
+                && tieneAdquisicionConfirmada(resource.data.cursoId)
+                && cursoFinalizado(resource.data.cursoId)
+                && request.resource.data.intentos == resource.data.intentos + 1
+                && request.resource.data.mejorPorcentaje >= resource.data.mejorPorcentaje
+                && request.resource.data.fechaCreacion == resource.data.fechaCreacion
+                && request.resource.data.fechaActualizacion == request.time
+                && request.resource.data
+                   .diff(resource.data)
+                   .affectedKeys()
+                   .hasOnly([
+                     "correctas",
+                     "total",
+                     "porcentaje",
+                     "mejorPorcentaje",
+                     "aprobado",
+                     "certificadoHabilitado",
+                     "intentos",
+                     "fechaActualizacion"
+                   ]);
 
   allow delete: if esAdmin();
 }

@@ -993,9 +993,17 @@
                             <label for="cursoAdminDuracion" class="form-label">Duración</label>
                             <input type="text" id="cursoAdminDuracion" class="form-control" maxlength="80" placeholder="Ej.: 18 horas" />
                         </div>
-                        <div class="col-md-6">
-                            <label for="cursoAdminImagen" class="form-label">Imagen (URL HTTPS o ruta img/...)</label>
-                            <input type="text" id="cursoAdminImagen" class="form-control" maxlength="500" />
+                        <div class="col-12">
+                            <label for="cursoAdminImagen" class="form-label">Imagen mediante enlace</label>
+                            <input type="text" id="cursoAdminImagen" class="form-control" maxlength="2048" placeholder="https://… o img/cursos/imagen.jpg" />
+                            <div class="form-text">Ingresá un enlace HTTPS o una ruta del sitio. También podés elegir un archivo debajo.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="cursoAdminArchivoImagen" class="form-label">O subir imagen desde este dispositivo</label>
+                            <input type="file" id="cursoAdminArchivoImagen" class="form-control" accept="image/jpeg,image/png,image/webp" />
+                            <div class="form-text">JPG, PNG o WebP, hasta 5 MB. Si seleccionás un archivo, tendrá prioridad sobre el enlace.</div>
+                            <div id="cursoAdminEstadoImagen" class="form-text" role="status" aria-live="polite"></div>
+                            <img id="cursoAdminVistaPreviaImagen" class="img-fluid rounded border mt-3 d-none" style="max-height: 220px" alt="Vista previa de la imagen del curso" />
                         </div>
                         <div class="col-12">
                             <label for="cursoAdminVideoPresentacion" class="form-label">Video de presentación (opcional)</label>

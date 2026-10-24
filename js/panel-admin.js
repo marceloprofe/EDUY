@@ -31,6 +31,13 @@ import {
     httpsCallable
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-functions.js";
 
+import {
+    subirImagenCurso,
+    validarArchivoImagen
+} from "./imagen-curso-upload.js";
+
+import { resolverImagen } from "./curso-utils.js";
+
 const contenidoAdmin = document.querySelector("#contenidoAdmin");
 const listaUsuarios = document.querySelector("#listaUsuarios");
 const estadoUsuarios = document.querySelector("#estadoUsuarios");
@@ -67,6 +74,9 @@ const campoCursoDocente = document.querySelector("#cursoAdminDocente");
 const campoCursoPrecio = document.querySelector("#cursoAdminPrecio");
 const campoCursoDuracion = document.querySelector("#cursoAdminDuracion");
 const campoCursoImagen = document.querySelector("#cursoAdminImagen");
+const campoCursoArchivoImagen = document.querySelector("#cursoAdminArchivoImagen");
+const estadoCursoImagen = document.querySelector("#cursoAdminEstadoImagen");
+const vistaPreviaCursoImagen = document.querySelector("#cursoAdminVistaPreviaImagen");
 const campoCursoVideoPresentacion = document.querySelector("#cursoAdminVideoPresentacion");
 const campoCursoEstado = document.querySelector("#cursoAdminEstado");
 const listaAdquisicionesAdmin = document.querySelector("#listaAdquisicionesAdmin");
@@ -102,6 +112,52 @@ function mostrarMensaje(texto, tipo) {
     mensajeAdmin.textContent = texto;
     mensajeAdmin.className = `alert alert-${tipo}`;
 }
+
+let urlPreviaCursoLocal = "";
+
+function mostrarVistaPreviaCurso(origen) {
+    if (urlPreviaCursoLocal) {
+        URL.revokeObjectURL(urlPreviaCursoLocal);
+        urlPreviaCursoLocal = "";
+    }
+
+    if (!origen) {
+        vistaPreviaCursoImagen.removeAttribute("src");
+        vistaPreviaCursoImagen.classList.add("d-none");
+        return;
+    }
+
+    vistaPreviaCursoImagen.src = resolverImagen(origen);
+    vistaPreviaCursoImagen.classList.remove("d-none");
+}
+
+campoCursoArchivoImagen.addEventListener("change", () => {
+    const archivo = campoCursoArchivoImagen.files[0];
+
+    if (!archivo) {
+        estadoCursoImagen.textContent = "";
+        mostrarVistaPreviaCurso(campoCursoImagen.value.trim());
+        return;
+    }
+
+    if (!validarArchivoImagen(archivo)) {
+        campoCursoArchivoImagen.value = "";
+        estadoCursoImagen.textContent = "La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB.";
+        mostrarVistaPreviaCurso(campoCursoImagen.value.trim());
+        return;
+    }
+
+    urlPreviaCursoLocal = URL.createObjectURL(archivo);
+    vistaPreviaCursoImagen.src = urlPreviaCursoLocal;
+    vistaPreviaCursoImagen.classList.remove("d-none");
+    estadoCursoImagen.textContent = "Imagen lista para subir al guardar el curso.";
+});
+
+campoCursoImagen.addEventListener("change", () => {
+    if (!campoCursoArchivoImagen.files.length) {
+        mostrarVistaPreviaCurso(campoCursoImagen.value.trim());
+    }
+});
 
 function escaparHTML(texto = "") {
     const elemento = document.createElement("div");
@@ -480,6 +536,8 @@ function abrirAltaCurso() {
     campoCursoNivel.value = "basico";
     campoCursoPrecio.value = preciosPorNivel.basico;
     campoCursoEstado.value = "borrador";
+    estadoCursoImagen.textContent = "";
+    mostrarVistaPreviaCurso("");
     tituloModalCurso.textContent = "Crear curso";
     btnGuardarCursoAdmin.textContent = "Crear curso";
     modalCursoAdmin.show();
@@ -501,6 +559,8 @@ function abrirEdicionCurso(evento) {
     campoCursoPrecio.value = curso.precio ?? preciosPorNivel[curso.nivel] ?? 1200;
     campoCursoDuracion.value = curso.duracion || "";
     campoCursoImagen.value = curso.imagen || "";
+    estadoCursoImagen.textContent = "";
+    mostrarVistaPreviaCurso(curso.imagen || "");
     campoCursoVideoPresentacion.value = curso.videoPresentacion || "";
     campoCursoEstado.value = curso.habilitado === true ? "habilitado" : "borrador";
     tituloModalCurso.textContent = "Modificar curso";
@@ -564,7 +624,8 @@ async function guardarCursoAdmin(evento) {
     const nivel = campoCursoNivel.value;
     const precio = Number(campoCursoPrecio.value);
     const duracion = campoCursoDuracion.value.trim();
-    const imagen = campoCursoImagen.value.trim();
+    let imagen = campoCursoImagen.value.trim();
+    const archivoImagen = campoCursoArchivoImagen.files[0];
     const videoPresentacion = campoCursoVideoPresentacion.value.trim();
     if (
         videoPresentacion &&
@@ -584,6 +645,10 @@ async function guardarCursoAdmin(evento) {
         mostrarMensaje("Ingresá una URL HTTPS o una ruta que empiece por img/.", "warning");
         return;
     }
+    if (archivoImagen && !validarArchivoImagen(archivoImagen)) {
+        mostrarMensaje("La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB.", "warning");
+        return;
+    }
     if (!Number.isFinite(precio) || precio <= 0) {
         mostrarMensaje("El precio debe ser un número mayor que cero.", "warning");
         return;
@@ -591,21 +656,34 @@ async function guardarCursoAdmin(evento) {
 
     btnGuardarCursoAdmin.disabled = true;
     btnGuardarCursoAdmin.textContent = "Guardando...";
-    const datos = {
-        titulo,
-        descripcion,
-        nivel,
-        imagen,
-        videoPresentacion,
-        duracion,
-        precio,
-        habilitado,
-        estado: habilitado ? "habilitado" : "borrador",
-        modulos,
-        fechaActualizacion: serverTimestamp()
-    };
 
     try {
+        if (archivoImagen) {
+            btnGuardarCursoAdmin.textContent = "Subiendo imagen...";
+            imagen = await subirImagenCurso(archivoImagen, (porcentaje) => {
+                estadoCursoImagen.textContent = `Subiendo imagen: ${porcentaje} %`;
+            });
+            campoCursoImagen.value = imagen;
+            campoCursoArchivoImagen.value = "";
+            mostrarVistaPreviaCurso(imagen);
+            estadoCursoImagen.textContent = "Imagen subida correctamente.";
+            btnGuardarCursoAdmin.textContent = "Guardando...";
+        }
+
+        const datos = {
+            titulo,
+            descripcion,
+            nivel,
+            imagen,
+            videoPresentacion,
+            duracion,
+            precio,
+            habilitado,
+            estado: habilitado ? "habilitado" : "borrador",
+            modulos,
+            fechaActualizacion: serverTimestamp()
+        };
+
         let cursoId = campoCursoId.value;
         if (modoFormularioCurso === "crear") {
             const referencia = await addDoc(collection(db, "cursos"), {
@@ -648,7 +726,11 @@ async function guardarCursoAdmin(evento) {
         console.error("No fue posible guardar el curso.", error);
         mostrarMensaje(error.code === "permission-denied"
             ? "Firestore rechazó el cambio. Publicá las reglas de cursos para administradores y volvé a intentar."
-            : "No fue posible guardar el curso. El modal sigue abierto para que puedas corregir o reintentar.", "danger");
+            : error.message === "cloudinary-no-configurado"
+                ? "Cloudinary no está configurado. Usá un enlace HTTPS para la imagen."
+                : error.message === "imagen-no-valida"
+                    ? "La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB."
+                    : "No fue posible subir la imagen o guardar el curso. El modal sigue abierto para que puedas corregir o reintentar.", "danger");
     } finally {
         btnGuardarCursoAdmin.disabled = false;
         btnGuardarCursoAdmin.textContent = modoFormularioCurso === "crear" ? "Crear curso" : "Guardar cambios";

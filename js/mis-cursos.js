@@ -4,6 +4,11 @@ import {
 } from "./curso-utils.js";
 
 import {
+    subirImagenCurso,
+    validarArchivoImagen
+} from "./imagen-curso-upload.js";
+
+import {
     auth,
     db
 } from "./firebase-config.js";
@@ -40,6 +45,11 @@ const listaCursos =
 const mensajeCurso =
     document.querySelector("#mensajeCurso");
 
+const campoImagen = document.querySelector("#imagen");
+const campoArchivoImagen = document.querySelector("#archivoImagen");
+const estadoImagen = document.querySelector("#estadoImagen");
+const vistaPreviaImagen = document.querySelector("#vistaPreviaImagen");
+
 const elementoModalAvance =
     document.querySelector("#modalAvanceCurso");
 
@@ -74,6 +84,52 @@ function mostrarMensaje(texto, tipo) {
     mensajeCurso.className =
         `alert alert-${tipo}`;
 }
+
+let urlPreviaLocal = "";
+
+function mostrarVistaPreviaImagen(origen) {
+    if (urlPreviaLocal) {
+        URL.revokeObjectURL(urlPreviaLocal);
+        urlPreviaLocal = "";
+    }
+
+    if (!origen) {
+        vistaPreviaImagen.removeAttribute("src");
+        vistaPreviaImagen.classList.add("d-none");
+        return;
+    }
+
+    vistaPreviaImagen.src = resolverImagen(origen);
+    vistaPreviaImagen.classList.remove("d-none");
+}
+
+campoArchivoImagen.addEventListener("change", () => {
+    const archivo = campoArchivoImagen.files[0];
+
+    if (!archivo) {
+        estadoImagen.textContent = "";
+        mostrarVistaPreviaImagen(campoImagen.value.trim());
+        return;
+    }
+
+    if (!validarArchivoImagen(archivo)) {
+        campoArchivoImagen.value = "";
+        estadoImagen.textContent = "La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB.";
+        mostrarVistaPreviaImagen(campoImagen.value.trim());
+        return;
+    }
+
+    urlPreviaLocal = URL.createObjectURL(archivo);
+    vistaPreviaImagen.src = urlPreviaLocal;
+    vistaPreviaImagen.classList.remove("d-none");
+    estadoImagen.textContent = "Imagen lista para subir al guardar el curso.";
+});
+
+campoImagen.addEventListener("change", () => {
+    if (!campoArchivoImagen.files.length) {
+        mostrarVistaPreviaImagen(campoImagen.value.trim());
+    }
+});
 
 function escaparHTML(texto) {
     const elemento =
@@ -725,10 +781,11 @@ formulario.addEventListener(
             return;
         }
 
-        const imagen =
+        let imagen =
             formulario.imagen
                 .value
                 .trim();
+        const archivoImagen = campoArchivoImagen.files[0];
         const videoPresentacion =
             formulario.videoPresentacion.value.trim();
 
@@ -762,12 +819,40 @@ formulario.addEventListener(
             return;
         }
 
+        if (archivoImagen && !validarArchivoImagen(archivoImagen)) {
+            mostrarMensaje(
+                "La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB.",
+                "warning"
+            );
+            return;
+        }
+
+        if (!imagen && !archivoImagen) {
+            mostrarMensaje(
+                "Ingresá un enlace o seleccioná una imagen para el curso.",
+                "warning"
+            );
+            return;
+        }
+
         botonGuardar.disabled = true;
 
         botonGuardar.textContent =
             "Guardando...";
 
         try {
+            if (archivoImagen) {
+                botonGuardar.textContent = "Subiendo imagen...";
+                imagen = await subirImagenCurso(archivoImagen, (porcentaje) => {
+                    estadoImagen.textContent = `Subiendo imagen: ${porcentaje} %`;
+                });
+                campoImagen.value = imagen;
+                campoArchivoImagen.value = "";
+                mostrarVistaPreviaImagen(imagen);
+                estadoImagen.textContent = "Imagen subida correctamente.";
+                botonGuardar.textContent = "Guardando...";
+            }
+
             await addDoc(
                 collection(
                     db,
@@ -800,6 +885,8 @@ formulario.addEventListener(
             );
 
             formulario.reset();
+            estadoImagen.textContent = "";
+            mostrarVistaPreviaImagen("");
 
             mostrarMensaje(
                 "Curso guardado como borrador.",
@@ -811,7 +898,11 @@ formulario.addEventListener(
             console.error(error);
 
             mostrarMensaje(
-                "No fue posible guardar el curso.",
+                error.message === "cloudinary-no-configurado"
+                    ? "Cloudinary no está configurado. Usá un enlace HTTPS para la imagen."
+                    : error.message === "imagen-no-valida"
+                        ? "La imagen debe ser JPG, PNG o WebP y pesar hasta 5 MB."
+                        : "No fue posible subir la imagen o guardar el curso.",
                 "danger"
             );
         } finally {
