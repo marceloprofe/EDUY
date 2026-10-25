@@ -60,7 +60,20 @@ async function obtenerResumenValoraciones(docenteId) {
   );
   const resultado = await getDocsFromServer(consultaValoraciones);
 
-  const valoraciones = resultado.docs.map((documento) => documento.data());
+  const valoraciones = resultado.docs
+    .map((documento) => ({
+      id: documento.id,
+      ...documento.data()
+    }))
+    .sort((a, b) => {
+      const fechaA = a.fechaActualizacion?.toMillis?.()
+        || a.fechaCreacion?.toMillis?.()
+        || 0;
+      const fechaB = b.fechaActualizacion?.toMillis?.()
+        || b.fechaCreacion?.toMillis?.()
+        || 0;
+      return fechaB - fechaA;
+    });
   const cantidadValoraciones = valoraciones.length;
   const sumaEstrellas = valoraciones.reduce(
     (suma, valoracion) => suma + Number(valoracion.estrellas || 0),
@@ -71,22 +84,46 @@ async function obtenerResumenValoraciones(docenteId) {
     cantidad: cantidadValoraciones,
     promedio: cantidadValoraciones
       ? sumaEstrellas / cantidadValoraciones
-      : 0
+      : 0,
+    valoraciones
   };
 }
 
 function actualizarResumenEnPantalla(resumen) {
   const elementoResumen = document.querySelector("#resumenValoracionesDocente");
+  const listaValoraciones = document.querySelector("#listaValoracionesDocente");
   if (!elementoResumen) return;
 
   if (resumen.cantidad === 0) {
     elementoResumen.textContent = "Todavía no hay valoraciones para este docente.";
+    if (listaValoraciones) listaValoraciones.textContent = "";
     return;
   }
 
   elementoResumen.textContent =
     `${resumen.promedio.toFixed(1)} de 5 estrellas · ` +
     `${resumen.cantidad} ${resumen.cantidad === 1 ? "valoración" : "valoraciones"}`;
+
+  if (!listaValoraciones) return;
+
+  listaValoraciones.innerHTML = resumen.valoraciones.map((valoracion) => {
+    const estrellas = Math.max(1, Math.min(5, Number(valoracion.estrellas) || 1));
+    const comentario = String(valoracion.comentario || "").trim();
+    const fecha = formatoFechaComentario(
+      valoracion.fechaActualizacion || valoracion.fechaCreacion
+    );
+
+    return `
+      <article class="border-top pt-2 mt-2">
+        <p class="text-warning mb-1" aria-label="${estrellas} de 5 estrellas">
+          ${estrellasComentario(estrellas)}
+        </p>
+        ${comentario
+          ? `<p class="small mb-1">${escaparHTML(comentario)}</p>`
+          : '<p class="small text-body-secondary mb-1">Sin comentario.</p>'}
+        <p class="small text-body-secondary mb-0">${escaparHTML(fecha)}</p>
+      </article>`;
+  }).join("");
 }
 
 function actualizarEstrellasSeleccionadas(raiz, valor) {
@@ -663,6 +700,7 @@ if (!curso) {
               <section id="valoracionesDocente" class="border rounded-3 p-3 my-3" aria-labelledby="tituloValoracionesDocente">
                 <h3 id="tituloValoracionesDocente" class="h6 mb-2">Valoración del docente</h3>
                 <p id="resumenValoracionesDocente" class="small mb-3" aria-live="polite">Cargando valoraciones…</p>
+                <div id="listaValoracionesDocente" aria-live="polite"></div>
                 <div id="accionValoracionDocente"></div>
               </section>
 
